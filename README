@@ -1,4 +1,8 @@
 This project is an small project inited to train myself 
 on C and some related program language. Design a 
 distributed filesystem and some related system structures.
++doc
+    The design of the sys and related infomation of the projectwill be list under doc directory
++src 
+    All the source code will be put under derectory src
 
