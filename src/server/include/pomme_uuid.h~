@@ -1,0 +1,23 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  uuid.h
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  11/08/2011 10:32:12 PM
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  drealdal (zhumeiqi), meiqizhu@gmail.com
+ *        Company:  Tsinghua University, HPC
+ *
+ * =====================================================================================
+ */
+#ifndef POMME_UUID_H
+#define POMME_UUID_H
+#include<stdio.h>
+#include<uuid/uuid.h>
+uuid_t get_uuid();
+#endif
