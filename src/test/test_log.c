@@ -23,6 +23,7 @@ int main()
 	char time[100];
 	pomme_time(time);
 	printf("%s\n",time);
+	start_log(POMME_LOG_MAX,NULL);
 	
 	return 0;
 }

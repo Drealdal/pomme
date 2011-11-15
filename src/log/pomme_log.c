@@ -94,12 +94,28 @@ int start_log(pomme_log_level_t level,char *filename)
 	{
 #ifdef DEBUG
 		printf("%s %d: filename is null\n",__FILE__,__LINE__);
-#endif 
-	}else{
+#endif 		
+		filename = "pomme_log";
 	}
+	struct tm * time_now = pomme_time_all();
+	char file[100];
+	snprintf(file,100,"%s/%s-%d-%d-%d-%d-%d-%d",dirname,filename,time_now->tm_year+1900,\
+			time_now->tm_mon,time_now->tm_mday,time_now->tm_hour,\
+			time_now->tm_min,time_now->tm_sec);
 	memset(&global_logger,0,sizeof(global_logger));
 	global_logger.log_level = level;
-	FILE * handle = fopen(filename,"a+");
+	FILE * handle = fopen(file,"a+");
+	if( NULL == handle )
+	{
+#ifdef DEBUG
+		printf("%s:%s open log file failure\n",__FILE__,__LINE__);
+#endif
+#ifndef IGNORE_LOG_FILE_ERROR
+		exit(-1);
+#else
+		global_logger.log_level = POMME_LOG_NULL; 
+#endif
+	}
+	global_logger.file_handle = handle;
 
-	
 }

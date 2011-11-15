@@ -20,4 +20,5 @@
 #define POMME_UTILS_H
 #include "utils.h"
 char *pomme_time(char *buf);
+struct tm *pomme_time_all();
 #endif
