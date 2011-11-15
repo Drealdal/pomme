@@ -20,5 +20,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<sys/time.h>
+#include<time.h>
+#include<string.h>
 #include "linklist.h"
+#include "pomme_utils.h"
+#include "pomme_log.h"
 #endif

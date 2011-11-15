@@ -16,8 +16,13 @@
  * =====================================================================================
  */
 #include "pomme_log.h"
+#include "utils.h"
 int main()
 {
 	POMME_LOG_WARNING("test_log");
+	char time[100];
+	pomme_time(time);
+	printf("%s\n",time);
+	
 	return 0;
 }

@@ -18,6 +18,7 @@
 #ifndef POMME_LOG_H
 #define POMME_LOG_H
 #include "utils.h"
+#define LOG_DIR_DEFAULT "./log/"
 
 #ifndef MAXLOGTRY
 #define MAXLOGTRY 3
@@ -38,10 +39,13 @@ typedef struct log {
 	struct list_head *log_message;	
 }log_t;
 typedef struct logger{
+	pomme_log_level_t log_level;// level < log_level will be logged
+        FILE *file_handle;	
 	struct list_head *inuse;
 	struct list_head *freeSlots;
 }logger_t;
 void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level);
+int start_log(pomme_log_level_t level, char *filename);
 
 #define POMME_LOG_ERROR(message) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_ERROR)
 #define POMME_LOG_WARNING(message) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_WARNING)
