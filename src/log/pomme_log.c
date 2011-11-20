@@ -16,12 +16,16 @@
  * =====================================================================================
  */
 #include "pomme_log.h"
+#include "pomme_queue.h"
+#include "pomme_list.h"
+#include "utils.h"
 
 static log_t * get_log_from_logger(struct logger *loger);
 static log_t * get_log(pomme_log_level_t level);
 
 int global_log_level = POMME_LOG_WARNING;
 struct logger global_logger;
+
 void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level)
 {
 	if(level > global_log_level)
@@ -117,5 +121,6 @@ int start_log(pomme_log_level_t level,char *filename)
 #endif
 	}
 	global_logger.file_handle = handle;
+	
 
 }
