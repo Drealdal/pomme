@@ -8,7 +8,7 @@ SERVER_DIR=./server
 TEST_DIR=./test
 INCLUDE_FLAG=-I$(INCLUDE_DIR)
 LIB_FLAG=
-CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall
+CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall -DDEBUG=1
 
 include $(SERVER_DIR)/Makefile
 include $(LOG_DIR)/Makefile
