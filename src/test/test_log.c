@@ -19,11 +19,12 @@
 #include "utils.h"
 int main()
 {
-	POMME_LOG_WARNING("test_log");
+	init_log();
 	char time[100];
 	pomme_time(time);
 	printf("%s\n",time);
-	start_log(POMME_LOG_MAX,NULL);
-	
+  	struct logger *	logger = create_logger(POMME_LOG_MAX,"test_logger");
+	POMME_LOG_WARNING("test_log",logger);
+
 	return 0;
 }

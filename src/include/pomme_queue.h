@@ -58,5 +58,6 @@ int init_queue(struct queue_head **queue,char *name,int maxLength);
 int destory_queue(struct queue_head *queue);
 int queue_push_back(struct queue_head *queue,struct queue_body *toadd);
 struct queue_body * queue_get_front(struct queue_head *queue); 
+int queue_cpy_del(struct queue_head *from , struct queue_head *to);
 
 #endif

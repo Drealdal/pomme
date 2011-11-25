@@ -1,4 +1,4 @@
-test_log_depends=$(addprefix $(OBJECT_DIR)/,pomme_log.o  pomme_utils.o)
+test_log_depends=$(addprefix $(OBJECT_DIR)/,pomme_log.o  pomme_utils.o pomme_queue.o)
 test_queue_depends=$(addprefix $(OBJECT_DIR)/, pomme_utils.o pomme_queue.o)
 
 all_test_depends=$(addprefix $(BIN_DIR)/,test_log test_queue)

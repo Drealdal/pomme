@@ -26,6 +26,8 @@
 #define MAXLOGTRY 3
 #endif
 
+#define MAX_LOG_LENGTH 1024
+
 typedef enum LOG_LEVEL{
 	POMME_LOG_NULL,
 	POMME_LOG_ERROR,
@@ -36,21 +38,29 @@ typedef enum LOG_LEVEL{
 }pomme_log_level_t;
 
 typedef struct log {
-	struct timeval log_time; 
-        char *message;
-	pomme_log_level_t log_type;
+	time_t log_time; 
+        char message[1024];
+	struct queue_body *next;
+	struct logger *logger;
 }log_t;
-typedef struct logger{
-	pomme_log_level_t log_level;// level < log_level will be logged
-        FILE *file_handle;	
-}logger_t;
-void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level);
-int start_log(pomme_log_level_t level, char *filename);
 
-#define POMME_LOG_ERROR(message) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_ERROR)
-#define POMME_LOG_WARNING(message) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_WARNING)
-#define POMME_LOG_INFO(message) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_INFO)
-#define POMME_LOG_DEBUG(message) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_DEBUG)
+typedef struct logger{
+	char *name;
+        FILE *file_handle;	
+	pomme_log_level_t log_level;// level < log_level will be logged
+	struct queue_body *next;//The logger should put into a queue ,to manage 
+}logger_t;
+void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level,struct logger *logger);
+/*
+ * register a logger
+ */
+struct logger * create_logger(pomme_log_level_t level, char *name);
+int init_log();
+
+#define POMME_LOG_ERROR(message,logger) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_ERROR,logger)
+#define POMME_LOG_WARNING(message,logger) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_WARNING,logger)
+#define POMME_LOG_INFO(message,logger) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_INFO,logger)
+#define POMME_LOG_DEBUG(message,logger) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_DEBUG,logger)
 
 
 #endif

@@ -19,63 +19,90 @@
 #include "pomme_queue.h"
 #include "pomme_list.h"
 #include "utils.h"
-
+int stop_log = 0;
 static log_t * get_log_from_logger(struct logger *loger);
-static log_t * get_log(pomme_log_level_t level);
+static log_t * get_log(pomme_log_level_t level,struct logger *logger);
+static int add_log(char *message,struct logger *logger);
+static void distory_logger(struct logger *logger);
 
 int global_log_level = POMME_LOG_WARNING;
-struct logger global_logger;
+pomme_queue_t loggers;
+pomme_queue_t log_buffer;
+pomme_queue_t free_slots;
 
-void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level)
+void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level,struct logger *logger)
 {
 	if(level > global_log_level)
 	{
 		return;
 	}
+	if( logger == NULL )
+	{
+		fprintf(stderr,"Null logger");
+		return;
+	}
+	char local_mem[1024];
+	char *prefix = NULL;
 	switch(level)
 	{
 		case POMME_LOG_ERROR:
+			prefix = "POMME_LOG_ERROR:\t";
 			break;
 		case POMME_LOG_WARNING:
+			prefix = "POMME_LOG_WARNING:\t";
 			break;
 		case POMME_LOG_INFO:
+			prefix = "POMME_LOG_INFO:\t";
 			break;
 		case POMME_LOG_DEBUG:
+			prefix = "POMME_LOG_DEBUG:\t";
 			break;
 		default:
-			return;
+			prefix = "POMME_LOG_NULL:\t";
+			break;
 	}
-	
+	snprintf(local_mem,1024,"%s %s %d %s",prefix,filename,line,message);
+	add_log(local_mem,logger);
+	return;
 }
-static int add_log(pomme_log_level_t level, char *message)
+static int add_log(char *message,struct logger *logger)
 {
+	if( logger == NULL)
+	{
+		fprintf(stderr,"POMME_LOG_ERROR:Malloc memeroy for message %s fail\n",message);
+		return;
+	}
 	log_t *tadd = NULL;
 	int tried = 0;
-	if(tadd == NULL)
+	while(tadd == NULL)
 	{
-		tadd=get_log(level);
-		tried++;
-		if(tried > MAXLOGTRY)
+		struct queue_body * body = queue_get_front(&free_slots);	
+		if(body !=NULL)
 		{
-			return -1;
+			tadd = queue_entry(body,struct log,next);
+			break;
+		}
+		tried++;
+		if(tried >= MAXLOGTRY)
+		{
+			break;
 		}	
 	}
-	gettimeofday(&tadd->log_time,NULL);
-	tadd->log_type = level;
-	tadd->message = message;
-}
-
-
-static log_t * get_log(pomme_log_level_t level)
-{	
-	get_log_from_logger(&global_logger);
-	switch (level) {
-		case POMME_LOG_ERROR:	
-			break;
-		default:	
-			break;
+	if( tadd == NULL )
+	{
+		tadd = malloc(sizeof(log_t));
 	}
-	return NULL;
+	if( tadd == NULL )
+	{
+		fprintf(stderr,"POMME_LOG_ERROR:Malloc memeroy for message %s fail\n",message);
+		return;
+	}
+	tadd->log_time = time(NULL);
+	strcpy(tadd->message , message);
+	tadd->logger = logger;
+
+	queue_push_back(&log_buffer,tadd->next);
+
 }
 /*-----------------------------------------------------------------------------
  * get a free log_t from logger struct
@@ -87,9 +114,14 @@ static log_t * get_log_from_logger(struct logger *loger)
 	//TODO 
 	return (log_t *)malloc(sizeof(log_t));
 }
-int start_log(pomme_log_level_t level,char *filename)
+struct logger *create_logger(pomme_log_level_t level,char *filename)
 {
-	char *dirname = getenv("LOG_DIR");
+	struct logger *global_logger = malloc(sizeof(struct logger));
+	if( global_logger == NULL)
+	{
+		return NULL;
+	}	
+	char *dirname = getenv("POMME_LOG_DIR");
 	if( dirname == NULL )
 	{
 		dirname = LOG_DIR_DEFAULT;
@@ -103,11 +135,13 @@ int start_log(pomme_log_level_t level,char *filename)
 	}
 	struct tm * time_now = pomme_time_all();
 	char file[100];
-	snprintf(file,100,"%s/%s-%d-%d-%d-%d-%d-%d",dirname,filename,time_now->tm_year+1900,\
-			time_now->tm_mon,time_now->tm_mday,time_now->tm_hour,\
-			time_now->tm_min,time_now->tm_sec);
-	memset(&global_logger,0,sizeof(global_logger));
-	global_logger.log_level = level;
+	snprintf(file,100,"%s/%s-%d-%d-%d",dirname,filename,time_now->tm_year+1900,\
+			time_now->tm_mon,time_now->tm_mday);
+
+	memset(global_logger,0,sizeof(struct logger));
+
+	global_logger->log_level = level;
+
 	FILE * handle = fopen(file,"a+");
 	if( NULL == handle )
 	{
@@ -117,10 +151,61 @@ int start_log(pomme_log_level_t level,char *filename)
 #ifndef IGNORE_LOG_FILE_ERROR
 		exit(-1);
 #else
-		global_logger.log_level = POMME_LOG_NULL; 
+		global_logger->log_level = POMME_LOG_NULL; 
 #endif
 	}
-	global_logger.file_handle = handle;
-	
+	global_logger->file_handle = handle;
+	global_logger->name = malloc(strlen(filename)+1);
+	if(global_logger->name == NULL)
+	{
+		fprintf(stderr,"Create logger fail\n");
+		free(global_logger);
+		return NULL;
+	}
+	memcpy(global_logger->name,filename,strlen(filename));
+	queue_push_back(&loggers,global_logger->next);
+	return global_logger;
+}
+static void distory_logger(struct logger *logger)
+{
+	if(logger == NULL) return;
+	fclose(logger->file_handle);
+	free(logger->name);
+	free(logger);
+}
 
+int init_log()
+{
+	struct queue_head * buffer = &log_buffer;
+	struct queue_head * logger = &loggers;
+	struct queue_head * slots = &free_slots;
+	init_queue(&buffer,"Log Buffer",1000000);
+	init_queue(&slots,"Free Log slots",1000000);
+	init_queue(&logger,"Loggers",100);
+
+
+}
+int write_Log()
+{
+	struct queue_head local_logs;  
+	struct queue_head *buffer = &log_buffer;
+	struct queue_head *local =  &local_logs;
+	int ret;
+	while( stop_log == 0 )
+	{
+		local_logs.head = QUEUE_HEAD_NULL;
+		local_logs.tail = QUEUE_TAIL_NULL;
+		while(is_empty_queue(buffer))
+		{
+			sleep(1000);
+		}
+		queue_cpy_del(&log_buffer,&local_logs);
+		struct queue_body * body = NULL;
+		do{
+			body = queue_get_front(local);
+			struct log * entry = queue_entry(body,struct log,next);
+			fprintf(entry->logger->file_handle,"%s %s\n",pomme_time(&entry->log_time),entry->message);
+		}while(!is_empty_queue(local));
+
+	}
 }
