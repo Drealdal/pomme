@@ -7,7 +7,7 @@ UTIL_DIR=./utils
 SERVER_DIR=./server
 TEST_DIR=./test
 INCLUDE_FLAG=-I$(INCLUDE_DIR)
-LIB_FLAG=
+LIB_FLAG=-lpthread
 CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall -DDEBUG=1
 
 include $(SERVER_DIR)/Makefile

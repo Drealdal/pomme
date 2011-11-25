@@ -38,9 +38,9 @@ typedef enum LOG_LEVEL{
 }pomme_log_level_t;
 
 typedef struct log {
-	time_t log_time; 
+	char log_time[24];
         char message[1024];
-	struct queue_body *next;
+	struct queue_body next;
 	struct logger *logger;
 }log_t;
 
@@ -48,7 +48,7 @@ typedef struct logger{
 	char *name;
         FILE *file_handle;	
 	pomme_log_level_t log_level;// level < log_level will be logged
-	struct queue_body *next;//The logger should put into a queue ,to manage 
+	struct queue_body next;//The logger should put into a queue ,to manage 
 }logger_t;
 void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level,struct logger *logger);
 /*

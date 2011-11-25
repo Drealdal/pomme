@@ -17,14 +17,32 @@
  */
 #include "pomme_log.h"
 #include "utils.h"
+extern int stop_log;
 int main()
 {
 	init_log();
 	char time[100];
-	pomme_time(time);
-	printf("%s\n",time);
   	struct logger *	logger = create_logger(POMME_LOG_MAX,"test_logger");
-	POMME_LOG_WARNING("test_log",logger);
-
+	struct logger * eror =  create_logger(POMME_LOG_MAX,"eror_logger");
+	int i = 0;
+	for(i = 0 ;i<1000;i++)
+	{
+		char message[100];
+		memset(message,0,sizeof(message));
+		sprintf(message,"%d",i);
+		POMME_LOG_WARNING(message,logger);
+		POMME_LOG_ERROR(message,eror);
+	}
+	for(i = 0;i<3;i++)
+	{
+		printf("%d\n",i);
+		sleep(1);
+	}
+	stop_log = 1;
+	while(stop_log == 1)
+	{
+		printf("%d\n",i++);
+		sleep(1);
+	}
 	return 0;
 }
