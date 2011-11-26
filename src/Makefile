@@ -23,3 +23,5 @@ all: $(all_depends)
 
 default:
 	echo $(INCLUDE_DIR)
+clean:
+	rm -f .object/*
