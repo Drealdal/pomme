@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  uuid.h
+ *       Filename:  test_fileSystem.c
  *
- *    Description:  
+ *    Description:  how to use the file system 
  *
  *        Version:  1.0
- *        Created:  11/08/2011 10:32:12 PM
+ *        Created:  11/26/2011 03:32:11 AM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,9 +15,14 @@
  *
  * =====================================================================================
  */
-#ifndef POMME_UUID_H
-#define POMME_UUID_H
 #include<stdio.h>
-#include<uuid/uuid.h>
-uuid_t get_uuid();
-#endif
+#include<stdlib.h>
+
+#define M 1024*1024
+#define	BLOCK_SIZE 4*M
+#define EXTEND_SIZE 1024*BLOCK_SIZE
+int main()
+{
+
+
+}
