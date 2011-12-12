@@ -67,20 +67,29 @@ int init_queue(struct queue_head **queue,char *name,int maxLength)
  */
 int destory_queue(struct queue_head *queue)
 {
-	if( is_empty_queue(queue) )
+	int ret = 0;
+	lock_queue(queue);
+	if( !is_empty_queue(queue) )
 	{
-		return -1;
+#ifndef DEBUG
+		printf("Trying to distory an non empty queue %s\n",queue->name);
+#endif
+		ret = -1;
+		goto d_end;
 	}
 	free(queue->name);
 	if( queue->need_free == 1 )
 	{
+		unlock_queue(queue);
 		free(queue);
 		return 0;
 	}
 	queue->tail = QUEUE_TAIL_NULL;
 	queue->head = QUEUE_HEAD_NULL;
 	queue->maxLength = 0;
-	return 0;
+d_end:
+	unlock_queue(queue);
+	return ret;
 
 }
 
