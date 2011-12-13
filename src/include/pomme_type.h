@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  file.c
+ *       Filename:  pomme_type.h
  *
- *    Description:  
+ *    Description: The type defination of pommes 
  *
  *        Version:  1.0
- *        Created:  11/02/2011 12:01:04 AM
+ *        Created:  12/12/2011 06:26:42 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,5 +15,12 @@
  *
  * =====================================================================================
  */
-#include"file.h"
+#ifndef POMME_TYPE_H
+#define POMME_TYPE_H
 
+typedef int int32;
+typedef unsigned int u_int32;
+typedef long long int64;
+typedef unsigned long long u_int64;
+
+#endif

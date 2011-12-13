@@ -12,3 +12,5 @@ $(OBJECT_DIR)/pomme_list.o: $(UTIL_DIR)/pomme_list.c $(INCLUDE_DIR)/pomme_list.h
 
 $(OBJECT_DIR)/pomme_queue.o: $(UTIL_DIR)/pomme_queue.c $(INCLUDE_DIR)/pomme_queue.h
 	$(CC) -c $(CFLAGS) $< -o $@ 
+clean: 
+	rm -rf *~

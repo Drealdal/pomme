@@ -23,4 +23,5 @@
 #include<time.h>
 #include<string.h>
 #include<pthread.h>
+#include"pomme_type.h"
 #endif

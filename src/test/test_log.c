@@ -33,11 +33,6 @@ int main()
 		POMME_LOG_WARNING(message,logger);
 		POMME_LOG_ERROR(message,eror);
 	}
-	for(i = 0;i<3;i++)
-	{
-		printf("%d\n",i);
-		sleep(1);
-	}
 	stop_log = 1;
 	while(stop_log == 1)
 	{

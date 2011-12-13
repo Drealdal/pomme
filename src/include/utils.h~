@@ -23,7 +23,4 @@
 #include<time.h>
 #include<string.h>
 #include<pthread.h>
-#include "linklist.h"
-#include "pomme_utils.h"
-#include "pomme_log.h"
 #endif
