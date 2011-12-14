@@ -18,7 +18,7 @@
 #ifndef POMME_QUEUE_H
 #define POMME_QUEUE_H
 #include "utils.h"
-#include "pomme_list.h"
+#include "pomme_blist.h"
 
 #define QUEUE_HEAD_NULL ((void *)0x00100100)
 #define QUEUE_TAIL_NULL ((void *)0x00100200)

@@ -24,4 +24,6 @@
 #include<string.h>
 #include<pthread.h>
 #include"pomme_type.h"
+#include"pomme_blist.h"
+#include"pomme_queue.h"
 #endif

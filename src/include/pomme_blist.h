@@ -19,9 +19,9 @@
 #define POMME_LIST_H
 #define LIST_POSITION_1 ((void *) 0x00100100)
 #define LIST_POSITION_2 ((void *) 0x00200200)
-struct link_head{
+typedef struct link_head{
 	struct link_head *prev,*next;
-}
+}pomme_link_t;
 inline link_add(struct link_head *new, struct link_head *head);
 inline void link_del(struct link_head *entry);
 #define offset_of(TYPE,MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
@@ -33,4 +33,6 @@ inline void link_del(struct link_head *entry);
 #define list_for_each_entry(pos, head,member) for ( pos = list_entry((head)->next, typeof(*pos), member);\
 		&pos->member!=(head);\
 		pos = list_entry(pos->member.next,typeof(*pos),member))
+
+inline void init_link(pomme_link_t *head);
 #endif

@@ -18,7 +18,7 @@
 #ifndef POMME_META_H
 #define POMME_META_H
 
-#define MAX_STORE_FILE_NAME 
+#define MAX_STORE_FILE_NAME_LENGTH 256
 
 typedef struct pomme_object
 {
@@ -26,7 +26,11 @@ typedef struct pomme_object
 	u_int64 offset;// the offset of the object in the file
 	u_int64 length;// the dataLength of the object
 	time_t time;// the create time of the object on this server
-	u_int16 version;//reservd
+	u_int16 version;//reserved
 }pomme_object_t;
+typedef struct pomme_local_file
+{
+	int8 path[MAX_STORE_FILE_NAME_LENGTH];
+}pomme_local_file_t;
 
 #endif

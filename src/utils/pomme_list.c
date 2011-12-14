@@ -15,7 +15,7 @@
  *
  * =====================================================================================
  */
-#include "pomme_list.h"
+#include "pomme_blist.h"
 static inline __link_add(struct link_head *new, struct link_head *prev,struct link_head *next)
 {
 	prev->next = new;
@@ -37,4 +37,13 @@ inline link_del(struct link_head *entry)
 	__link_del(entry->prev, entry->next);
 	entry->prev = LIST_POSITION_1;
 	entry->next = LIST_POSITION_2;
+}
+inline void init_link(pomme_link_t *head)
+{
+	if( head == NULL)
+	{
+		return;
+	}
+	head->prev = LIST_POSITION_1;
+	head->next = LIST_POSITION_2;
 }

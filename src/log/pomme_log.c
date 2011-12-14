@@ -16,8 +16,6 @@
  * =====================================================================================
  */
 #include "pomme_log.h"
-#include "pomme_queue.h"
-#include "pomme_list.h"
 #include "utils.h"
 int stop_log = 0;
 static log_t * get_log_from_logger(struct logger *loger);

@@ -18,8 +18,6 @@
 #ifndef POMME_LOG_H
 #define POMME_LOG_H
 #include "utils.h"
-#include "pomme_queue.h"
-#include "pomme_list.h"
 #define LOG_DIR_DEFAULT "./log/"
 
 #ifndef MAXLOGTRY

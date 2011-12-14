@@ -18,8 +18,15 @@
 #ifndef POMME_TYPE_H
 #define POMME_TYPE_H
 
+typedef unsigned char u_int8;
+typedef char int8;
+
+typedef unsigned short u_int16;
+typedef short int16;
+
 typedef int int32;
 typedef unsigned int u_int32;
+
 typedef long long int64;
 typedef unsigned long long u_int64;
 
