@@ -27,7 +27,7 @@
 #include "pomme_blist.h"
 #include "pomme_error.h"
 
-typedef pomme_hash_node
+typedef struct pomme_hash_node
 {
 	u_int32 key_len;
 	u_int32 value_len;
@@ -36,7 +36,7 @@ typedef pomme_hash_node
 	pomme_link_t link;
 }pomme_hash_node_t;
 
-typedef pomme_hash
+typedef struct pomme_hash
 {
 	u_int32 size;// the init size of hash table
 	u_int32 flags;//
@@ -45,7 +45,7 @@ typedef pomme_hash
 	int (*cmp_func)(void *key1,void *key2);
 }pomme_hash_t;
 
-typedef pomme_data{
+typedef struct pomme_data{
 	u_int32 size;
 	u_int32 flags;//the operation for the flag, BDB likely interface 
 	void *data;
@@ -67,7 +67,7 @@ int pomme_hash_distroy(pomme_hash_t **hash);
  * add a key/data pair into the hashTable
  */
 int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data);
-int pomme_hash_put(pomme_hash_t *hash, void *key, uint32 key_len, void *value, uint32 value_len);
+//int pomme_hash_put_value(pomme_hash_t *hash, void *key, u_int32 key_len, void *value, u_int32 value_len);
 /*
  * get the data of key from hash table
  * the application will repsonse for the mem for data

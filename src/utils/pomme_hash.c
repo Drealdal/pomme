@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "utils.h"
+#include "pomme_hash.h"
 static inline int init_hash_node(pomme_hash_node_t **node); 
 static inline int distroy_hash_node(pomme_hash_node_t **node);
 
@@ -41,7 +42,7 @@ int pomme_hash_init(int size,int(*h_func)(void *),int(*c_func)(void *,void *) ,p
 	p_hash->size = size;
 	p_hash->hash_func = h_func;
 	p_hash->cmp_func = c_func;
-	p_hash->talbe = malloc(size*sizeof(pomme_link_t *));
+	p_hash->table = malloc(size*sizeof(pomme_link_t *));
 	if(p_hash->table == NULL)
 	{
 		goto error_exit;
@@ -53,7 +54,6 @@ error_exit:
 		free(p_hash);
 	}
 	return -1;
-regular_exit:
 	return 0;
 }
 
@@ -65,11 +65,15 @@ int pomme_hash_distroy(pomme_hash_t **hash)
 {
 	if( *hash == NULL)
 	{
-		return;
+#ifdef DEBUG
+		printf("Trying Distroy an Null hash table\n");
+#endif
+
+		return 0;
 	}
 	pomme_hash_t *p_hash = *hash;
-	uint32 flags = p_hash->flags;
-	uint32 size = p_hash->size;
+	u_int32 flags = p_hash->flags;
+	u_int32 size = p_hash->size;
 	pomme_link_t **table = p_hash->table;
 
 	uint i = 0;
@@ -121,7 +125,7 @@ static inline int distroy_hash_node(pomme_hash_node_t **node)
 	{
 		return 0;
 	}
-	free((*node)->data);
+	free((*node)->value);
 	free((*node)->key);
 	free(*node);
 	return 0;
@@ -132,9 +136,9 @@ static inline int distroy_hash_node(pomme_hash_node_t **node)
  *-----------------------------------------------------------------------------*/
 int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 {
-	uint32 find = 0;
-	uint32 pos = (*hash->hash_func)(key->data);
-	pomme_link_t *p_link = hash->talbe[pos];
+	u_int32 find = 0;
+	u_int32 pos = (*hash->hash_func)(key->data)%(hash->size);
+	pomme_link_t *p_link = hash->table[pos];
 	if(p_link !=NULL )
 	{
 		pomme_hash_node_t *pos = NULL;
@@ -166,7 +170,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 					 * memory size ,so we realloc the mem,we need handle the 
 					 * */
 					free(pos->value);
-					pos->value = malloc(pos->size);
+					pos->value = malloc(data->size);
 					if(pos->value == NULL)
 					{
 #ifdef DEBUG
@@ -206,10 +210,11 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 		link_add(&node->link,p_link);
 	}
 	return 0;
+
 malloc_data_error:
 	free(node->key);
 malloc_key_error:
-	free(node->data);
+	free(node->value);
 	free(node);
 malloc_node_error:
 	return -1;
@@ -221,10 +226,60 @@ malloc_node_error:
 /*-----------------------------------------------------------------------------
  *  delete an item from the hash table
  *-----------------------------------------------------------------------------*/
-int pomme_hash_get(pomme_hash_t *hash, pomme_data *key, pomme_data_t *data)
+int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 {
 	/*
 	 * The value will be copy into data->data,and if data->data is null and
-	 * The need free is 
+	 * the POMME_DATA_NEED_FREE is not set,we will copy the data into the public
+	 * buffer given in hash_t that means ,it is not safe if serveral thread are
+	 * access the hash table.Or after serveral get method call,all the data->data
+	 * will point to the same buffer 
 	 */
+	if( hash == NULL )
+	{
+#ifdef DEBUG
+		printf("Get from an null hash table@%s %s %d\n",__FILE__,__func__,__LINE__);
+#endif
+		return -1;
+	}
+	if( key == NULL || data == NULL )
+	{
+#ifdef DEBUG
+		printf("Arg is wrong: %s\n",key?"key Null":"value Null");
+#endif
+		return -1;
+	}
+	u_int32 p = (*hash->hash_func)(key->data)%hash->size;
+	pomme_link_t *p_link = hash->table[p];
+	if(p_link == NULL)
+	{
+		/* not found ,the size is set to 0, return value is success */
+		data->size = 0;
+		return 0;
+	}
+	pomme_hash_node_t *pos = NULL;
+	list_for_each_entry(pos,p_link,link)
+	{
+		if( (pos->key_len == key->size) &&
+				( 0 == hash->cmp_func(key->data,pos->key)))
+		{
+			if( data->size < pos->value_len )
+			{
+				/*
+				 * the length of the value is bigger than expected,
+				 * copy the data into the mem but return value is
+				 * set to -1 to indicate any error
+				 */
+				memcpy(data->data,pos->value,data->size);
+				return -1;
+			}else{
+				memcpy(data->data,pos->value,pos->value_len);
+				return 0;
+			}
+		}
+
+	}
+	/* not found ,the size is set to 0, return value is success */
+	data->size = 0;
+	return 0;
 }
