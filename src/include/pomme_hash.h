@@ -23,7 +23,7 @@
  */
 #define POMME_HASH_NEED_FREE 1   //The hash_t is alloc by the sys
 #define POMME_DATA_NEED_FREE 1  // The pomme_data_t->data is alloc by the system, need free
-
+#include "pomme_type.h"
 #include "pomme_blist.h"
 #include "pomme_error.h"
 
@@ -40,7 +40,7 @@ typedef struct pomme_hash
 {
 	u_int32 size;// the init size of hash table
 	u_int32 flags;//
-	pomme_link_t **table;//where the data goes
+	pomme_link_t *table;//where the data goes
 	int (* hash_func)(void *data);
 	int (*cmp_func)(void *key1,void *key2);
 }pomme_hash_t;

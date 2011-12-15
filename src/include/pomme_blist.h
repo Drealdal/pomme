@@ -31,8 +31,12 @@ inline void link_del(struct link_head *entry);
 #define list_entry(ptr, type, member) container_of(ptr, type, member)
 
 #define list_for_each_entry(pos, head,member) for ( pos = list_entry((head)->next, typeof(*pos), member);\
-		&pos->member!=(head);\
+		&(pos->member)!=(head);\
 		pos = list_entry(pos->member.next,typeof(*pos),member))
+#define INIT_LINK(head,TYPE,MEMBER) ({\
+		head->prev = (void *)offset_of(TYPE,MEMBER);\
+		head->next = (void *)offset_of(TYPE,MEMBER);\
+		})
 
 inline void init_link(pomme_link_t *head);
 #endif
