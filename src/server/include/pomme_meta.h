@@ -30,6 +30,7 @@ typedef struct pomme_object
 }pomme_object_t;
 typedef struct pomme_local_file
 {
+	u_int64 id;
 	int8 path[MAX_STORE_FILE_NAME_LENGTH];
 }pomme_local_file_t;
 

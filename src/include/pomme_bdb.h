@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  file.h
+ *       Filename:  pomme_bdb.h
  *
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  11/01/2011 11:53:34 PM
+ *        Created:  12/17/2011 12:06:07 AM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,8 +15,7 @@
  *
  * =====================================================================================
  */
-#ifndef POMME_FILE_H
-#define POMME_FILE_H
-int create(char *name,int maxLength,void *data);
+#ifndef POMME_BDB_H
+#define POMME_BDB_H
+#include "bdb.h"
 #endif
-

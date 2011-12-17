@@ -41,7 +41,7 @@ typedef struct pomme_hash
 	u_int32 size;// the init size of hash table
 	u_int32 flags;//
 	pomme_link_t *table;//where the data goes
-	int (* hash_func)(void *data);
+	int (* hash_func)(void *data,u_int32);
 	int (*cmp_func)(void *key1,void *key2);
 }pomme_hash_t;
 
@@ -56,7 +56,7 @@ typedef struct pomme_data{
  * h_func: the hash_function used by this hashtable
  * c_func: the cmpare function used by this hash table
  */
-int pomme_hash_init(int size, int(*h_func)(void *),int(*c_func)(void *,void *),pomme_hash_t **hash);
+int pomme_hash_init(int size, int(*h_func)(void *,u_int32),int(*c_func)(void *,void *),pomme_hash_t **hash);
 
 /*-----------------------------------------------------------------------------
  *  distory a hash structure will free all the data in the hash table,includeing
@@ -67,10 +67,28 @@ int pomme_hash_distroy(pomme_hash_t **hash);
  * add a key/data pair into the hashTable
  */
 int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data);
-//int pomme_hash_put_value(pomme_hash_t *hash, void *key, u_int32 key_len, void *value, u_int32 value_len);
+int pomme_hash_put_2(pomme_hash_t *hash, void *key, u_int32 key_len, void *value, u_int32 value_len);
 /*
  * get the data of key from hash table
  * the application will repsonse for the mem for data
  */
 int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data);
+
+/*-----------------------------------------------------------------------------
+ *  hash a data of length into int
+ *-----------------------------------------------------------------------------*/
+int str_hash(void *str,u_int32 str_len);
+
+/*-----------------------------------------------------------------------------
+ *  cmp to void * data , they are cmpared BYTE WISE
+ *-----------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------------
+ *  init an pomme_data_t with an memory of length size,if this data is used when
+ *  calling the put operation,the memory will be managed by the system,otherwise
+ *  the application should do it.
+ *  @param: size ,the size of memory needed
+ *  @return , if NULL error happens
+ *-----------------------------------------------------------------------------*/
+int pomme_data_init(pomme_data_t *data,u_int32 size);
 #endif

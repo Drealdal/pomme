@@ -17,10 +17,66 @@
  */
 #include "utils.h"
 #include "pomme_hash.h"
+#include <assert.h>
 static inline int init_hash_node(pomme_hash_node_t **node); 
 static inline int distroy_hash_node(pomme_hash_node_t **node);
 
-int pomme_hash_init(int size,int(*h_func)(void *),int(*c_func)(void *,void *) ,pomme_hash_t **hash)
+/*-----------------------------------------------------------------------------
+ *  init pomme_data_t
+ *-----------------------------------------------------------------------------*/
+int pomme_data_init(pomme_data_t *data, u_int32 size)
+{
+	if( data == NULL )
+	{
+#ifdef DEBUG
+		fprintf(stderr,"Trying to do an init operation on an Null pointer@%s %s %n\n",__FILE__,__func__,__LINE__);
+#endif
+		return -1;
+	}
+	if(data->data != NULL && (data->flags & POMME_DATA_NEED_FREE) != 0 )
+	{
+		if(data->size >= size)
+		{
+			memset(data->data,0,data->size);
+			data->size = size;
+			return 0;
+		}else{
+			free(data->data);
+		}
+	}
+	data->size = size;
+	data->data = malloc(size);
+	if(data->data == NULL)
+	{
+#ifdef DEBUG
+		fprintf(stderr,"Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
+#endif
+	}
+	memset(data->data,0,size);
+	data->flags |= POMME_DATA_NEED_FREE; 
+	return 0;
+}
+
+/*-----------------------------------------------------------------------------
+ *  distroy a pomme_data_t
+ *-----------------------------------------------------------------------------*/
+int pomme_data_distroy(pomme_data_t *data)
+{
+	if(data == NULL)
+	{
+#ifdef DEBUG
+		fprintf(stderr,"Trying to Distroy an Null Pointer@%s %s %d\n",__FILE__,__func__,__LINE__);
+#endif
+		return 0;
+	}
+	if( (data->flags & POMME_DATA_NEED_FREE) != 0 && data->data != NULL)
+	{
+		free(data->data);
+	}
+	return 0;
+}
+
+int pomme_hash_init(int size,int(*h_func)(void *,u_int32),int(*c_func)(void *,void *) ,pomme_hash_t **hash)
 {
 	u_int32 flags = 0;
 	int i = 0;
@@ -46,7 +102,7 @@ int pomme_hash_init(int size,int(*h_func)(void *),int(*c_func)(void *,void *) ,p
 	if(p_hash->table == NULL)
 	{
 #ifdef DEBUG
-			printf("Malloc error %s %s %d\n",__FILE__,__func__,__LINE__);
+		printf("Malloc error %s %s %d\n",__FILE__,__func__,__LINE__);
 #endif
 		goto error_exit;
 	}
@@ -141,7 +197,7 @@ static inline int distroy_hash_node(pomme_hash_node_t **node)
 int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 {
 	u_int32 find = 0;
-	u_int32 ipos = (*hash->hash_func)(key->data)%(hash->size);
+	u_int32 ipos = (*hash->hash_func)(key->data,key->size)%(hash->size);
 	pomme_link_t *p_link = &hash->table[ipos];
 	pomme_hash_node_t *pos = NULL;
 	list_for_each_entry(pos,p_link,link)
@@ -159,10 +215,12 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 				/* the memory of the data is malloc by the sys,so we use is 
 				 * directly, and free the origin data
 				 **/
-				free(pos->value);
 				pos->value = data->data;
-				data->data = NULL;
-				data->flags &=~POMME_DATA_NEED_FREE;
+				data->data = pos->value;
+				int t = pos->value_len;
+				pos->value_len = data->size;
+				data->size = t;
+
 			}else if(data->size <= pos->value_len)
 			{
 				/*The origin mem is bigger than the mem is needed,
@@ -185,14 +243,15 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 					return -1;
 				}
 				memcpy(pos->value,data->data,data->size);
+				pos->value_len = data->size;
 			}
 			return 0;
 		}
 		if(pos->link.next == LIST_POSITION_2)
 		{
 			break;
-			}
 		}
+	}
 	pomme_hash_node_t *node = malloc(sizeof(pomme_hash_node_t));
 	if(node == NULL)
 	{
@@ -213,6 +272,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 #endif
 		goto malloc_key_error;
 	}
+	memcpy(node->key,key->data,key->size);
 	node->value_len = data->size;
 	node->value = malloc(data->size);
 	if( node->value == NULL )
@@ -222,7 +282,8 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 #endif
 		goto malloc_data_error;
 	}
-		link_add(&node->link,p_link);
+	memcpy(node->value,data->data,data->size);
+	link_add(&node->link,p_link);
 	return 0;
 
 
@@ -264,7 +325,7 @@ int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 #endif
 		return -1;
 	}
-	u_int32 p = (*hash->hash_func)(key->data)%hash->size;
+	u_int32 p = (*hash->hash_func)(key->data,key->size)%hash->size;
 	pomme_link_t *p_link = &hash->table[p];
 	if(p_link == NULL)
 	{
@@ -278,6 +339,7 @@ int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 		if( (pos->key_len == key->size) &&
 				( 0 == hash->cmp_func(key->data,pos->key)))
 		{
+			printf("find\n");
 			if( data->size < pos->value_len )
 			{
 				/*
@@ -301,4 +363,42 @@ int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	/* not found ,the size is set to 0, return value is success */
 	data->size = 0;
 	return 0;
+}
+
+/*-----------------------------------------------------------------------------
+ *  put int to hash table using the values ,not use pomme_data_t
+ *  @param: key  the data of the key
+ *  @param: key_len the length of the key
+ *  @param: value the data of the value
+ *  @param: value_len the length of the value data
+ *-----------------------------------------------------------------------------*/
+int pomme_hash_put_2(pomme_hash_t *hash, void *key, u_int32 key_len, void *value, u_int32 value_len)
+{
+	pomme_data_t _key,_data;
+	memset(&_key,0,sizeof(pomme_data_t));
+	memset(&_data,0,sizeof(pomme_data_t));
+	_key.size = key_len;
+	_key.data = key;
+	_data.size = value_len;
+	_data.data = value;
+	return pomme_hash_put(hash,&_key,&_data);
+}
+
+/*-----------------------------------------------------------------------------
+ *  str hash,we tread the data of void * to be str
+ *  @param : str the pionter to the data
+ *  @param : str_len , the length of the data  int BYTE
+ *-----------------------------------------------------------------------------*/
+int str_hash(void *str,u_int32 str_len)
+{
+	if(str==NULL)return 0;
+	char *data = str;
+	u_int32 a = 378551;
+	u_int32 b = 63689;	
+	u_int32 hash, i = 0;
+	for( i = 0 ; i < str_len; i++)
+	{
+		hash ^= hash*a + data[i];	
+	}	
+	u_int32 ret = (hash & 0x7fffffff);
 }
