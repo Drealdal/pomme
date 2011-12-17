@@ -18,6 +18,7 @@ include $(TEST_DIR)/Makefile
 all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils)
 
 all: $(all_depends)
+	mkdir -p .object
 	echo $(all_depends)
 	rm $^
 	touch all
