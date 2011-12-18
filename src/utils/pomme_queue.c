@@ -50,7 +50,9 @@ int init_queue(struct queue_head **queue,char *name,int maxLength)
 	memcpy(q_addr->name,name,nLen);
 	if( pthread_mutex_init(&q_addr->mutex,NULL) != 0 )
 	{
-		printf("%s %d: Queue %s init Mutex Error \n",__FILE__,__LINE__,name);
+#ifdef DEBUG
+		fprintf(stderr,"%s %d: Queue %s init Mutex Error \n",__FILE__,__LINE__,name);
+#endif
 		return -1;
 	}
 	q_addr->curLength = 0;
@@ -89,6 +91,7 @@ int destory_queue(struct queue_head *queue)
 	queue->maxLength = 0;
 d_end:
 	unlock_queue(queue);
+	pthread_mutex_distroy(&queue->mutex);
 	return ret;
 
 }
