@@ -22,7 +22,7 @@ static log_t * get_log_from_logger(struct logger *loger);
 static log_t * get_log(pomme_log_level_t level,struct logger *logger);
 static int add_log(char *message,struct logger *logger);
 static void distory_logger(struct logger *logger);
-static int write_log();
+static void* write_log(void *);
 
 int global_log_level = POMME_LOG_WARNING;
 pomme_queue_t loggers;
@@ -98,7 +98,7 @@ static int add_log(char *message,struct logger *logger)
 		fprintf(stderr,"POMME_LOG_ERROR:Malloc memeroy for message %s fail\n",message);
 		return;
 	}
-	struct tm *time_now = pomme_time_all(); 
+	struct tm *time_now = (struct tm*)pomme_time_all(); 
 	sprintf(tadd->log_time,"%d-%d-%d %d:%d:%d ",time_now->tm_year+1900,\
 					time_now->tm_mon,\
 					time_now->tm_mday,\
@@ -142,7 +142,7 @@ struct logger *create_logger(pomme_log_level_t level,char *filename)
 #endif 		
 		filename = "pomme_log";
 	}
-	struct tm * time_now = pomme_time_all();
+	struct tm * time_now = (struct tm*)pomme_time_all();
 	char file[100];
 	snprintf(file,100,"%s/%s-%d-%d-%d",dirname,filename,time_now->tm_year+1900,\
 			time_now->tm_mon,time_now->tm_mday);
@@ -195,9 +195,9 @@ int init_log()
 	init_queue(&buffer,"Log Buffer",1000000);
 	init_queue(&slots,"Free Log slots",1000000);
 	init_queue(&logger,"Loggers",100);
-	int err = pthread_create(&log_thread, NULL,write_log,NULL);
+	int err = pthread_create(&log_thread, NULL,&write_log,NULL);
 }
-static int write_log()
+static void* write_log(void * argc)
 {
 	struct queue_head local_logs;  
 	struct queue_head *buffer = &log_buffer;
@@ -225,7 +225,6 @@ static int write_log()
 
 	//snprintf(file,100,"%s/%s-%d-%d-%d",dirname,filename,time_now->tm_year+1900,\
 			time_now->tm_mon,time_now->tm_mday);
-			struct tm *time_now = entry->log_time;
 			fprintf(entry->logger->file_handle,"%s %s\n",entry->log_time,entry->message);
 
 			body->next  = QUEUE_TAIL_NULL;

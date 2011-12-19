@@ -29,7 +29,7 @@ int pomme_data_init(pomme_data_t *data, u_int32 size)
 	if( data == NULL )
 	{
 #ifdef DEBUG
-		fprintf(stderr,"Trying to do an init operation on an Null pointer@%s %s %n\n",__FILE__,__func__,__LINE__);
+		fprintf(stderr,"Trying to do an init operation on an Null pointer@%s %s %d\n",__FILE__,__func__,__LINE__);
 #endif
 		return -1;
 	}
@@ -196,7 +196,6 @@ static inline int distroy_hash_node(pomme_hash_node_t **node)
  *-----------------------------------------------------------------------------*/
 int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 {
-	u_int32 find = 0;
 	u_int32 ipos = (*hash->hash_func)(key->data,key->size)%(hash->size);
 	pomme_link_t *p_link = &hash->table[ipos];
 	pomme_hash_node_t *pos = NULL;
@@ -256,7 +255,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	if(node == NULL)
 	{
 #ifdef DEBUG
-		printf("Malloc Error@%s %s %d\n");
+		printf("Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
 #endif
 		goto malloc_node_error;
 	}
@@ -268,7 +267,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	if( node->key == NULL)
 	{
 #ifdef DEBUG
-		printf("Malloc Error@%s %s %d\n");
+		printf("Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
 #endif
 		goto malloc_key_error;
 	}
@@ -278,7 +277,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	if( node->value == NULL )
 	{
 #ifdef DEBUG
-		printf("Malloc Error@%s %s %d\n");
+		printf("Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
 #endif
 		goto malloc_data_error;
 	}
@@ -399,6 +398,8 @@ int str_hash(void *str,u_int32 str_len)
 	for( i = 0 ; i < str_len; i++)
 	{
 		hash ^= hash*a + data[i];	
+		a*=b;
 	}	
 	u_int32 ret = (hash & 0x7fffffff);
+	return ret;
 }

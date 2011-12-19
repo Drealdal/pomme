@@ -91,4 +91,9 @@ int str_hash(void *str,u_int32 str_len);
  *  @return , if NULL error happens
  *-----------------------------------------------------------------------------*/
 int pomme_data_init(pomme_data_t *data,u_int32 size);
+
+/*-----------------------------------------------------------------------------
+ *  distory an pomme_data_t structure,manage the Memory allocated by sys
+ *-----------------------------------------------------------------------------*/
+int pomme_data_distroy(pomme_data_t *data);
 #endif

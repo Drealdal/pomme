@@ -21,7 +21,6 @@ extern int stop_log;
 int main()
 {
 	init_log();
-	char time[100];
   	struct logger *	logger = create_logger(POMME_LOG_MAX,"test_logger");
 	struct logger * eror =  create_logger(POMME_LOG_MAX,"eror_logger");
 	int i = 0;

@@ -59,6 +59,7 @@ int pomme_buffer_init(pomme_buffer_t **buffer,int32 size)
 
 	}
 	p_buffer->flags = flags;
+	return 0;
 buffer_error:
 	if( (flags&POMME_BUFFER_NEED_FREE) != 0 )
 	{
@@ -81,12 +82,10 @@ int pomme_buffer_distroy(pomme_buffer_t **buffer)
 #endif
 		return 0;
 	}
-	int ret = 0;
 	pomme_buffer_t * p_buffer = *buffer;
 	lock_buffer(p_buffer);
 	free(p_buffer->buffer);
 	unlock_buffer(p_buffer);
-	pthread_mutex_destroy(&p_buffer->buffer);
 	if( (p_buffer->flags & POMME_BUFFER_NEED_FREE) != 0 )
 	{
 		free(p_buffer);
@@ -100,6 +99,7 @@ int pomme_buffer_distroy(pomme_buffer_t **buffer)
  *-----------------------------------------------------------------------------*/
 int32 pomme_buffer_next(pomme_buffer_t *buffer)
 {
+	int ret = 0;
 	if( buffer == NULL )
 	{
 #ifdef DEBUG
@@ -117,27 +117,39 @@ int32 pomme_buffer_next(pomme_buffer_t *buffer)
 		int32 tm = size - end;
 		if( tm >= buffer->chunk_size )
 		{
-			return end;
+			ret = end;
+			goto out;
 		
 		}
 		if( begin >= buffer->chunk_size )
 		{
 			buffer->end = 0;
-			return 0;
+			ret = 0;
+#ifdef 	DEBUG
+//			fprintf(stderr,"Not enough at the end , rewind to the beginning\n");
+#endif
+			goto out;
 		}
                /* This means there are no available buffer */
-		return NO_AVAILABLE_BUFFER;
+#ifdef DEBUG
+		fprintf(stderr,"Not enough mem\n");
+#endif
+		ret = NO_AVAILABLE_BUFFER;
 	}else{
 		int32 tm = begin - end;
 		if( tm >= buffer->chunk_size )
 		{
-			return end;
+			ret = end;
 		}else{
-			return NO_AVAILABLE_BUFFER;
+			ret = NO_AVAILABLE_BUFFER;
+#ifdef DEBUG
+		fprintf(stderr,"Not enough mem\n");
+#endif
 		}
-
 	}
+out:
 	unlock_buffer(buffer);
+	return ret;
 }
 
 /*-----------------------------------------------------------------------------

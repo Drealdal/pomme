@@ -17,7 +17,7 @@
  */
 #include "pomme_queue.h"
 #include "utils.h"
-#define DEBUG 0
+
 typedef struct test_queue_body
 {
 	int num;
@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
 		queue_push_back(my_queue,&tm->queue);
 	}
 	struct queue_body *tmp = NULL;
-	struct test_queue_body a ;
 	for( i = 0 ; i < 20 ; i++)
 	{
 		tmp = queue_get_front(my_queue);	

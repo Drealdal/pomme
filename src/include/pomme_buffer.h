@@ -29,7 +29,6 @@
 #define NULL_POINTER_ERROR -1
 #define NO_AVAILABLE_BUFFER -2
 
-#define offset_of(buffer,pointer) ((char *)pointer - (char *)buffer->buffer)
 typedef struct pomme_buffer
 {
 	int32 begin;
@@ -51,7 +50,7 @@ int32 pomme_buffer_next(pomme_buffer_t *buffer);
 /*-----------------------------------------------------------------------------
  *  claim data to be usable
  *-----------------------------------------------------------------------------*/
-int pomme_buffer_release(pomme_buffer_t *buffer,int32 offset);
+int pomme_buffer_release(pomme_buffer_t *buffer,int32 begin,int32 offset);
 
 /*-----------------------------------------------------------------------------
  *  init an pomme_buffer

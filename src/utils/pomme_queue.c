@@ -91,7 +91,6 @@ int destory_queue(struct queue_head *queue)
 	queue->maxLength = 0;
 d_end:
 	unlock_queue(queue);
-	pthread_mutex_distroy(&queue->mutex);
 	return ret;
 
 }
@@ -108,6 +107,7 @@ static int __add_queue(struct queue_head *queue,struct queue_body *toadd)
 		ret = -1;
 		goto unl;
 	}
+	toadd->next = QUEUE_TAIL_NULL;
 	if( is_tail_null(queue) )
 	{
 		queue->tail = toadd;
@@ -116,7 +116,6 @@ static int __add_queue(struct queue_head *queue,struct queue_body *toadd)
 		ret = 0;
 		goto unl;
 	}
-
 	queue->tail->next = toadd;
 	queue->tail = toadd;
 	queue->curLength++;
@@ -138,6 +137,11 @@ static struct queue_body * __del_queue(struct queue_head *queue)
 	}
 	re = queue->head;
 
+	if( queue->head == NULL )
+	{
+		printf("%d\n",queue->curLength);
+		printf("Shit!\n");
+	}
 	queue->head = queue->head->next;
 	if(queue->head == QUEUE_TAIL_NULL)
 	{
@@ -169,4 +173,5 @@ int queue_cpy_del(struct queue_head *from, struct queue_head *to)
 	from->curLength = 0;
 	unlock_queue(to);
 	unlock_queue(from);
+	return 0;
 }

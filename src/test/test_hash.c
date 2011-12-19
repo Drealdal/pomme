@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include<stdio.h>
+#include<stdlib.h>
 #include<string.h>
 #include"pomme_hash.h"
 static int hash_f(void *,u_int32);
