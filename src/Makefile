@@ -16,11 +16,11 @@ include $(LOG_DIR)/Makefile
 include $(UTIL_DIR)/Makefile
 include $(TEST_DIR)/Makefile
 all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils)
+.PHONY: all $(all_depends)
 
 all: $(all_depends)
 	mkdir -p .object
 	rm $^
-	touch all
 
 default:
 	echo $(INCLUDE_DIR)

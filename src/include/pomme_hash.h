@@ -22,7 +22,6 @@
  *
  */
 #define POMME_HASH_NEED_FREE 1   //The hash_t is alloc by the sys
-#define POMME_DATA_NEED_FREE 1  // The pomme_data_t->data is alloc by the system, need free
 #include "pomme_type.h"
 #include "pomme_blist.h"
 #include "pomme_error.h"
@@ -45,11 +44,6 @@ typedef struct pomme_hash
 	int (*cmp_func)(void *key1,void *key2);
 }pomme_hash_t;
 
-typedef struct pomme_data{
-	u_int32 size;
-	u_int32 flags;//the operation for the flag, BDB likely interface 
-	void *data;
-}pomme_data_t;
 /*
  * if hash == NULL ,the init function will Malloc for it then init the data
  * init will malloc mem for table
