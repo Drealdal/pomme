@@ -45,7 +45,7 @@ typedef struct pomme_buffer
 /*-----------------------------------------------------------------------------
  *  seek to next available position
  *-----------------------------------------------------------------------------*/
-int32 pomme_buffer_next(pomme_buffer_t *buffer);
+int pomme_buffer_next(pomme_buffer_t *buffer,int32 size);
 
 /*-----------------------------------------------------------------------------
  *  claim data to be usable
@@ -55,5 +55,10 @@ int pomme_buffer_release(pomme_buffer_t *buffer,int32 begin,int32 offset);
 /*-----------------------------------------------------------------------------
  *  init an pomme_buffer
  *-----------------------------------------------------------------------------*/
-int pomme_buffer_init(pomme_buffer_t **pomme_buffer,int32 size);
+int pomme_buffer_init(pomme_buffer_t **pomme_buffer, int32 size,int32 chunk_size);
+
+/*-----------------------------------------------------------------------------
+ *  set part of the buffer as occupied
+ *-----------------------------------------------------------------------------*/
+int pomme_buffer_take(pomme_buffer_t *buffer,int offset);
 #endif

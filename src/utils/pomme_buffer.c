@@ -16,12 +16,12 @@
  * =====================================================================================
  */
 #include "pomme_buffer.h"
-
 /*-----------------------------------------------------------------------------
  *  init a buffer, the size is set to size
  *-----------------------------------------------------------------------------*/
-int pomme_buffer_init(pomme_buffer_t **buffer,int32 size)
+int pomme_buffer_init(pomme_buffer_t **buffer,int32 size,int32 chunk_size)
 {
+	assert(chunk_size<size);
 	int ret = 0;
 	u_int32 flags = 0;
 	if( *buffer == NULL )
@@ -39,6 +39,7 @@ int pomme_buffer_init(pomme_buffer_t **buffer,int32 size)
 	}
 	pomme_buffer_t *p_buffer = *buffer;
 	p_buffer->size = size;
+	p_buffer->chunk_size = chunk_size;
 	p_buffer->begin = 0;
 	p_buffer->end = 0;
 	if( pthread_mutex_init(&p_buffer->mutex,NULL) != 0 )
@@ -97,7 +98,7 @@ int pomme_buffer_distroy(pomme_buffer_t **buffer)
 /*-----------------------------------------------------------------------------
  *  get the offset of next position
  *-----------------------------------------------------------------------------*/
-int32 pomme_buffer_next(pomme_buffer_t *buffer)
+int32 pomme_buffer_next(pomme_buffer_t *buffer, int32 r_size)
 {
 	int ret = 0;
 	if( buffer == NULL )
@@ -115,13 +116,13 @@ int32 pomme_buffer_next(pomme_buffer_t *buffer)
 	if( begin <= end )
 	{
 		int32 tm = size - end;
-		if( tm >= buffer->chunk_size )
+		if( tm >= r_size )
 		{
 			ret = end;
 			goto out;
 		
 		}
-		if( begin >= buffer->chunk_size )
+		if( begin >= r_size )
 		{
 			buffer->end = 0;
 			ret = 0;
@@ -137,7 +138,7 @@ int32 pomme_buffer_next(pomme_buffer_t *buffer)
 		ret = NO_AVAILABLE_BUFFER;
 	}else{
 		int32 tm = begin - end;
-		if( tm >= buffer->chunk_size )
+		if( tm >= r_size )
 		{
 			ret = end;
 		}else{

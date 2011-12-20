@@ -40,7 +40,7 @@ int main()
 	int ret = 0;
 	datas.buffer = NULL;
 	datas.head = NULL;
-	if( 0 > pomme_buffer_init(&datas.buffer,BUFFER_SIZE) )
+	if( 0 > pomme_buffer_init(&datas.buffer,BUFFER_SIZE,chunck_size) )
 	{
 		printf("Buffer init Error\n");
 		return -1;
@@ -71,7 +71,7 @@ static void *privoder(void * argc)
 		int a = rand()%chunck_size;
 		data_t *tm = malloc(sizeof(struct data));
 		do{
-			tm->data_begin = pomme_buffer_next(datas->buffer);
+			tm->data_begin = pomme_buffer_next(datas->buffer,datas->buffer->chunk_size);
 		}while( tm->data_begin < 0 );
 		tm->length = a;
 		pomme_buffer_take(datas->buffer,tm->length);
