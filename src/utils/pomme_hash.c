@@ -196,6 +196,20 @@ static inline int distroy_hash_node(pomme_hash_node_t **node)
  *-----------------------------------------------------------------------------*/
 int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 {
+	if( hash == NULL )
+	{
+#ifdef DEBUG
+		fprintf(stderr,"Trying to put into nil hash table\n");
+#endif
+		return -1;
+	}
+	if( key == NULL || data == NULL )
+	{
+#ifdef DEBUG
+		fprintf(stderr,"Tring to pus null key or null data to hash table\n");
+#endif
+		return -1;
+	}
 	u_int32 ipos = (*hash->hash_func)(key->data,key->size)%(hash->size);
 	pomme_link_t *p_link = &hash->table[ipos];
 	pomme_hash_node_t *pos = NULL;
@@ -402,4 +416,49 @@ int str_hash(void *str,u_int32 str_len)
 	}	
 	u_int32 ret = (hash & 0x7fffffff);
 	return ret;
+}
+
+/*
+ * del data from hash table ,return success if not exist
+ * part of the code could be combined with the get function
+ * namely find data pointer from hash then do get or del 
+ * operation
+ */
+int pomme_hash_del(pomme_hash_t *hash,pomme_data_t *key)
+{
+ 	if( NULL == hash )
+	{
+#ifdef DEBUG
+		fprintf(stderr,"Del from an Null hash table,(not init? or init failed)\n");
+#endif
+		return -1;
+	}
+	if( NULL == key )
+	{
+#ifdef DEBUG
+		fprintf(stderr,"Tring del an Nil key from hash Table\n");
+#endif
+		return 0;
+	}
+	u_int32 p = (*hash->hash_func)(key->data,key->size)%hash->size;
+	pomme_link_t *p_link = &hash->table[p];
+	if(p_link == NULL)
+	{
+		/* not found ,the size is set to 0, return value is success */
+		return 0;
+	}
+	pomme_hash_node_t *pos = NULL;
+	list_for_each_entry(pos,p_link,link)
+	{
+		if( (pos->key_len == key->size) &&
+				( 0 == hash->cmp_func(key->data,pos->key)))
+		{
+			link_del(&pos->link);
+			distroy_hash_node(&pos);
+			break;
+		}
+
+	}
+	return 0;
+
 }

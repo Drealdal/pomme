@@ -67,6 +67,10 @@ int pomme_hash_put_2(pomme_hash_t *hash, void *key, u_int32 key_len, void *value
  * the application will repsonse for the mem for data
  */
 int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data);
+/*
+ * del data from hash table ,return success if not exist
+ */
+int pomme_hash_del(pomme_hash_t *hash,pomme_data_t *key);
 
 /*-----------------------------------------------------------------------------
  *  hash a data of length into int

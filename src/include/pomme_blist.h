@@ -22,8 +22,8 @@
 typedef struct link_head{
 	struct link_head *prev,*next;
 }pomme_link_t;
-inline void link_add(struct link_head *new, struct link_head *head);
-inline void link_del(struct link_head *entry);
+inline void link_add(pomme_link_t *new, pomme_link_t *head);
+inline void link_del(pomme_link_t *entry);
 #define offset_of(TYPE,MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #define container_of(ptr,type,member) ({\
 		const typeof( ((type *)0)->member) *__mptr = (ptr);\
