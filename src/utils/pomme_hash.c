@@ -201,7 +201,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	pomme_hash_node_t *pos = NULL;
 	list_for_each_entry(pos,p_link,link)
 	{
-		if((u_int32)&pos->link ==(u_int32) p_link)
+		if(&pos->link == p_link)
 		{
 			break;
 		}
@@ -394,7 +394,7 @@ int str_hash(void *str,u_int32 str_len)
 	char *data = str;
 	u_int32 a = 378551;
 	u_int32 b = 63689;	
-	u_int32 hash, i = 0;
+	u_int32 hash = 0, i = 0;
 	for( i = 0 ; i < str_len; i++)
 	{
 		hash ^= hash*a + data[i];	
