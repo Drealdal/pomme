@@ -17,6 +17,7 @@
  */
 #ifndef _POMME_STORAGE_H
 #define _POMME_STORAGE_H
+#include "utils.h"
 #include "db.h"
 #include <dirent.h>
 
@@ -37,6 +38,7 @@ typedef struct pomme_local_file
  */
 int create_storage(DB *db_handle,
 	DB_TXN *txnid,
+	char *storage_path,
 	size_t *id);
 
 #endif

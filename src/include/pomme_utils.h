@@ -23,7 +23,7 @@
 #define FFL __FILE__,__func__,__LINE__
 
 #ifdef DEBUG
-#define debug(msg,argc...) fprintf(stderr,"%s %s %d"msg"\n",FFL,##argc)
+#define debug(msg,argc...) fprintf(stderr,"%s %s %d: "msg"\n",FFL,##argc)
 #else
 #define debug(msg,argc...) 0
 #endif

@@ -19,10 +19,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include"pomme_storage.h"
 
-#define DATABASE "./test.db"
+#define DATABASE "./test_create_storage.db"
 
 
+char *storage_path = "/home/zhumeiqi/storage"
 int main(int argc,char *argv[])
 {
 	DB *dbp=NULL;
@@ -32,16 +34,22 @@ int main(int argc,char *argv[])
 		fprintf(stderr,"db_create:%s\n",db_strerror(ret));
 		exit(1);
 	}
-	if(( ret = dbp->open(dbp,NULL,DATABASE,NULL,DB_BTREE,DB_CREATE,0664))!=0)
+	if(( ret = dbp->open(dbp,NULL,DATABASE,NULL,DB_QUEUE,DB_CREATE,0664))!=0)
 	{
 		printf("%d\n",ret);
 		dbp->err(dbp,ret,"open failed%s",DATABASE);
 		exit(1);
 	}
-	DBT key,data;
-	DBC *dbc = NULL;
-	memset(&key,0,sizeof(key));
-	memset(&data,0,sizeof(data));
+
+	size_t id;
+	ret = create_storage( dbp, NULL, &id);
+	if( ret < 0 )
+	{
+	    printf("create storage error\n");
+
+	}else{
+	    printf("create success %d\n",id);
+	}
 
 
 	dbp->close(dbp,DB_NOSYNC);

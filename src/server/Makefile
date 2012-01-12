@@ -1,4 +1,6 @@
-$(OBJECT_DIR)/all_server:$(addprefix $(OBJECT_DIR)/, pomme_storage.o)
+include $(SERVER_TEST)/Makefile
+
+$(OBJECT_DIR)/all_server:$(addprefix $(OBJECT_DIR)/, pomme_storage.o all_server_test)
 	touch $@
 
 

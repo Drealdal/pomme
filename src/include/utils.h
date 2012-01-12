@@ -29,8 +29,12 @@
 #include<unistd.h>
 #include<assert.h>
 #include<limits.h>
+
+
 #include"pomme_type.h"
+#include"pomme_utils.h"
 #include"pomme_const.h"
 #include"pomme_blist.h"
 #include"pomme_queue.h"
+
 #endif
