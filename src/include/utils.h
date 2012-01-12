@@ -15,20 +15,21 @@
  *
  * =====================================================================================
  */
-#ifndef UTILS_H
-#define UTILS_H
-#include<stdio.h>
-#include<stdlib.h>
-#include<sys/time.h>
+#ifndef _UTILS_H
+#define _UTILS_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include<time.h>
-#include<string.h>
-#include<pthread.h>
-#include<unistd.h>
-#include<assert.h>
-#include<limits.h>
+#include <time.h>
+#include <string.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <assert.h>
+#include <limits.h>
+#include <fcntl.h>
 
 
 #include"pomme_type.h"

@@ -28,6 +28,6 @@ all: $(all_depends)
 
 default:
 	echo $(INCLUDE_DIR)
-clean:
+clean: 
 	rm -f .object/*
 	rm *~
