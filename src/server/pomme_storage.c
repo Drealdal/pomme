@@ -58,6 +58,11 @@ int create_storage(DB *db_handle,
     *(ptr+1)='/';
     sprintf(ptr+1, "%d", count);
 
+    if( (ret = create_local_file(fullpath) ) < 0 )
+    {
+    	debug("create local file(%s) error",fullpath);
+    	goto err;
+    }
     memset(&key, 0, sizeof(key));
     memset(&val, 0, sizeof(val));
 
@@ -73,6 +78,7 @@ int create_storage(DB *db_handle,
 	debug("put to database fail");
     }
     *id = *(unsigned int *)(key.data);
+
 err:
     return ret;
 }
@@ -140,8 +146,18 @@ err:
 static int create_local_file(char *path)
 {
     int ret = 0;
-    if( 
-
+    if( (ret = open(path,O_RDONLY)) != -1 )
+    {
+    	debug("File %s path is already exists",path);
+    	ret = POMME_LOCAL_FILE_ERROR;
+    	goto err;
+    }
+    if( ( ret = open(path,O_CREAT) ) < 0 )
+    {
+    	debug("Create File %s failed",path);
+    	ret = POMME_LOCAL_FILE_ERROR;
+    	goto err;
+    }
 err:
    return ret; 
 }

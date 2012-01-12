@@ -22,10 +22,11 @@
 
 typedef struct pomme_object
 {
-	u_int32	sfid;// the id of the storefile
+	size_t	sfid;// the id of the storefile
 	u_int64 offset;// the offset of the object in the file
 	u_int64 length;// the dataLength of the object
 	time_t time;// the create time of the object on this server
 	u_int16 version;//reserved
 }pomme_object_t;
+
 #endif

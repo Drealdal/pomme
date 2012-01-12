@@ -19,10 +19,11 @@
 #define _POMME_CONST_H
 
 /*
- * error code definations
+ * error code definitions
  */
 #define POMME_SUCCESS 0
                                                 /* local file errors */
 #define POMME_LOCAL_DIR_ERROR (-101) 
+#define POMME_LOCAL_FILE_ERROR (-102)
 
 #endif
