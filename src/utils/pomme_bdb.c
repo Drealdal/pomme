@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  pomme_bdb.h
+ *       Filename:  pomme_bdb.c
  *
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  12/17/2011 12:06:07 AM
+ *        Created:  01/10/2012 10:28:14 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,37 +15,29 @@
  *
  * =====================================================================================
  */
-#ifndef POMME_BDB_H
-#define POMME_BDB_H
-#include "bdb.h"
-/**
- * @brief pomme_db_setvalue 
- *
- * @param db_handle: the handle of the database where the data will be stored
- *
- * @return 0 for sucess , < 0 failure 
- */
+#include "pomme_bdb.h"
+
 int pomme_bdb_setvalue(void *db_handle,
 	pomme_data_t *key,
-	pomme_data_t *value);
+	pomme_data_t *value)
+{
+    //TODO
 
-/**
- * @brief pomme_bdb_getvalue 
- * @param db_handle
- * @return 0 for success , < 0 falure
- */
+    return 0;
+}
+
 int pomme_bdb_getvalue(void *db_handle,
 	pomme_data_t *key,
-	pomme_data_t *value);
+	pomme_data_t *value)
+{
+    //TODO
+    return 0;
+}
 
-/**
- * @brief pomme_bdb_getnext 
- *
- * @param db_cusor
- *
- * @return 0 for success, < 0 for failure
- */
 int pomme_bdb_getnext(void *db_cusor,
 	pomme_data_t *key,
-	pomme_data_t *value);
-#endif
+	pomme_data_t *value)
+{
+    //TODO
+    return 0;
+}

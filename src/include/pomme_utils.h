@@ -20,8 +20,10 @@
 #define POMME_UTILS_H
 #include "utils.h"
 
+#define FFL __FILE__,__func__,__LINE__
+
 #ifdef DEBUG
-#define debug(msg,argc...) fprintf(stderr,msg,##argc)
+#define debug(msg,argc...) fprintf(stderr,"%s %s %d"msg"\n",FFL,##argc)
 #else
 #define debug(msg,argc...) 0
 #endif
@@ -29,4 +31,6 @@
 
 char *pomme_time(char *buf);
 struct tm *pomme_time_all();
+
+
 #endif

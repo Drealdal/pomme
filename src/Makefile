@@ -5,9 +5,10 @@ BIN_DIR=../bin
 LOG_DIR=./log
 UTIL_DIR=./utils
 SERVER_DIR=./server
+SERVER_INCLUDE=./server/include
 TEST_DIR=./test
 BDB_DIR=/home/zhumeiqi/BDB
-INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_DIR)/include
+INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_DIR)/include -I $(SERVER_DIR)/include
 LIB_FLAG=-L$(BDB_DIR)/lib -lpthread
 CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall -DDEBUG=1
 

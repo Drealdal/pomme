@@ -28,9 +28,4 @@ typedef struct pomme_object
 	time_t time;// the create time of the object on this server
 	u_int16 version;//reserved
 }pomme_object_t;
-typedef struct pomme_local_file
-{
-	u_int64 id;
-	int8 path[MAX_STORE_FILE_NAME_LENGTH];
-}pomme_local_file_t;
 #endif
