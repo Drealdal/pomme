@@ -100,7 +100,7 @@ int pomme_get_endian()
     char *pdata = &data;
     if( pdata == 0x01 )
     {
-	return POMME_LITTTLE_ENDIAN;
+	return POMME_LITTLE_ENDIAN;
     }
     return POMME_BIG_ENDIAN;
 

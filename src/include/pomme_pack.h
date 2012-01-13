@@ -26,17 +26,17 @@ typedef struct pomme_package{
     
     u_int8 magic;                               /* magic id, to check valid */
 
-    void *data;                                 /* where the data is stored */
+    u_int8 *data;                                 /* where the data is stored */
     size_t size;                                /* the max size of the buffer */
     size_t cur;                                 /* the cur pos of the non used data */
     /*
      *  mem flags
      */
     u_int32 flags;
-}pomme_package_t;
+}pomme_pack_t;
 
 #define IS_PACK_NEED_FREE(pack) (pack->flags& POMME_SELF_NEED_FREE) != 0 
-#define IS_PACK_DATA_FREE(pack) ( pack->flages & POMME_DATA_NEED_FREE) q= 0
+#define IS_PACK_DATA_FREE(pack) ( pack->flags & POMME_DATA_NEED_FREE) != 0
 
 #define SET_PACK_NEED_FREE(pack) pack->flags |= POMME_SELF_NEED_FREE
 #define SET_PACK_DATA_FREE(pack) pack->flags |= POMME_DATA_NEED_FREE
@@ -49,6 +49,8 @@ typedef struct pomme_package{
 
 #define IS_ENDIAN_BIG(pack) (pack->data[0] & POMME_LITTLE_ENDIAN ) == 0
 #define IS_ENDIAN_LITTLE(pack) (pack->data[0] & POMME_LITTLE_ENDIAN ) != 0 
+
+#define remaining_size(pack) (pack->size - pack->cur )
 
 
 /**
@@ -97,17 +99,17 @@ int pomme_pack_distroy( pomme_pack_t **pack);
     unpack_data(data,r_size,pack);\
 }while(0);
 
-int pack_data(void *data , size_t size, pomme_package_t *pack);
+int pack_data(void *data , size_t size, pomme_pack_t *pack);
 /**
  * @brief unpack_data 
  *
- * @param data: where the data will be stored
- * @param length
- * @param pack
+ * @param data: where the data will be stored, if(  *data == null  )the data will be pointed to data in the package ,otherwise the data will be copied.
+ * @param length: the length of data to unpack
+ * @param pack: where to unpack the data
  *
  * @return 
  */
-int unpack_data(void **data, size_t length, pomme_package_t *pack);
+int unpack_data(void **data, size_t length, pomme_pack_t *pack);
 
 
 #endif

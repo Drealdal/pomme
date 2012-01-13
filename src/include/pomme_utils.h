@@ -36,7 +36,6 @@ struct tm *pomme_time_all();
 /**
  * @brief pomme_get_endian : test the endian of the server
  *
- * @return ==0 little , < 0 big
  */
 int pomme_get_endian();
 
