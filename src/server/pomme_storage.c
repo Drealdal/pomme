@@ -56,7 +56,7 @@ int create_storage(DB *db_handle,
     while(*ptr == '/') ptr--;
 
     *(ptr+1)='/';
-    sprintf(ptr+1, "%d", count);
+    sprintf(ptr+2, "%d", count);
 
     if( (ret = create_local_file(fullpath) ) < 0 )
     {

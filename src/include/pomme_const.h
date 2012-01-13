@@ -25,5 +25,21 @@
                                                 /* local file errors */
 #define POMME_LOCAL_DIR_ERROR (-101) 
 #define POMME_LOCAL_FILE_ERROR (-102)
+                                                /* general error code */
+#define POMME_MEM_ERROR (-201)
+
+/*
+ * flags definitions
+ */
+
+#define POMME_DATA_NEED_FREE 1  // The pomme_data_t->data is alloc by the system, need free
+#define POMME_SELF_NEDD_FREE 2 // THE pomm_data_t structure is alloc by the system , need free
+/*
+ * const data definitions
+ */
+#define POMME_PACKAGE_MAGIC 0x1e
+
+#define POMME_LITTLE_ENDIAN 1
+#define POMME_BIG_ENDIAN 2
 
 #endif

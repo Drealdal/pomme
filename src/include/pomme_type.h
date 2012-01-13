@@ -30,7 +30,7 @@ typedef unsigned int u_int32;
 typedef long long int64;
 typedef unsigned long long u_int64;
 
-#define POMME_DATA_NEED_FREE 1  // The pomme_data_t->data is alloc by the system, need free
+
 typedef struct pomme_data{
 	u_int32 size;
 	u_int32 flags;//the operation for the flag, BDB likely interface 
