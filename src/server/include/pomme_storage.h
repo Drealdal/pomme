@@ -31,7 +31,7 @@ typedef struct pomme_local_file
  * @brief create_storage 
  *
  * @param db_handle: the handle of the database where the storage infomation 
- * @param txnid: the transaction to protext the operation
+ * @param txnid: the transaction to protect the operation
  * @param id: the id of the created local file will be return here
  *
  * @return 
@@ -40,5 +40,23 @@ int create_storage(DB *db_handle,
 	DB_TXN *txnid,
 	char *storage_path,
 	size_t *id);
+/**
+ * @brief check_storage_stat: check the state of the storage file
+ * @param db_handle: the handle of the database where the storage file
+ * @param txnid: the transaction to protect the operation
+ * @param id:  the id of the file
+ *
+ * @return < 0 means error , > 0 the state of the storage file
+ */
+int check_storage_stat(DB *db_handle,
+		DB_TXN *txnid,
+		size_t id);
+/*
+ * @brief get_storage_file: get a storage file to use
+ *
+ */
+int get_strorage_file(DB *db_handle,
+		DB_TXN *txnid,
+		size_t *id);
 
 #endif

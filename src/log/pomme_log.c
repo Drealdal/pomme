@@ -137,9 +137,7 @@ struct logger *create_logger(pomme_log_level_t level,char *filename)
 	}
 	if( filename== NULL )
 	{
-#ifdef DEBUG
-		printf("%s %d: filename is null\n",__FILE__,__LINE__);
-#endif 		
+		debug("%s %d: filename is null\n",__FILE__,__LINE__);
 		filename = "pomme_log";
 	}
 	struct tm * time_now = (struct tm*)pomme_time_all();
@@ -154,9 +152,7 @@ struct logger *create_logger(pomme_log_level_t level,char *filename)
 	FILE * handle = fopen(file,"a+");
 	if( NULL == handle )
 	{
-#ifdef DEBUG
-		printf("%s:%s open log file failure\n",__FILE__,__LINE__);
-#endif
+		debug("%s:%s open log file failure\n",__FILE__,__LINE__);
 #ifndef IGNORE_LOG_FILE_ERROR
 		exit(-1);
 #else
@@ -178,9 +174,7 @@ struct logger *create_logger(pomme_log_level_t level,char *filename)
 }
 static void distory_logger(struct logger *logger)
 {
-#ifdef DEBUG
-	printf("Distory logger %s\n",logger->name);
-#endif
+	debug("Distory logger %s\n",logger->name);
 	if(logger == NULL) return;
 	fclose(logger->file_handle);
 	free(logger->name);
