@@ -17,11 +17,15 @@
  */
 #ifndef POMME_META_H
 #define POMME_META_H
+#include "pomme_type.h"
 
 #define MAX_STORE_FILE_NAME_LENGTH 256
 
 typedef struct pomme_object
 {
+
+	u_int8 *path;
+	u_int8 *name;
 	/*
 	 * This structure contains the basic information of an
 	 * object, an object is part of an file.

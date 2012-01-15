@@ -31,9 +31,7 @@ int pomme_hash_init(int size,int(*h_func)(void *,u_int32),int(*c_func)(void *,vo
 		*hash = malloc(sizeof(pomme_hash_t));	
 		if( *hash == NULL )
 		{
-#ifdef DEBUG
-			printf("Malloc error %s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+			debug("Malloc error");
 			goto error_exit;
 		}
 		flags |= POMME_HASH_NEED_FREE;
@@ -47,9 +45,7 @@ int pomme_hash_init(int size,int(*h_func)(void *,u_int32),int(*c_func)(void *,vo
 	p_hash->table = malloc(size*sizeof(pomme_link_t));
 	if(p_hash->table == NULL)
 	{
-#ifdef DEBUG
-		printf("Malloc error %s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+		debug("Malloc error");
 		goto error_exit;
 	}
 	for( i = 0; i< size;i++)
@@ -74,12 +70,10 @@ int pomme_hash_distroy(pomme_hash_t **hash)
 {
 	if( *hash == NULL)
 	{
-#ifdef DEBUG
-		printf("Trying Distroy an Null hash table\n");
-#endif
-
+		debug("Trying Distroy an Null hash table\n");
 		return 0;
 	}
+
 	pomme_hash_t *p_hash = *hash;
 	u_int32 flags = p_hash->flags;
 	u_int32 size = p_hash->size;
@@ -90,6 +84,7 @@ int pomme_hash_distroy(pomme_hash_t **hash)
 	{
 		pomme_link_t * p_table = &table[i];
 		pomme_hash_node_t *pos = NULL;
+
 		list_for_each_entry(pos,p_table,link)
 		{
 			distroy_hash_node(&pos);
@@ -113,9 +108,8 @@ static inline int init_hash_node(pomme_hash_node_t **node)
 	if(*node==NULL)
 	{
 		*node = malloc(sizeof(pomme_hash_node_t));
-#ifdef DEBUG
-		printf("Malloc Error @%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+		debug("Malloc Error");
+
 		return -1;
 	}
 	memset(*node,0,sizeof(pomme_hash_node_t));
@@ -144,16 +138,12 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 {
 	if( hash == NULL )
 	{
-#ifdef DEBUG
-		fprintf(stderr,"Trying to put into nil hash table\n");
-#endif
+		debug("Trying to put into null hash table");
 		return -1;
 	}
 	if( key == NULL || data == NULL )
 	{
-#ifdef DEBUG
-		fprintf(stderr,"Tring to pus null key or null data to hash table\n");
-#endif
+		debug("trying to put null key or null data to hash table");
 		return -1;
 	}
 	u_int32 ipos = (*hash->hash_func)(key->data,key->size)%(hash->size);
@@ -196,10 +186,10 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 				pos->value = malloc(data->size);
 				if(pos->value == NULL)
 				{
-#ifdef DEBUG
-					printf("Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+
+					debug("Malloc Error");
 					return -1;
+
 				}
 				memcpy(pos->value,data->data,data->size);
 				pos->value_len = data->size;
@@ -214,9 +204,8 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	pomme_hash_node_t *node = malloc(sizeof(pomme_hash_node_t));
 	if(node == NULL)
 	{
-#ifdef DEBUG
-		printf("Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+
+		debug("Malloc Error");
 		goto malloc_node_error;
 	}
 	memset(node,0,sizeof(pomme_hash_node_t));
@@ -226,9 +215,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	node->key = malloc(key->size);
 	if( node->key == NULL)
 	{
-#ifdef DEBUG
-		printf("Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+		debug("Malloc Error");
 		goto malloc_key_error;
 	}
 	memcpy(node->key,key->data,key->size);
@@ -236,9 +223,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	node->value = malloc(data->size);
 	if( node->value == NULL )
 	{
-#ifdef DEBUG
-		printf("Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+		debug("Malloc Error");
 		goto malloc_data_error;
 	}
 	memcpy(node->value,data->data,data->size);
@@ -272,16 +257,12 @@ int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	 */
 	if( hash == NULL )
 	{
-#ifdef DEBUG
-		printf("Get from an null hash table@%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+		debug("Get From an null hash table");
 		return -1;
 	}
 	if( key == NULL || data == NULL )
 	{
-#ifdef DEBUG
-		printf("Arg is wrong: %s\n",key?"key Null":"value Null");
-#endif
+		debug("using null key or data");
 		return -1;
 	}
 	u_int32 p = (*hash->hash_func)(key->data,key->size)%hash->size;
@@ -374,16 +355,12 @@ int pomme_hash_del(pomme_hash_t *hash,pomme_data_t *key)
 {
  	if( NULL == hash )
 	{
-#ifdef DEBUG
-		fprintf(stderr,"Del from an Null hash table,(not init? or init failed)\n");
-#endif
+ 		debug("del from an null hash table");
 		return -1;
 	}
 	if( NULL == key )
 	{
-#ifdef DEBUG
-		fprintf(stderr,"Tring del an Nil key from hash Table\n");
-#endif
+		debug("provide null key when del from hash table");
 		return 0;
 	}
 	u_int32 p = (*hash->hash_func)(key->data,key->size)%hash->size;

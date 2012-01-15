@@ -24,35 +24,36 @@
  *-----------------------------------------------------------------------------*/
 int pomme_data_init(pomme_data_t *data, u_int32 size)
 {
-	if( data == NULL )
+    int flags = 0;
+    int ret = POMME_SUCCESS;
+    if( data == NULL )
+    {
+	debug("init an null pointer");
+	ret = POMME_MEM_ERROR;
+	goto err;
+    }
+    if(data->data != NULL && (data->flags & POMME_DATA_NEED_FREE) != 0 )
+    {
+	if(data->size >= size)
 	{
-#ifdef DEBUG
-		fprintf(stderr,"Trying to do an init operation on an Null pointer@%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
-		return -1;
+	    memset(data->data,0,data->size);
+	    goto err;
+	}else{
+	    free(data->data);
 	}
-	if(data->data != NULL && (data->flags & POMME_DATA_NEED_FREE) != 0 )
-	{
-		if(data->size >= size)
-		{
-			memset(data->data,0,data->size);
-			data->size = size;
-			return 0;
-		}else{
-			free(data->data);
-		}
-	}
-	data->size = size;
-	data->data = malloc(size);
-	if(data->data == NULL)
-	{
-#ifdef DEBUG
-		fprintf(stderr,"Malloc Error@%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
-	}
-	memset(data->data,0,size);
-	data->flags |= POMME_DATA_NEED_FREE; 
-	return 0;
+    }
+    data->size = size;
+    data->data = malloc(size);
+    if(data->data == NULL)
+    {
+	debug("malloc data for data init failure");
+	ret = POMME_MEM_ERROR;
+	goto err;
+    }
+    memset(data->data,0,size);
+    data->flags |= POMME_DATA_NEED_FREE; 
+err:
+    return ret;
 }
 
 /*-----------------------------------------------------------------------------
@@ -60,36 +61,47 @@ int pomme_data_init(pomme_data_t *data, u_int32 size)
  *-----------------------------------------------------------------------------*/
 int pomme_data_distroy(pomme_data_t *data)
 {
-	if(data == NULL)
-	{
+    if(data == NULL)
+    {
 #ifdef DEBUG
-		fprintf(stderr,"Trying to Distroy an Null Pointer@%s %s %d\n",__FILE__,__func__,__LINE__);
+	fprintf(stderr,"Trying to Distroy an Null Pointer@%s %s %d\n",__FILE__,__func__,__LINE__);
 #endif
-		return 0;
-	}
-	if( (data->flags & POMME_DATA_NEED_FREE) != 0 && data->data != NULL)
-	{
-		free(data->data);
-	}
 	return 0;
+    }
+    if( (data->flags & POMME_DATA_NEED_FREE) != 0 && data->data != NULL)
+    {
+	free(data->data);
+    }
+    return 0;
 }
 
 
 char *pomme_time(char *buf)
 {
-	time_t t = time(NULL);
-	char *re = NULL;
-	if( buf != NULL )
-	{
-		re = ctime_r(&t,buf);	
-	}else{
-		re = ctime(&t);
-	}
-	return re;
+    time_t t = time(NULL);
+    char *re = NULL;
+    if( buf != NULL )
+    {
+	re = ctime_r(&t,buf);	
+    }else{
+	re = ctime(&t);
+    }
+    return re;
 }	
 struct tm* pomme_time_all()
 {
-	time_t t = time(NULL);
-	return localtime(&t);
+    time_t t = time(NULL);
+    return localtime(&t);
 }
 
+int pomme_get_endian()
+{
+    int data = 1;
+    char *pdata = &data;
+    if( pdata == 0x01 )
+    {
+	return POMME_LITTLE_ENDIAN;
+    }
+    return POMME_BIG_ENDIAN;
+
+}
