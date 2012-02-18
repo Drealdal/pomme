@@ -31,6 +31,18 @@
 #define POMME_INVALID_PACKAGE (-202)
 #define POMME_TOO_LARGE_PACKAGE (-203)
 #define POMME_NOT_ENOUGH_UNPACK (-204)
+#define POMME_WRONG_ARG (-204)
+                                                /* transport errors */
+#define POMME_SEND_MSG_ERROR (-301)
+#define POMME_RECV_MSG_ERROR (-302)
+                                         /* db errors */
+#define POMME_WRITE_DB_ERROR (-401)
+#define POMME_READ_DB_ERROR (-402)
+
+/*
+ * trying to recv msg from a shutdown peer
+ */
+#define POMME_SHUTDOWN_PEER (-303)   
 
 /*
  * flags definitions

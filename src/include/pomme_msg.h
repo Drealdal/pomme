@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  pomme_data_server.c
+ *       Filename:  pomme_msg.h
  *
- *    Description:  the implement of the pomme data server
+ *    Description:  
  *
  *        Version:  1.0
- *        Created:  02/17/2012 07:15:45 PM
+ *        Created:  02/17/2012 09:43:43 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,18 +15,4 @@
  *
  * =====================================================================================
  */
-#include "pomme_storage.h"
 
-static int server()
-{
-
-}
-
-
-
-int main()
-{
-    int ret = 0;
-err:
-    return ret;
-}

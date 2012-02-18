@@ -29,7 +29,6 @@ int create_storage(DB *db_handle,
 	char *storage_path,
 	size_t *id)
 {
-    debug("");
     int ret = 0, count, len;
     unsigned int flags = 0;
     DBT key,val;
@@ -41,7 +40,6 @@ int create_storage(DB *db_handle,
     debug("%p %s ",storage_path,storage_path);
 
     len = strlen(storage_path) +20;
-    debug("");
     char fullpath[len];
 
     debug("%s",storage_path);
