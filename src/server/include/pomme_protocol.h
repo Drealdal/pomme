@@ -17,4 +17,14 @@
  */
 #ifndef _POMME_PROTOCOL_H
 #define _POMME_PROTOCOL_H
+#include "pomme_pack.h"
+typedef enum pomme_protocol_type{put_data=1,get_data}pomme_protocol_type_t;
+typedef struct pomme_protocol
+{
+    pomme_protocol_type_t op;
+    size_t len;
+    void *data;
+}pomme_protocol_t;
+
+
 #endif
