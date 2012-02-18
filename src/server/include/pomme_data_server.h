@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  pomme_data_server.c
+ *       Filename:  pomme_data_server.h
  *
- *    Description:  the implement of the pomme data server
+ *    Description:  
  *
  *        Version:  1.0
- *        Created:  02/17/2012 07:15:45 PM
+ *        Created:  02/17/2012 07:57:51 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,13 +15,15 @@
  *
  * =====================================================================================
  */
-#include "pomme_storage.h"
+#ifndef _POMME_DATA_SERVER_H
+#define _POMME_DATA_SERVER_H
+#define version 0.01
 
-static void init_server();
+/*
+ * the first version of the data server
+ */
+int heartbeat();
+int server_init();
 
-int main()
-{
-    int ret = 0;
-err:
-    return ret;
-}
+#endif
+

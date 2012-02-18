@@ -7,6 +7,7 @@ data_server_depends=$(addprefix $(OBJECT_DIR)/, pomme_storage.o)
 
 clean_server:
 	rm -f $(SERVER_DIR)/*~
+	rm -f $(SERVER_INCLUDE)/*~
 
 
 $(OBJECT_DIR)/pomme_storage.o: $(SERVER_DIR)/pomme_storage.c $(SERVER_INCLUDE)/pomme_storage.h

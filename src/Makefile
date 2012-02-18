@@ -28,13 +28,13 @@ all_clean= $(addprefix clean_, test log server utils)
 
 all: $(all_depends)
 	mkdir -p .object
-	rm $^
 
 default:
 	echo $(INCLUDE_DIR)
 clean: $(all_clean) 
 	rm -f .object/*
 	rm -f *~
+	rm -f include/*~
 install:
 	mkdir -p $(INSTALL_DIR)
 	mkdir -p $(INSTALL_DIR)/bin
