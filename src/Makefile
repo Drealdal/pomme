@@ -14,12 +14,16 @@ BDB_DIR=/home/zhumeiqi/BDB
 INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_DIR)/include -I $(SERVER_DIR)/include
 LIB_FLAG=-L$(BDB_DIR)/lib -lpthread -ldb
 CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall -DDEBUG=1
+INSTALL_DIR=$(POMME_HOME)
 
 include $(SERVER_DIR)/Makefile
 include $(LOG_DIR)/Makefile
 include $(UTIL_DIR)/Makefile
 include $(TEST_DIR)/Makefile
+
 all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils)
+all_clean= $(addprefix clean_, test log server utils)
+
 .PHONY: all $(all_depends)
 
 all: $(all_depends)
@@ -28,6 +32,13 @@ all: $(all_depends)
 
 default:
 	echo $(INCLUDE_DIR)
-clean: 
+clean: $(all_clean) 
 	rm -f .object/*
-	rm *~
+	rm -f *~
+install:
+	mkdir -p $(INSTALL_DIR)
+	mkdir -p $(INSTALL_DIR)/bin
+	mkdir -p $(INSTALL_DIR)/lib
+	cp ../bin/* $(INSTALL_DIR)/bin
+	cp ../lib/* $(INSTALL_DIR)/lib
+	

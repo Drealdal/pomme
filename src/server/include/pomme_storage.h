@@ -59,4 +59,20 @@ int get_strorage_file(DB *db_handle,
 		DB_TXN *txnid,
 		size_t *id);
 
+/**
+ * @brief put_data_2_storage put some data to the storage file
+ *
+ * @param file_handle: the handle of the file
+ * @param data: pointer to the data to be stored
+ * @param len: the lenth of the data
+ * @param start: the start point of the offset
+ *
+ * @return == 0 for success , < 0 for error 
+ */
+int put_data_2_storage(int file_handle,
+	void *data,
+       	size_t len,
+	off_t *start); 
+
+
 #endif

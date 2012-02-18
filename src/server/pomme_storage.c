@@ -161,3 +161,39 @@ static int create_local_file(char *path)
 err:
    return ret; 
 }
+
+int put_data_2_storage(int file_handle,
+	void *data,
+       	size_t len,
+	off_t *start) 
+{
+    int ret = 0;
+
+    assert(data != NULL);
+    assert( len>0 );
+/*
+ * if the start is set <0 then
+ * we should seek the file_handle,
+ * else the file is at the end
+ */
+    if( start < 0 )
+    {
+	ret  = lseek( file_handle, 0, SEEK_END ); 
+	if( ret < 0 )
+	{
+	    debug("seek file fail , %s",strerror(ret));
+	    goto err;
+	}
+	*start = ret;
+    }
+    ret = write( file_handle, data, len);
+    if( ret < len )
+    {
+	ftruncate( file_handle, *start);
+	debug("write file fail %s", strerror(ret));
+	ret = POMME_WRITE_FILE_ERROR;
+	goto err;
+    }
+err:
+    return ret;
+}

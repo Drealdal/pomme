@@ -217,8 +217,6 @@ static void* write_log(void * argc)
 			body = queue_get_front(local);
 			struct log * entry = queue_entry(body,struct log,next);
 
-	//snprintf(file,100,"%s/%s-%d-%d-%d",dirname,filename,time_now->tm_year+1900,\
-			time_now->tm_mon,time_now->tm_mday);
 			fprintf(entry->logger->file_handle,"%s %s\n",entry->log_time,entry->message);
 
 			body->next  = QUEUE_TAIL_NULL;

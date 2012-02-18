@@ -20,8 +20,8 @@ $(OBJECT_DIR)/pomme_hash.o:	$(UTIL_DIR)/pomme_hash.c $(INCLUDE_DIR)/pomme_hash.h
 $(OBJECT_DIR)/pomme_pack.o:	$(UTIL_DIR)/pomme_pack.c $(INCLUDE_DIR)/pomme_pack.h
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
-utils_clean: 
-	rm -rf *~
+clean_utils: 
+	rm -f $(UTIL_DIR)/*~
 
 $(OBJECT_DIR)/all_utils:	$(all_utils_depends)
 	touch $@

@@ -21,3 +21,5 @@ $(BIN_DIR)/test_buffer: $(test_buffer_depends) $(TEST_DIR)/test_buffer.c
 
 $(OBJECT_DIR)/all_test: $(all_test_depends)
 	touch $@
+clean_test:
+	rm -f $(TEST_DIR)/*~

@@ -6,4 +6,4 @@ all_log_depends=$(addprefix $(OBJECT_DIR)/,pomme_log.o)
 $(OBJECT_DIR)/all_log: $(all_log_depends)
 	touch $@ 
 clean_log:
-	rm *~
+	rm -f $(LOG_DIR)/*~
