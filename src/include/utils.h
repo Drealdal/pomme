@@ -38,5 +38,6 @@
 #include"pomme_const.h"
 #include"pomme_blist.h"
 #include"pomme_queue.h"
+#include "db.h"
 
 #endif

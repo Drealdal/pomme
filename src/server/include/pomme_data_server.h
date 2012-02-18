@@ -18,6 +18,13 @@
 #ifndef _POMME_DATA_SERVER_H
 #define _POMME_DATA_SERVER_H
 #define version 0.01
+#include "utils.h"
+
+typedef struct pomme_env
+{
+    DB_ENV *db_env;
+    DB *conf;
+}pomme_env_t;
 
 /*****
  * the first version of the data server

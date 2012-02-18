@@ -26,5 +26,8 @@ typedef struct pomme_protocol
     void *data;
 }pomme_protocol_t;
 
+void pack_msg( pomme_protocol_t *pro , pomme_buf_t *buf);
+void unpack_msg( pomme_protocol_t *pro, pomme_buf_t *buf);
+
 
 #endif
