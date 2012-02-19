@@ -17,6 +17,7 @@
  */
 #ifndef _POMME_PROTOCOL_H
 #define _POMME_PROTOCOL_H
+#include "utils.h"
 #include "pomme_pack.h"
 typedef enum pomme_protocol_type{put_data=1,get_data}pomme_protocol_type_t;
 typedef struct pomme_protocol
@@ -26,8 +27,8 @@ typedef struct pomme_protocol
     void *data;
 }pomme_protocol_t;
 
-void pack_msg( pomme_protocol_t *pro , pomme_buf_t *buf);
-void unpack_msg( pomme_protocol_t *pro, pomme_buf_t *buf);
+int pack_msg( pomme_protocol_t *pro , pomme_pack_t **buf);
+int unpack_msg( pomme_protocol_t *pro, pomme_pack_t *buf);
 
 
 #endif
