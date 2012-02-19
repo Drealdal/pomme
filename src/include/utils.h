@@ -21,7 +21,9 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
@@ -31,6 +33,10 @@
 #include <assert.h>
 #include <limits.h>
 #include <fcntl.h>
+#include <sys/wait.h>
+#include <sys/resource.h>
+#include <netinet/in.h>
+#include<sys/shm.h>
 
 
 #include"pomme_type.h"
