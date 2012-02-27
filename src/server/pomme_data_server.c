@@ -114,16 +114,6 @@ err_exit:
     return -1;
 }
 
-
-
-
-int main()
-{
-    int ret = 0;
-    server();
-err:
-    return ret;
-}
 int setnonblocking(int sock)
 {
     int opts;
