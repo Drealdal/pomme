@@ -35,9 +35,11 @@
                                                 /* transport errors */
 #define POMME_SEND_MSG_ERROR (-301)
 #define POMME_RECV_MSG_ERROR (-302)
+#define POMME_UNKNOW_MSG (-303)
                                          /* db errors */
 #define POMME_WRITE_DB_ERROR (-401)
 #define POMME_READ_DB_ERROR (-402)
+
 
 /*
  * trying to recv msg from a shutdown peer
@@ -60,5 +62,6 @@
 
 #define POMME_PACKAGE_SIZE 1024
 #define POMME_MAX_PACKAGE_SIZE (1024*1024*1024)
+
 
 #endif

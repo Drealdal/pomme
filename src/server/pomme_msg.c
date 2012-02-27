@@ -42,10 +42,10 @@ err:
 }
 
 int pomme_recv(int handle, void *buffer,
-	size_t len, int flags)
+	size_t len,size_t *r_len, int flags)
 {
     int ret = 0 ;
-    size_t r_len = 0;
+    *r_len = 0;
     assert(buffer != NULL);
     if( len <= 0 )
     {
@@ -54,19 +54,70 @@ int pomme_recv(int handle, void *buffer,
 	goto err;
     }
 
-    r_len = recv( handle, buffer, len, flags);
+    *r_len = recv( handle, buffer, len, flags);
     
-    if( r_len < 0 )
+    if( *r_len < 0 )
     {
 	debug("recv_error: %s", strerror(r_len));
 	ret = POMME_RECV_MSG_ERROR;
 	goto err;
-    }else if(r_len ==0 ){
+    }else if(*r_len ==0 ){
 	debug("The peer has been shutdown");
 	ret = POMME_SHUTDOWN_PEER;
 	goto err;
     }
+
 err:
     return ret;
 
+}
+
+int pomme_recv_protocol(int handle,
+	void *buffer,
+	size_t len ,
+	int flags
+	)
+{
+    int ret = 0;
+    size_t r_len = 0;
+    assert( buffer != NULL );
+    assert( len>0 );
+
+    ret = pomme_recv(handle, buffer, len, &r_len, flags);
+    if( ret < 0 )
+    {
+	debug("recev fail");
+	goto err;
+    }
+   
+   pomme_protocol_t pro;
+   memset( &pro, 0, sizeof(pomme_protocol_t));
+
+   ret = unpack_msg( &pro, buffer);
+   if( ret < 0 )
+   {
+       debug("unpack msg failure");
+       goto err;
+   }
+
+   switch( pro.po )
+   {
+       case put_data:
+	   /*
+	    * the function to handle put data request
+	    */
+	   pomme_put_data();
+	   break;
+
+       case get_data:
+	   break;
+
+       default:
+	   debug("unknown protocol msg");
+	   ret = POMME_UNKNOWN_MSG;
+	   break;
+   }
+	
+err:
+    return ret;
 }

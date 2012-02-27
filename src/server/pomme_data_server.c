@@ -16,10 +16,19 @@
  * =====================================================================================
  */
 #include "pomme_storage.h"
+
 #define MAX_PENDING 100
 #define MAX_CLIENTS 1000
+#define PACAGE_LENGTH 1024
 
 int setnonblocking(int sock);
+static int handle_request(int conn_sock)
+{
+    char buffer[PACAGE_LENGTH];
+    int flags, ret = 0;
+    ret = pomme_recv(conn_sock,PACAGE_LENGTH,flags);
+
+}
 static int server()
 {
     int ret = 0;
@@ -86,20 +95,17 @@ static int server()
 		    debug("accept error");
 		    goto err_exit;
 		}
-		setnonblocking(conn_sock);
-		ev.events = EPOLLIN | EPOLLET;
-		ev.data.fd = conn_sock;
-
-		if( epoll_ctl(epid, EPOLL_CTL_ADD, conn_sock, &ev) < 0 )
-		{
-		    debug("epoll_ctl conn_sock fail");
-		    goto err_exit;
-		}
-	    }else{
-		printf("connections\n");
-
+//		setnonblocking(conn_sock);
+//		ev.events = EPOLLIN | EPOLLET;
+//		ev.data.fd = conn_sock;
+//
+//		if( epoll_ctl(epid, EPOLL_CTL_ADD, conn_sock, &ev) < 0 )
+//		{
+//		    debug("epoll_ctl conn_sock fail");
+//		    goto err_exit;
+//		}
+		
 	    }
-
 	}
     }
 
@@ -107,6 +113,7 @@ static int server()
 err_exit:
     return -1;
 }
+
 
 
 
