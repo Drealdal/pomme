@@ -24,6 +24,13 @@
 #define PACKAGE_LENGTH 1024
 
 int setnonblocking(int sock);
+
+static int handle_put_data(int handle, pomme_protocol_t *pro)
+{
+	assert( pro!=NULL );
+
+
+}
 static int handle_request(int handle)
 {
     char buffer[PACKAGE_LENGTH];

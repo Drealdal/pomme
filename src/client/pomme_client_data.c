@@ -20,16 +20,54 @@
 
 int pomme_put_data(int handle, 
 	void *buffer,
-	int len)
+	int len,
+	int flags)
 {
+	/*
+	 * what should consider is whether we should
+	 * use async way to send, of use sync interface
+	 */
     int ret = 0;
-
+    int len_to_send, first_msg_send;
     pomme_protocol_t pro; 
     memset(&pro, 0, sizeof(pomme_protocol_t));
     pro.op = put_data;
-    pro.len = len;
+    pro.total_len = len;
 
 
+    first_msg_send = len > POMME_MAX_PROTO_DATA ? POMME_MAX_PROTO_DATA:len;
+    pro.len = first_msg_send;
+    // how to handle the data should be very serious considered
+    // reduce the cost of memcopy ,that mean we should reorganize the
+    // struct of pomme_protocol_t
 
+    pomme_pack_t *buf = NULL;
+
+    ret = pack_msg( &pro , &buf);
+    if( ret < 0 )
+    {
+    	goto err;
+    }
+
+    ret = pomme_send(handle, buf,
+    		pomme_msg_len(pro), flags);
+    if( ret < 0 )
+    {
+    	debug("send package failure");
+    	goto err;
+    }
+
+    if( len - first_msg_send > 0  )
+    {
+    	ret = pomme_send(handle, buf + POMME_PACKAGE_SIZE,
+    			len - frist_msg_send, flags);
+    	if( ret < 0 )
+    	{
+    		debug("send rest data of the package failure");
+    	}
+    }
+
+
+err:
     return ret;
 }
