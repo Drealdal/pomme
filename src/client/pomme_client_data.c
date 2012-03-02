@@ -17,3 +17,19 @@
  */
 #include "pomme_client_data.h"
 
+
+int pomme_put_data(int handle, 
+	void *buffer,
+	int len)
+{
+    int ret = 0;
+
+    pomme_protocol_t pro; 
+    memset(&pro, 0, sizeof(pomme_protocol_t));
+    pro.op = put_data;
+    pro.len = len;
+
+
+
+    return ret;
+}

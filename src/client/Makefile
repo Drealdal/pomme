@@ -1,11 +1,11 @@
 
 include $(CLIENT_TEST)/Makefile
 
-$(OBJECT_DIR)/all_client:$(addprefix $(OBJECT_DIR)/, ) 
+$(OBJECT_DIR)/all_client:$(addprefix $(OBJECT_DIR)/, pomme_client_data.o) 
 	touch $@
 
 
-clean_server:
+clean_client:
 	rm -f $(CLIENT_DIR)/*~
 	rm -f $(CLIENT_INCLUDE)/*~
 
