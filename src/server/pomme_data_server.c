@@ -15,20 +15,57 @@
  *
  * =====================================================================================
  */
+#include "pomme_msg.h"
 #include "pomme_storage.h"
+#include "pomme_protocol.h"
 
 #define MAX_PENDING 100
 #define MAX_CLIENTS 1000
-#define PACAGE_LENGTH 1024
+#define PACKAGE_LENGTH 1024
 
 int setnonblocking(int sock);
-static int handle_request(int conn_sock)
+static int handle_request(int handle)
 {
-    char buffer[PACAGE_LENGTH];
+    char buffer[PACKAGE_LENGTH];
     int flags, ret = 0;
-    ret = pomme_recv(conn_sock,PACAGE_LENGTH,flags);
+    size_t r_len = 0;
 
+    ret = pomme_recv(handle, buffer, PACKAGE_LENGTH, &r_len, flags);
+    if( ret < 0 )
+    {
+	debug("recev fail");
+	goto err;
+    }
+   
+   pomme_protocol_t pro;
+   memset( &pro, 0, sizeof(pomme_protocol_t));
+
+   pomme_pack_t *p_buffer = &buffer;
+
+   ret = unpack_msg( &pro, p_buffer);
+   if( ret < 0 )
+   {
+       debug("unpack msg failure");
+       goto err;
+   }
+
+   switch( pro.op )
+   {
+       case put_data:
+	   break;
+       case get_data:
+	   break;
+
+       default:
+	   debug("unknown protocol msg");
+	   ret = POMME_UNKNOWN_MSG;
+	   break;
+   }
+	
+err:
+    return ret;
 }
+
 static int server()
 {
     int ret = 0;

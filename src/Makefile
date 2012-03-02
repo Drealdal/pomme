@@ -9,6 +9,10 @@ SERVER_DIR=./server
 SERVER_INCLUDE=./server/include
 SERVER_TEST=./server/test
 
+CLIENT_DIR=./client
+CLIENT_INCLUDE=./client/include
+CLIENT_TEST=./client/test
+
 TEST_DIR=./test
 BDB_DIR=/home/zhumeiqi/BDB
 INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_DIR)/include -I $(SERVER_DIR)/include
@@ -20,6 +24,7 @@ include $(SERVER_DIR)/Makefile
 include $(LOG_DIR)/Makefile
 include $(UTIL_DIR)/Makefile
 include $(TEST_DIR)/Makefile
+include $(CLIENT_DIR)/Makefile
 
 all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils)
 all_clean= $(addprefix clean_, test log server utils)
