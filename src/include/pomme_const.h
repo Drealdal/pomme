@@ -35,7 +35,7 @@
                                                 /* transport errors */
 #define POMME_SEND_MSG_ERROR (-301)
 #define POMME_RECV_MSG_ERROR (-302)
-#define POMME_UNKNOW_MSG (-303)
+#define POMME_UNKNOWN_MSG (-303)
                                          /* db errors */
 #define POMME_WRITE_DB_ERROR (-401)
 #define POMME_READ_DB_ERROR (-402)

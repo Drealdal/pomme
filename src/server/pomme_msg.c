@@ -78,46 +78,4 @@ int pomme_recv_protocol(int handle,
 	int flags
 	)
 {
-    int ret = 0;
-    size_t r_len = 0;
-    assert( buffer != NULL );
-    assert( len>0 );
-
-    ret = pomme_recv(handle, buffer, len, &r_len, flags);
-    if( ret < 0 )
-    {
-	debug("recev fail");
-	goto err;
-    }
-   
-   pomme_protocol_t pro;
-   memset( &pro, 0, sizeof(pomme_protocol_t));
-
-   ret = unpack_msg( &pro, buffer);
-   if( ret < 0 )
-   {
-       debug("unpack msg failure");
-       goto err;
-   }
-
-   switch( pro.po )
-   {
-       case put_data:
-	   /*
-	    * the function to handle put data request
-	    */
-	   pomme_put_data();
-	   break;
-
-       case get_data:
-	   break;
-
-       default:
-	   debug("unknown protocol msg");
-	   ret = POMME_UNKNOWN_MSG;
-	   break;
-   }
-	
-err:
-    return ret;
 }
