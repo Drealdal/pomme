@@ -25,8 +25,6 @@
 typedef struct pomme_object
 {
 
-	u_int8 *path;
-	u_int8 *name;
 	/*
 	 * This structure contains the basic information of an
 	 * object, an object is part of an file.
@@ -55,7 +53,40 @@ typedef struct pomme_object
 	 * the _offset of the data within the file this object beyong to
 	 */
 	u_int64 _offset;
+
 }pomme_object_t;
+
+typedef struct pomme_file
+{
+	/*
+	 * full path of the file in the file system
+	 * path is used as the key of the file
+	 */
+	u_int8 *path;
+	/*
+	 * the create time of the file
+	 */
+	time_t c_time;
+	/*
+	 * the modify time
+	 */
+	time_t m_time;
+	/*
+	 * the delete time,
+	 * if the d_time < cur_time , the file is treated
+	 * deleted
+	 */
+	time_t d_time;
+	/*
+	 * The length of the file
+	 */
+	u_int64 len;
+	/*
+	 *access
+	 */
+	u_int32 access;
+}pomme_file_t;
+
 
 
 #endif

@@ -50,9 +50,7 @@ int init_queue(struct queue_head **queue,char *name,int maxLength)
 	memcpy(q_addr->name,name,nLen);
 	if( pthread_mutex_init(&q_addr->mutex,NULL) != 0 )
 	{
-#ifdef DEBUG
-		fprintf(stderr,"%s %d: Queue %s init Mutex Error \n",__FILE__,__LINE__,name);
-#endif
+		debug("Queue %s init Mutex Error\n",name);
 		return -1;
 	}
 	q_addr->curLength = 0;
@@ -73,6 +71,7 @@ int destory_queue(struct queue_head *queue)
 	lock_queue(queue);
 	if( !is_empty_queue(queue) )
 	{
+		debug("Trying to distory a not empty queue %s\n",queue->name);
 #ifndef DEBUG
 		printf("Trying to distory an non empty queue %s\n",queue->name);
 #endif

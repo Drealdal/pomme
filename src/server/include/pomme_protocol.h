@@ -20,6 +20,7 @@
 #include "utils.h"
 #include "pomme_pack.h"
 typedef enum pomme_protocol_type{put_data=1,get_data}pomme_protocol_type_t;
+
 typedef struct pomme_protocol
 {
     pomme_protocol_type_t op;
@@ -33,13 +34,25 @@ typedef struct pomme_protocol
      * be more package
      */
     size_t len;
+    /*
+     * the total length of the data, the len is the len of the
+     * data come with the protocol msg
+     */
+    size_t total_len;
     void *data;
 }pomme_protocol_t;
 #define POMME_MAX_PROTO_DATA ( POMME_PACKAGE_SIZE - sizeof( pomme_protocol_type_t) \
-       -sizeof(size_t))	
+       -2*sizeof(size_t))
+#define pomme_msg_len(pro) (  pro->len+sizeof(pomme_protocol_type_t)+2*sizeof(size_t) )
 
 int pack_msg( pomme_protocol_t *pro , pomme_pack_t **buf);
 int unpack_msg( pomme_protocol_t *pro, pomme_pack_t *buf);
+/*
+ * printf the content of an pomme_protocol_t structure
+ * for debug use
+ *
+ */
+int pomme_print_proto(pomme_protocol_t *pro,void (*data_printer)(void *));
 
 
 
