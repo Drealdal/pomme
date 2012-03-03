@@ -67,7 +67,6 @@ int pomme_put_data(int handle,
     	}
     }
 
-
 err:
     return ret;
 }
