@@ -23,6 +23,91 @@
 #define MAX_CLIENTS 1000
 #define PACKAGE_LENGTH 1024
 
+
+int pomme_env_init(pomme_env_t *env,
+	unsigned int c_flags,
+	unsigned int o_flags,
+	char *home,
+	int mode)
+{
+    int ret = 0;
+    assert( env != NULL );
+    assert( home != NULL );
+
+    ret = pthread_mutex_init(&env->mutex, NULL);
+
+    if( ret != 0 )
+    {
+	debug("init mutex error");
+	goto mutex_err;
+    }
+
+    ret = db_env_create( &env->db_env,flags); 
+
+    if( ret < 0 )
+    {
+	debug("create db env error:%s",db_strerror(ret));
+	goto env_err;
+    }
+
+   ret =  env->db_env->open(env->db_env, home, o_flags, mode);
+   if( ret != 0 )
+   {
+       debug("open db env error: %s",db_strerror(ret));
+       goto open_err;
+   }
+
+   ret = db_create( &env->db_meta, NULL, 0);
+
+   if( ret != 0 )
+   {
+       debug("Create Db meta fail: %s",db_strerror(ret));
+       goto create_db_err;
+   }
+
+   DB_ENV * pEnv = env->db_env;
+   DB_TXN *tid;
+
+   /*
+    * No to thread will do the write operation
+    * on the same record
+    *
+    */
+   //TODO consider the flags
+   ret = pEnv->txn_begin(pEnv, NULL, &tid,
+	   DB_READ_COMMITTED);
+   if( ret != 0 )
+   {
+       debug("txn_begin error");
+       goto create_db_err;
+   }
+
+   DB *dbp = env->db_meta;
+
+   if(( ret = dbp->open(dbp,tid,env->meta_file,NULL,DB_QUEUE,DB_CREATE,0664))!=0)
+   {
+       dbp->err(dbp,ret,"open failed%s",DATABASE);
+       goto create_db_err;
+   }
+
+
+
+	return ret;
+	
+create_db_err:
+
+open_err:
+	env->db_env->close();
+env_err:
+mutex_err:
+	return ret;
+
+
+}
+
+
+
+
 int setnonblocking(int sock);
 
 static int handle_put_data(int handle, pomme_protocol_t *pro)

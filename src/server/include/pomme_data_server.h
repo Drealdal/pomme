@@ -24,8 +24,16 @@ typedef struct pomme_env
 {
     DB_ENV *db_env;
     DB *conf;
+    /*
+     * the db file to storage 
+     * the meta infomation of
+     * the objects
+     */
+    DB *db_meta;
+    char *meta_file;
 
     int flags;// reserved
+    pthread_mutex_t mutex;
 }pomme_env_t;
 
 /*
@@ -41,14 +49,29 @@ typedef struct pomme_ds
 	 */
 	pomme_hash_t *storage_file;
 	pomme_env_t *env;
+	/*
+	 * the home directory of the  data server
+	 * and the db_env
+	 */
+	char *home;
+	unsigned int env_c_flags;
+	unsigned int env_o_flags;
+	int env_mode;
 }pomme_ds_t;
 
 
 /*
  *@param: init an pomme_env_t structure
+ *@param: c_flags, the create flags for db_env
+ *@param: o_flags, the open flags for db_env
+ *@param: home , the home for the db_env
  *@return: < 0 error, == 0 success
  */
-int pomme_env_init(pomme_env_t *env);
+int pomme_env_init(pomme_env_t *env,
+	unsigned int c_flags,
+	unsigned int o_flags,
+	char *home,
+	int mode);
 /*
  * @param: distory an pomme_env_t structure
  * @return: <0 error, == 0 success
