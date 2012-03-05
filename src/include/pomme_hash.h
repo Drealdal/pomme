@@ -94,4 +94,15 @@ int pomme_data_init(pomme_data_t *data,u_int32 size);
  *  distory an pomme_data_t structure,manage the Memory allocated by sys
  *-----------------------------------------------------------------------------*/
 int pomme_data_distroy(pomme_data_t *data);
+
+/**
+ * @brief pomme_hash_int_int : init an hash of <int, int> pair
+ *
+ * @param size
+ * @param hash
+ *
+ * @return 
+ */
+int pomme_hash_int_int(int size, pomme_hash_t **hash);
+
 #endif

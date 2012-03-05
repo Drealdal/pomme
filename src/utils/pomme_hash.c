@@ -385,3 +385,17 @@ int pomme_hash_del(pomme_hash_t *hash,pomme_data_t *key)
 	return 0;
 
 }
+static int cmp_int(void *a, void *b)
+{
+    int ia = *(int *)a;
+    int ib = *(int *) b;
+    return ia<ib;
+}
+static int hash_int(void *a)
+{
+    return *(int *)a;
+}
+int pomme_hash_int_int(int size, pomme_hash_t **hash)
+{
+    return pomme_hash_init(size, &cmp_int, &hash_int, hash);
+}

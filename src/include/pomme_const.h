@@ -26,6 +26,7 @@
 #define POMME_LOCAL_DIR_ERROR (-101) 
 #define POMME_LOCAL_FILE_ERROR (-102)
 #define POMME_WRITE_FILE_ERROR (-103)
+#define POMME_FILE_NOT_VALID (-104)
                                                 /* general error code */
 #define POMME_MEM_ERROR (-201)
 #define POMME_INVALID_PACKAGE (-202)
@@ -56,6 +57,7 @@
  * const data definitions
  */
 #define POMME_PACKAGE_MAGIC 0x1e
+#define POMME_STORAGE_MAGIC 0X1e
 
 #define POMME_LITTLE_ENDIAN 1
 #define POMME_BIG_ENDIAN 2

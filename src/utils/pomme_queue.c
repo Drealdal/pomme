@@ -29,7 +29,7 @@ int init_queue(struct queue_head **queue,char *name,int maxLength)
 		q_addr = malloc(sizeof(struct queue_head));
 		if(q_addr == NULL)
 		{
-			printf("%s %d:Queue %s init Malloc Mem Error\n",__FILE__,__LINE__,name);
+			debug("%s %d:Queue %s init Malloc Mem Error\n",__FILE__,__LINE__,name);
 			return -1;
 		}
 		memset(q_addr,0,sizeof(struct queue_head));
@@ -44,7 +44,7 @@ int init_queue(struct queue_head **queue,char *name,int maxLength)
 	q_addr->name = malloc(nLen);
 	if( q_addr->name == NULL )
 	{
-		printf("%s %d: Queue %s init Malloc Mem(for name) Error \n",__FILE__,__LINE__,name);
+		debug("%s %d: Queue %s init Malloc Mem(for name) Error \n",__FILE__,__LINE__,name);
 		return -1;
 	}
 	memcpy(q_addr->name,name,nLen);
@@ -72,9 +72,6 @@ int destory_queue(struct queue_head *queue)
 	if( !is_empty_queue(queue) )
 	{
 		debug("Trying to distory a not empty queue %s\n",queue->name);
-#ifndef DEBUG
-		printf("Trying to distory an non empty queue %s\n",queue->name);
-#endif
 		ret = -1;
 		goto d_end;
 	}
@@ -100,9 +97,7 @@ static int __add_queue(struct queue_head *queue,struct queue_body *toadd)
 	lock_queue(queue);
 	if(is_full_queue(queue))
 	{
-#ifdef DEBUG
-		printf("Queue:%s is Full\n",queue->name);
-#endif
+		debug("Queue:%s is Full\n",queue->name);
 		ret = -1;
 		goto unl;
 	}
@@ -129,17 +124,14 @@ static struct queue_body * __del_queue(struct queue_head *queue)
 	lock_queue(queue);
 	if( is_empty_queue(queue) )
 	{
-#ifdef DEBUG
-		printf("Queue:%s is empty\n",queue->name);
-#endif
+		debug("Queue:%s is empty",queue->name);
 		goto out_pos;
 	}
 	re = queue->head;
 
 	if( queue->head == NULL )
 	{
-		printf("%d\n",queue->curLength);
-		printf("Shit!\n");
+		debug("%d",queue->curLength);
 	}
 	queue->head = queue->head->next;
 	if(queue->head == QUEUE_TAIL_NULL)

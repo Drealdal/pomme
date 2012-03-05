@@ -22,7 +22,7 @@
 extern int file_count_strict;
 
 static int get_dir_child_num(char *path, int *count);
-static int create_local_file(char *path);
+static int create_local_file(char *path,size_t id);
 
 int create_storage(DB *db_handle,
 	DB_TXN *txnid,
@@ -56,7 +56,7 @@ int create_storage(DB *db_handle,
     *(ptr+1)='/';
     sprintf(ptr+2, "%d", count);
 
-    if( (ret = create_local_file(fullpath) ) < 0 )
+    if( (ret = create_local_file(fullpath,count) ) < 0 )
     {
     	debug("create local file(%s) error",fullpath);
     	goto err;
@@ -141,7 +141,7 @@ err:
     return ret;
 
 }
-static int create_local_file(char *path)
+static int create_local_file(char *path,size_t id)
 {
     int ret = 0;
     if( (ret = open(path,O_RDONLY)) != -1 )
@@ -155,6 +155,12 @@ static int create_local_file(char *path)
     	debug("Create File %s failed",path);
     	ret = POMME_LOCAL_FILE_ERROR;
     	goto err;
+    }
+    ret =  set_file_head(ret , id);
+    if( ret < 0 )
+    {
+	debug("set file head failure");
+	goto err;
     }
 err:
    return ret; 
@@ -195,3 +201,73 @@ int put_data_2_storage(int file_handle,
 err:
     return ret;
 }
+
+/**
+ * @brief is_file_valid : tell if an given file is valid
+ *
+ * @param fd:the filehandle
+ *
+ * @return == 0 if is valid, < 0 not valid 
+ */
+int is_file_valid(int fd )
+{
+    int ret = 0;
+    pomme_ds_head_t head;
+
+    ret = lseek( fd, 0,SEEK_SET );
+   if( ret < 0 )
+   {
+       debug("seek file failure: %s",strerror(ret));
+       goto err;
+   } 
+   ssize_t rl = 0;
+   rl = read(fd, &head,sizeof(pomme_ds_head_t) );
+   if( rl < sizeof(pomme_ds_head_t))
+   {
+       debug("read file not enough");
+       ret = POMME_FILE_NOT_VALID;
+       goto err;
+   }
+   if( head.magic != POMME_STORAGE_MAGIC )
+   {
+       ret = POMME_FILE_NOT_VALID;
+   }else{
+       ret = 0;
+   } 
+err:
+   return ret;
+}
+
+/**
+ * @brief set_file_head : set the header
+ *
+ * @param fd
+ *
+ * @return 
+ */
+int set_file_head( int fd, size_t id)
+{
+    int ret = 0;
+    pomme_ds_head_t head;
+    memset(&head, 0 ,sizeof(head));
+
+    head.magic = POMME_STORAGE_MAGIC;
+    head.id = id;
+
+    ret = lseek( fd, 0,SEEK_SET);
+    if( ret < 0 )
+    {
+	debug("seek file error: %s", strerror(ret));
+	goto err;
+    }
+    ssize_t wl = 0;
+    wl = write(fd, &head, sizeof(pomme_ds_head_t));
+    if( wl < sizeof(pomme_ds_head_t) )
+    {
+	debug("write file failure");
+	ret = POMME_WRITE_FILE_ERROR;
+	goto err;
+    }
+err:
+    return ret;
+} 

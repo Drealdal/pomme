@@ -19,7 +19,7 @@
 #define POMME_LOG_H
 #include "utils.h"
 #include "pomme_queue.h"
-#define LOG_DIR_DEFAULT "./log/"
+#define LOG_DIR_DEFAULT "./"
 
 #ifndef MAXLOGTRY
 #define MAXLOGTRY 3
@@ -48,6 +48,7 @@ typedef struct logger{
         FILE *file_handle;	
 	pomme_log_level_t log_level;// level < log_level will be logged
 	struct queue_body next;//The logger should put into a queue ,to manage 
+
 }logger_t;
 void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level,struct logger *logger);
 /*

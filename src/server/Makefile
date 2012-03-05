@@ -5,7 +5,7 @@ $(OBJECT_DIR)/all_server:$(addprefix $(OBJECT_DIR)/, pomme_storage.o all_server_
 
 pomme_protocol_depends=$(addprefix $(OBJECT_DIR)/,pomme_pack.o)
 
-data_server_depends=$(addprefix $(OBJECT_DIR)/, pomme_storage.o pomme_msg.o pomme_protocol.o pomme_pack.o pomme_utils.o pomme_data_server.o)
+data_server_depends=$(addprefix $(OBJECT_DIR)/, pomme_storage.o pomme_msg.o pomme_protocol.o pomme_pack.o pomme_utils.o pomme_data_server.o pomme_log.o pomme_queue.o pomme_hash.o pomme_blist.o)
 
 clean_server:
 	rm -f $(SERVER_DIR)/*~

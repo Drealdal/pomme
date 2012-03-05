@@ -27,6 +27,12 @@ typedef struct pomme_local_file
 	int8 *path;
 }pomme_local_file_t;
 
+typedef struct pomme_ds_head
+{
+    int magic;
+    size_t id;
+}pomme_ds_head_t;
+
 /**
  * @brief create_storage 
  *
@@ -74,5 +80,7 @@ int put_data_2_storage(int file_handle,
        	size_t len,
 	off_t *start); 
 
+int set_file_head( int fd, size_t id);
+int is_file_valid(int fd );
 
 #endif

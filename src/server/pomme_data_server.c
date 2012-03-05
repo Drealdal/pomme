@@ -24,11 +24,13 @@
 #define MAX_CLIENTS 1000
 #define PACKAGE_LENGTH 1024
 
+extern int stop_log;
 
 int pomme_env_init(pomme_env_t *env,
 	unsigned int c_flags,
 	unsigned int o_flags,
 	char *home,
+	char *meta_file,
 	int mode)
 {
     int ret = 0;
@@ -90,10 +92,7 @@ int pomme_env_init(pomme_env_t *env,
        dbp->err(dbp,ret,"open failed%s",env->meta_file);
        goto create_db_err;
    }
-
-
-
-	return ret;
+   return ret;
 	
 create_db_err:
 
@@ -107,8 +106,77 @@ mutex_err:
 
 }
 
+int pomme_env_distroy(pomme_env_t *env)
+{
+    int ret = 0;
+
+    env->db_env->close(env->db_env, DB_FORCESYNC);
+    return ret;
+err:
+    return ret;
+}
+
+int pomme_ds_init( pomme_ds_t *ds, 
+	char *home,
+	char *meta_file,
+	unsigned int env_c_flags,
+	unsigned int env_o_flags,
+	int env_mode)
+{
+    int ret = 0;
+    assert( ds != NULL); 
+
+    ret = pomme_env_init(&ds->env, 
+	    env_c_flags,env_o_flags,
+	    home,meta_file,
+	    env_mode);
+    if( ret < 0 )
+    {
+	debug("data server env init failure");
+	goto err;
+    }
+	
+    ret  = pomme_hash_int_int( 100,&ds->storage_file);
+    if( ret < 0 )
+    {
+	debug("init hash fail");
+	goto hash_err;
+    }
+    
+    init_log();
+    ds->ds_logger = create_logger(POMME_LOG_MAX,"data_server");
+    if( NULL == ds->ds_logger )
+    {
+	debug("create logger failure");
+	goto logger_err;
+    }
+    POMME_LOG_INFO("Data Server data structure init success",ds->ds_logger);
+    return ret;
+
+logger_err:
+    pomme_hash_distroy(&ds->storage_file);
+hash_err:
+    pomme_env_distroy(ds->env);
+err:
+    return ret;
+
+}
 
 
+int pomme_ds_distroy( pomme_ds_t *ds )
+{
+    int ret = 0;
+    POMME_LOG_INFO("STOP DATA SERVER",ds->ds_logger);
+    stop_log = 1;
+    pomme_env_distroy(ds->env);
+    pomme_hash_distroy(ds->storage_file);
+    while(stop_log == 1)
+    {
+	sleep(1);
+    }
+
+    return ret;
+}
 
 int setnonblocking(int sock);
 
@@ -260,3 +328,4 @@ int setnonblocking(int sock)
     }
     return 0;
 }
+

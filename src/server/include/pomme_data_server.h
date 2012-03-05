@@ -27,6 +27,9 @@
 typedef struct pomme_env
 {
     DB_ENV *db_env;
+    /*
+     * unused
+     */
     DB *conf;
     /*
      * the db file to storage 
@@ -64,6 +67,7 @@ typedef struct pomme_ds
 }pomme_ds_t;
 
 
+
 /*
  *@param: init an pomme_env_t structure
  *@param: c_flags, the create flags for db_env
@@ -75,17 +79,28 @@ int pomme_env_init(pomme_env_t *env,
 	unsigned int c_flags,
 	unsigned int o_flags,
 	char *home,
+	char *meta_file,
 	int mode);
 /*
  * @param: distory an pomme_env_t structure
  * @return: <0 error, == 0 success
  */
-int pomme_env_distory(pomme_env_t *env);
+int pomme_env_distroy(pomme_env_t *env);
 /*
  * @param:init an pomme_ds_t structure
+ * @param: home, the home dir of pomme_env
+ * @param: meta_file, the file name of the meta database
+ * @env_c_flags: the create flags of the env structure
+ * @env_o_flags: the open flags of the env structure
+ * @env_mode: the open mode of the ds
  * return: < 0 error, == 0 success
  */
-int pomme_ds_init(pomme_ds_t * ds);
+int pomme_ds_init(pomme_ds_t * ds,
+	char *home,
+	char *meta_file,
+	unsigned int env_c_flags,
+	unsigned int env_o_flags,
+	int env_mode);
 /*
  * @param: distroy an pomme_ds_t structure
  * return: < 0 error, == 0 success
