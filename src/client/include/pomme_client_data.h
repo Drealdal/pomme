@@ -34,7 +34,8 @@
  */
 int pomme_put_data(int handle, 
 	void *buffer,
-	int len);
+	int len,
+	int flags);
 
 /**
  * @brief pomme_get_data : get  data from an 

@@ -19,6 +19,10 @@
 #define _POMME_DATA_SERVER_H
 #define version 0.01
 #include "utils.h"
+#include "pomme_log.h"
+#include "pomme_hash.h"
+#include "pomme_protocol.h"
+#include "pomme_type.h"
 
 typedef struct pomme_env
 {

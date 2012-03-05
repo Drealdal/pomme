@@ -50,7 +50,7 @@ int pomme_put_data(int handle,
     }
 
     ret = pomme_send(handle, buf,
-    		pomme_msg_len(pro), flags);
+    		pomme_msg_len((&pro)), flags);
     if( ret < 0 )
     {
     	debug("send package failure");
@@ -60,7 +60,7 @@ int pomme_put_data(int handle,
     if( len - first_msg_send > 0  )
     {
     	ret = pomme_send(handle, buf + POMME_PACKAGE_SIZE,
-    			len - frist_msg_send, flags);
+    			len - first_msg_send, flags);
     	if( ret < 0 )
     	{
     		debug("send rest data of the package failure");

@@ -52,7 +52,7 @@ int unpack_msg( pomme_protocol_t *pro, pomme_pack_t *buf);
  * for debug use
  *
  */
-int pomme_print_proto(pomme_protocol_t *pro,void (*data_printer)(void *));
+int pomme_print_proto(pomme_protocol_t *pro,int (*data_printer)(void *));
 
 
 

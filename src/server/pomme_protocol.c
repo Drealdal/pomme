@@ -39,7 +39,7 @@ int pack_msg(pomme_protocol_t *pro, pomme_pack_t **buf)
     pomme_pack(&pro->total_len, size_t , *buf);
 
     pomme_pack_array(&pro->data, char, pro->len , *buf);
-    ret = t_len;2
+    ret = t_len;
 err:
     return ret;
 }
@@ -77,7 +77,7 @@ static char * get_proto_type(pomme_protocol_t * t)
 	return ret;
 }
 
-int pomme_print_proto(pomme_protocol_t *pro,void (*data_printer)(void *))
+int pomme_print_proto(pomme_protocol_t *pro,int (*data_printer)(void *))
 {
 	int ret = 0;
 	assert(pro!=NULL);

@@ -18,6 +18,7 @@
 #include "pomme_msg.h"
 #include "pomme_storage.h"
 #include "pomme_protocol.h"
+#include "pomme_data_server.h"
 
 #define MAX_PENDING 100
 #define MAX_CLIENTS 1000
@@ -42,7 +43,7 @@ int pomme_env_init(pomme_env_t *env,
 	goto mutex_err;
     }
 
-    ret = db_env_create( &env->db_env,flags); 
+    ret = db_env_create( &env->db_env,c_flags); 
 
     if( ret < 0 )
     {
@@ -86,7 +87,7 @@ int pomme_env_init(pomme_env_t *env,
 
    if(( ret = dbp->open(dbp,tid,env->meta_file,NULL,DB_QUEUE,DB_CREATE,0664))!=0)
    {
-       dbp->err(dbp,ret,"open failed%s",DATABASE);
+       dbp->err(dbp,ret,"open failed%s",env->meta_file);
        goto create_db_err;
    }
 
@@ -97,7 +98,8 @@ int pomme_env_init(pomme_env_t *env,
 create_db_err:
 
 open_err:
-	env->db_env->close();
+	//TODO FLAGS
+	env->db_env->close(env->db_env, 0);
 env_err:
 mutex_err:
 	return ret;
@@ -156,7 +158,7 @@ err:
     return ret;
 }
 
-static int server()
+int server()
 {
     int ret = 0;
     struct sockaddr_in addr;

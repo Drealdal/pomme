@@ -18,6 +18,7 @@
 #ifndef POMME_LOG_H
 #define POMME_LOG_H
 #include "utils.h"
+#include "pomme_queue.h"
 #define LOG_DIR_DEFAULT "./log/"
 
 #ifndef MAXLOGTRY
@@ -38,7 +39,7 @@ typedef enum LOG_LEVEL{
 typedef struct log {
 	char log_time[24];
         char message[1024];
-	struct queue_body next;
+	queue_body_t next;
 	struct logger *logger;
 }log_t;
 
