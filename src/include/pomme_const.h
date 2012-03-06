@@ -27,6 +27,7 @@
 #define POMME_LOCAL_FILE_ERROR (-102)
 #define POMME_WRITE_FILE_ERROR (-103)
 #define POMME_FILE_NOT_VALID (-104)
+#define POMME_FILE_MULTI_CUR (-105)
                                                 /* general error code */
 #define POMME_MEM_ERROR (-201)
 #define POMME_INVALID_PACKAGE (-202)

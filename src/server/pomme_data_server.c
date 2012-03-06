@@ -143,7 +143,14 @@ int pomme_ds_init( pomme_ds_t *ds,
 	debug("init hash fail");
 	goto hash_err;
     }
-    
+    ret = get_storage_files(ds->data_home, ds->storage,
+	    &ds->cur_storage_id,&ds->cur_storage_fd);
+    if( ret < 0 )
+    {
+	debug("get storage file fail");
+	goto storage_err;
+    }
+
     init_log();
     ds->ds_logger = create_logger(POMME_LOG_MAX,"data_server");
     if( NULL == ds->ds_logger )
@@ -153,7 +160,7 @@ int pomme_ds_init( pomme_ds_t *ds,
     }
     POMME_LOG_INFO("Data Server data structure init success",ds->ds_logger);
     return ret;
-
+storage_err:
 logger_err:
     pomme_hash_distroy(&ds->storage_file);
 hash_err:
@@ -178,11 +185,10 @@ int pomme_ds_distroy( pomme_ds_t *ds )
 
     return ret;
 }
-int get_storage_files(char *path, pomme_hash_t *storage)
+int get_storage_files(char *path, pomme_hash_t *storage,
+	int *cur_id,
+	int *cur_fd)
 {
-    //debug("path:%s",path);
-   //assert(path != NULL); 
-   //assert(storage != NULL);
    int ret= 0, len ;
    struct stat statbuf;
    struct dirent *dirp = NULL;
@@ -254,6 +260,18 @@ int get_storage_files(char *path, pomme_hash_t *storage)
 	      debug("%s not valid",tpath);
 	      continue;
 	  }
+	  if( head.status = CUR )
+	  {
+	      if( *cur_id == -1 )
+	      {
+		  *cur_id = head.id;
+		  *cur_fd = fd;
+	      }else{
+		  debug("more than 1 cur storage");
+		  ret = POMME_FILE_MULTI_CUR;
+		  break;
+	      } 
+	  }
 	  ret = pomme_hash_put_2(storage,&head.id,sizeof(int),&fd,sizeof(int));
 	  if( ret < 0 )
 	  {
@@ -263,7 +281,7 @@ int get_storage_files(char *path, pomme_hash_t *storage)
 	  printf("pair<%d,%d>\n",head.id,fd);
 
        }else{
-	ret =   get_storage_files(tpath,storage);
+	ret =   get_storage_files(tpath,storage,cur_id, cur_fd);
 	if( ret < 0 )
 	{
 	    break;

@@ -68,6 +68,12 @@ typedef struct pomme_ds
 	unsigned int env_c_flags;
 	unsigned int env_o_flags;
 	int env_mode;
+
+	/*
+	 * the id of the current used storage_file
+	 */
+	int cur_storage_id;
+	int cur_storage_fd;
 }pomme_ds_t;
 
 

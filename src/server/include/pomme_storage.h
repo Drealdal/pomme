@@ -21,6 +21,7 @@
 #include "db.h"
 #include <dirent.h>
 
+typedef enum storage_status {FULL=0,CUR}storage_status_t;
 typedef struct pomme_local_file
 {
 	u_int64 id;
@@ -31,6 +32,8 @@ typedef struct pomme_ds_head
 {
     int magic;
     int id;
+    storage_status_t status;
+    
 }pomme_ds_head_t;
 
 /**

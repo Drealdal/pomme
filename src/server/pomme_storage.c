@@ -157,7 +157,7 @@ static int create_local_file(char *path,size_t id)
     	goto err;
     }
     debug("open");
-    ret =  set_file_head(ret , id);
+    ret =  set_file_head(ret , id, CUR);
     if( ret < 0 )
     {
 	debug("set file head failure");
@@ -251,7 +251,8 @@ err:
  *
  * @return 
  */
-int set_file_head( int fd, int id)
+int set_file_head( int fd, int id,
+	storage_status_t status)
 {
     debug("?,begin");
     int ret = 0;
@@ -260,6 +261,7 @@ int set_file_head( int fd, int id)
 
     head.magic = POMME_STORAGE_MAGIC;
     head.id = id;
+    head.status = status;
 
     ret = lseek( fd, 0,SEEK_SET);
     if( ret < 0 )
