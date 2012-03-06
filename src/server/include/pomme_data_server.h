@@ -61,6 +61,10 @@ typedef struct pomme_ds
 	 * and the db_env
 	 */
 	char *home;
+	/* *
+	 * where the local data file will be stored
+	 * */
+	char *data_home;
 	unsigned int env_c_flags;
 	unsigned int env_o_flags;
 	int env_mode;
@@ -106,6 +110,16 @@ int pomme_ds_init(pomme_ds_t * ds,
  * return: < 0 error, == 0 success
  */
 int pomme_ds_distroy(pomme_ds_t *ds);
+
+/**
+ * @brief pomme_storage_init: init the inmem structrue for storage infomation
+ *
+ * @param ds: the structure of data server
+ *
+ * @return < 0 for failure, ==0 success
+ */
+int pomme_storage_init(pomme_ds_t *ds);
+
 /*
  * add object
  * @param:ds the structure of the in mem dataserver
@@ -124,7 +138,6 @@ int pomme_add_object(pomme_ds_t *ds,
 int pomme_get_object(pomme_ds_t *ds,
 		int handle,
 		pomme_protocol_t *pro);
-
 
 /*****
  * the first version of the data server

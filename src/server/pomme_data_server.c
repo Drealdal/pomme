@@ -125,6 +125,7 @@ int pomme_ds_init( pomme_ds_t *ds,
 {
     int ret = 0;
     assert( ds != NULL); 
+    memset( ds , 0, sizeof(ds));
 
     ret = pomme_env_init(&ds->env, 
 	    env_c_flags,env_o_flags,
@@ -176,6 +177,106 @@ int pomme_ds_distroy( pomme_ds_t *ds )
     }
 
     return ret;
+}
+int get_storage_files(char *path, pomme_hash_t *storage)
+{
+    //debug("path:%s",path);
+   //assert(path != NULL); 
+   //assert(storage != NULL);
+   int ret= 0, len ;
+   struct stat statbuf;
+   struct dirent *dirp = NULL;
+   DIR *dp;
+   int fd;
+   char tpath[POMME_PATH_MAX];
+
+   if( (ret = lstat( path ,&statbuf))<0 )
+   {
+       debug("lstat %s failure: %s", path,strerror(ret));
+       ret = POMME_LOCAL_DIR_ERROR;
+       goto err;
+   }
+   
+   if( S_ISDIR( statbuf.st_mode) == 0 )
+   {
+       debug("%s is not a dir",path);
+       ret = POMME_LOCAL_DIR_ERROR;
+       goto err;
+   }
+   
+   if( (dp = opendir( path))== NULL )
+   {
+       debug("opendir %s fail",path);
+       ret = POMME_LOCAL_DIR_ERROR;
+       goto err;
+   }
+   strcpy(tpath, path);
+   len = strlen(path);
+   while( len>0 &&tpath[len-1] == '/' )
+   {
+       tpath[len-1]='0';
+       len--;
+   }
+   pomme_ds_head_t head;
+   while( (dirp = readdir( dp)) != NULL )
+   {
+       if(( strcmp( dirp->d_name, ".") == 0 )||
+		 (  strcmp(dirp->d_name,"..") ==0 )
+	  )
+	       {
+		   continue;
+	       }
+       snprintf(tpath+len,POMME_PATH_MAX-len,"/%s",dirp->d_name);
+
+       if( (ret = lstat( tpath ,&statbuf))<0 )
+       {
+	   debug("lstat %s failure: %s", tpath,strerror(ret));
+	   ret = 0;
+	   continue;
+       }
+
+       if( S_ISDIR( statbuf.st_mode) == 0 )
+       {
+	   // not dir
+	   //printf("%s\n",tpath);
+	   fd = open(tpath,O_RDWR);
+	   if( fd < 0 )
+	   {
+	       debug("open file %s failure: %s",tpath,strerror(fd));
+	       continue;
+	   }
+	  ret = is_file_valid(fd,&head); 
+
+	  if( ret < 0 )
+	  {
+	      close(fd);
+	      ret = 0;
+	      debug("%s not valid",tpath);
+	      continue;
+	  }
+	  ret = pomme_hash_put_2(storage,&head.id,sizeof(int),&fd,sizeof(int));
+	  if( ret < 0 )
+	  {
+	      debug("put to hash table failure");
+	      break;
+	  }
+	  printf("pair<%d,%d>\n",head.id,fd);
+
+       }else{
+	ret =   get_storage_files(tpath,storage);
+	if( ret < 0 )
+	{
+	    break;
+	}
+	   
+       }
+       
+   }
+
+
+err:
+   return ret;
+
 }
 
 int setnonblocking(int sock);

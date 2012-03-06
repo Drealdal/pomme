@@ -40,6 +40,7 @@ int main()
 	    sp = get_current_dir_name();
 	}
     }
+    sp = "/home/zhumeiqi/work/pomme/data";
     snprintf(storage_path, MAX_PATH_LEN, "%s",sp);
     char *ptr = storage_path+ strlen(sp) -1;
 
@@ -84,6 +85,7 @@ int main()
     }
     printf("all pass\n");
     dbp->close(dbp, DB_NOSYNC);
+    get_storage_files("/home/zhumeiqi/work/pomme/data",NULL);
 
 err:
     return ret;

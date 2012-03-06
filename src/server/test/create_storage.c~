@@ -18,6 +18,7 @@
 #include "pomme_storage.h"
 #include<stdio.h>
 #include<stdlib.h>
+#include<unistd.h>
 #define MAX_PATH_LEN 250
 char storage_path[MAX_PATH_LEN];
 
@@ -39,6 +40,7 @@ int main()
 	    sp = get_current_dir_name();
 	}
     }
+    sp = "/home/zhumeiqi/work/pomme/data",NULL";
     snprintf(storage_path, MAX_PATH_LEN, "%s",sp);
     char *ptr = storage_path+ strlen(sp) -1;
 
@@ -83,6 +85,7 @@ int main()
     }
     printf("all pass\n");
     dbp->close(dbp, DB_NOSYNC);
+    get_storage_files("/home/zhumeiqi/work/pomme/data",NULL);
 
 err:
     return ret;

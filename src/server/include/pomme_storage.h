@@ -30,7 +30,7 @@ typedef struct pomme_local_file
 typedef struct pomme_ds_head
 {
     int magic;
-    size_t id;
+    int id;
 }pomme_ds_head_t;
 
 /**
@@ -80,7 +80,7 @@ int put_data_2_storage(int file_handle,
        	size_t len,
 	off_t *start); 
 
-int set_file_head( int fd, size_t id);
-int is_file_valid(int fd );
+int set_file_head( int fd, int id);
+int is_file_valid(int fd , pomme_ds_head_t *head);
 
 #endif

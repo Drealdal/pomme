@@ -144,24 +144,27 @@ err:
 static int create_local_file(char *path,size_t id)
 {
     int ret = 0;
-    if( (ret = open(path,O_RDONLY)) != -1 )
+    if( (ret = open(path,O_RDWR)) != -1 )
     {
     	debug("File %s path is already exists",path);
     	ret = POMME_LOCAL_FILE_ERROR;
     	goto err;
     }
-    if( ( ret = open(path,O_CREAT) ) < 0 )
+    if( ( ret = open(path,O_CREAT|O_RDWR) ) < 0 )
     {
     	debug("Create File %s failed",path);
     	ret = POMME_LOCAL_FILE_ERROR;
     	goto err;
     }
+    debug("open");
     ret =  set_file_head(ret , id);
     if( ret < 0 )
     {
 	debug("set file head failure");
 	goto err;
     }
+    //TODO NOT CLOSE
+    close(ret);
 err:
    return ret; 
 }
@@ -209,10 +212,13 @@ err:
  *
  * @return == 0 if is valid, < 0 not valid 
  */
-int is_file_valid(int fd )
+int is_file_valid(int fd ,pomme_ds_head_t *head)
 {
     int ret = 0;
-    pomme_ds_head_t head;
+//    pomme_ds_head_t head;
+
+    assert( head != NULL );
+    memset( head, 0, sizeof( pomme_ds_head_t));
 
     ret = lseek( fd, 0,SEEK_SET );
    if( ret < 0 )
@@ -221,14 +227,14 @@ int is_file_valid(int fd )
        goto err;
    } 
    ssize_t rl = 0;
-   rl = read(fd, &head,sizeof(pomme_ds_head_t) );
+   rl = read(fd, head,sizeof(pomme_ds_head_t) );
    if( rl < sizeof(pomme_ds_head_t))
    {
-       debug("read file not enough");
+       debug("read file not long enough");
        ret = POMME_FILE_NOT_VALID;
        goto err;
    }
-   if( head.magic != POMME_STORAGE_MAGIC )
+   if( head->magic != POMME_STORAGE_MAGIC )
    {
        ret = POMME_FILE_NOT_VALID;
    }else{
@@ -245,8 +251,9 @@ err:
  *
  * @return 
  */
-int set_file_head( int fd, size_t id)
+int set_file_head( int fd, int id)
 {
+    debug("?,begin");
     int ret = 0;
     pomme_ds_head_t head;
     memset(&head, 0 ,sizeof(head));
@@ -260,8 +267,9 @@ int set_file_head( int fd, size_t id)
 	debug("seek file error: %s", strerror(ret));
 	goto err;
     }
-    ssize_t wl = 0;
+    int wl = 0;
     wl = write(fd, &head, sizeof(pomme_ds_head_t));
+    debug("write len:%u %d %s",wl,wl,strerror(wl));
     if( wl < sizeof(pomme_ds_head_t) )
     {
 	debug("write file failure");
