@@ -19,6 +19,16 @@
 int main()
 {
     int ret = 0;
+    pomme_ds_t ds;
+    memset(&ds, 0 , sizeof(pomme_ds_t));
+    ret = pomme_ds_init(&ds);
+    if( ret < 0 )
+    {
+	debug("data server memory init failure");
+	goto err;
+    }
+    
+
     server();
 err:
     return ret;
