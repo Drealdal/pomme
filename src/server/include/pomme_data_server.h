@@ -31,6 +31,13 @@ typedef struct pomme_env
      * unused
      */
     DB *conf;
+
+    /* *
+     *storage the id and the storage file path
+     * */
+
+    DB *sfile;
+    char *sfile_file;
     /*
      * the db file to storage 
      * the meta infomation of

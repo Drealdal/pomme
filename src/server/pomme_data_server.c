@@ -60,7 +60,7 @@ int pomme_env_init(pomme_env_t *env,
        goto open_err;
    }
 
-   ret = db_create( &env->db_meta, NULL, 0);
+   ret = db_create( &env->db_meta, env->db_env, 0);
 
    if( ret != 0 )
    {
@@ -92,7 +92,23 @@ int pomme_env_init(pomme_env_t *env,
        dbp->err(dbp,ret,"open failed%s",env->meta_file);
        goto create_db_err;
    }
+   
+   ret = db_create( &env->sfile, env->db_env, 0 );
+   if( ret != 0 )
+   {
+       debug("Create Db sfile fail: %s",db_strerror(ret));
+       goto create_sfile_fail;
+   }
+   dbp = env->sfile;
+   dbp->set_re_len(dbp, POMME_PATH_MAX);
+   dbp->set_re_pad(dbp,0x0);
+   if((ret = dbp->open(dbp, tid, env->sfile_file, NULL,DB_QUEUE,DB_CREATE,06444))!=0)
+   {
+       debug("open db env->sfile fail:%s",db_strerror(ret));
+       goto create_sfile_fail;
+   }
    return ret;
+ create_sfile_fail:
 	
 create_db_err:
 
@@ -124,6 +140,7 @@ int pomme_ds_init( pomme_ds_t *ds,
     int ret = 0;
     assert( ds != NULL); 
     memset( ds , 0, sizeof(ds));
+    ds->cur_storage_id = -1;
 
     ret = pomme_env_init(&ds->env, 
 	    env_c_flags,env_o_flags,
@@ -157,6 +174,17 @@ int pomme_ds_init( pomme_ds_t *ds,
 	goto logger_err;
     }
     POMME_LOG_INFO("Data Server data structure init success",ds->ds_logger);
+
+    if( ds->cur_storage_id == -1 )
+    {
+	ret = create_storage(ds->db_env.sfile, tid, ds->data_home,
+		&ds->cur_storage_id, &ds->cur_storage_fd);
+	if( ret < 0 )
+	{
+	    debug("create storage fail");
+	    goto storage_err;
+	}
+    }
     return ret;
 storage_err:
 logger_err:
@@ -279,7 +307,7 @@ int get_storage_files(char *path, pomme_hash_t *storage,
 	  printf("pair<%d,%d>\n",head.id,fd);
 
        }else{
-	ret =   get_storage_files(tpath,storage,cur_id, cur_fd);
+	ret =  get_storage_files(tpath,storage,cur_id, cur_fd);
 	if( ret < 0 )
 	{
 	    break;

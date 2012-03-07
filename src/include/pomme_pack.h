@@ -82,7 +82,6 @@ int pomme_pack_distroy( pomme_pack_t **pack);
 #define pomme_pack_array(data,type,length,pack) do{\
     size_t __len = length;\
     size_t __size = sizeof(type) * length;\
-    printf("%d\n",__size);\
     pomme_pack(&__len, size_t, pack);\
     pomme_pack(data, __size, pack);\
 }while(0);

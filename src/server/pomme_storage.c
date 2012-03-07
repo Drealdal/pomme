@@ -22,12 +22,13 @@
 extern int file_count_strict;
 
 static int get_dir_child_num(char *path, int *count);
-static int create_local_file(char *path,size_t id);
+static int create_local_file(char *path,int id,int *fd);
 
 int create_storage(DB *db_handle,
 	DB_TXN *txnid,
 	char *storage_path,
-	size_t *id)
+	int *id,
+	int *fd)
 {
     int ret = 0, count, len;
     unsigned int flags = 0;
@@ -56,11 +57,6 @@ int create_storage(DB *db_handle,
     *(ptr+1)='/';
     sprintf(ptr+2, "%d", count);
 
-    if( (ret = create_local_file(fullpath,count) ) < 0 )
-    {
-    	debug("create local file(%s) error",fullpath);
-    	goto err;
-    }
     memset(&key, 0, sizeof(key));
     memset(&val, 0, sizeof(val));
 
@@ -75,7 +71,14 @@ int create_storage(DB *db_handle,
     {
 	debug("put to database fail");
     }
-    *id = *(unsigned int *)(key.data);
+    *id = *(int *)(key.data);
+
+    if( (ret = create_local_file(fullpath,*id,fd) ) < 0 )
+    {
+    	debug("create local file(%s) error",fullpath);
+	//TODO abort transaction
+    	goto err;
+    }
 
 err:
     return ret;
@@ -141,15 +144,17 @@ err:
     return ret;
 
 }
-static int create_local_file(char *path,size_t id)
+static int create_local_file(char *path,int id,int *fd)
 {
     int ret = 0;
+    *fd =-1;
     if( (ret = open(path,O_RDWR)) != -1 )
     {
     	debug("File %s path is already exists",path);
     	ret = POMME_LOCAL_FILE_ERROR;
     	goto err;
     }
+    *fd = ret;
     if( ( ret = open(path,O_CREAT|O_RDWR) ) < 0 )
     {
     	debug("Create File %s failed",path);
@@ -164,7 +169,6 @@ static int create_local_file(char *path,size_t id)
 	goto err;
     }
     //TODO NOT CLOSE
-    close(ret);
 err:
    return ret; 
 }
