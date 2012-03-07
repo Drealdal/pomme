@@ -112,8 +112,6 @@ int pomme_env_distroy(pomme_env_t *env)
 
     env->db_env->close(env->db_env, DB_FORCESYNC);
     return ret;
-err:
-    return ret;
 }
 
 int pomme_ds_init( pomme_ds_t *ds, 
@@ -143,7 +141,7 @@ int pomme_ds_init( pomme_ds_t *ds,
 	debug("init hash fail");
 	goto hash_err;
     }
-    ret = get_storage_files(ds->data_home, ds->storage,
+    ret = get_storage_files(ds->data_home, ds->storage_file,
 	    &ds->cur_storage_id,&ds->cur_storage_fd);
     if( ret < 0 )
     {
@@ -164,7 +162,7 @@ storage_err:
 logger_err:
     pomme_hash_distroy(&ds->storage_file);
 hash_err:
-    pomme_env_distroy(ds->env);
+    pomme_env_distroy(&ds->env);
 err:
     return ret;
 
@@ -176,8 +174,8 @@ int pomme_ds_distroy( pomme_ds_t *ds )
     int ret = 0;
     POMME_LOG_INFO("STOP DATA SERVER",ds->ds_logger);
     stop_log = 1;
-    pomme_env_distroy(ds->env);
-    pomme_hash_distroy(ds->storage_file);
+    pomme_env_distroy(&ds->env);
+    pomme_hash_distroy(&ds->storage_file);
     while(stop_log == 1)
     {
 	sleep(1);
@@ -260,7 +258,7 @@ int get_storage_files(char *path, pomme_hash_t *storage,
 	      debug("%s not valid",tpath);
 	      continue;
 	  }
-	  if( head.status = CUR )
+	  if( head.status == CUR )
 	  {
 	      if( *cur_id == -1 )
 	      {
@@ -302,11 +300,12 @@ int setnonblocking(int sock);
 static int handle_put_data(int handle, pomme_protocol_t *pro)
 {
 	assert( pro!=NULL );
+	return 1;
 }
 static int handle_request(int handle)
 {
     char buffer[PACKAGE_LENGTH];
-    int flags, ret = 0;
+    int flags=0, ret = 0;
     size_t r_len = 0;
 
     ret = pomme_recv(handle, buffer, PACKAGE_LENGTH, &r_len, flags);

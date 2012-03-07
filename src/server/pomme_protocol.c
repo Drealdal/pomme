@@ -24,7 +24,6 @@ int pack_msg(pomme_protocol_t *pro, pomme_pack_t **buf)
     assert( pro!= NULL );
     assert( buf!= NULL );
     
-    pomme_pack_t *p_buf = *buf;
     t_len = pomme_msg_len(pro);
     //pro->len+sizeof(pomme_protocol_type_t)+2*sizeof(size_t);
     ret =  pomme_pack_create(buf, NULL, t_len);

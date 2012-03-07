@@ -75,28 +75,29 @@ int pomme_pack_create( pomme_pack_t **pack,
 int pomme_pack_distroy( pomme_pack_t **pack);
 
 #define pomme_pack(data,type,pack) do{\
-    size_t size = sizeof(type);\
-    pack_data(data,size,pack);\
+    size_t __size = sizeof(type);\
+    pack_data(data,__size,pack);\
 }while(0);
 
 #define pomme_pack_array(data,type,length,pack) do{\
-    size_t len = length;\
-    size_t size = sizeof(type) * length;\
-    pomme_pack(&len, size_t, pack);\
-    pomme_pack(data, size, pack);\
+    size_t __len = length;\
+    size_t __size = sizeof(type) * length;\
+    printf("%d\n",__size);\
+    pomme_pack(&__len, size_t, pack);\
+    pomme_pack(data, __size, pack);\
 }while(0);
 
 #define pomme_unpack(data, type, pack) do{\
-    size_t size = sizeof(type);\
-    unpack_data(data, size, pack);\
+    size_t __size = sizeof(type);\
+    unpack_data(data, __size, pack);\
 }while(0);
 
 #define pomme_unpack_array(data, type, length,pack) do{\
-    size_t *size = NULL;\
-    unpack_data(&size, sizeof(size_t), pack);\
-    size_t r_size = *size;\
-    *(length) = r_size / sizeof(type);\
-    unpack_data(data,r_size,pack);\
+    size_t *__size = NULL;\
+    unpack_data(&__size, sizeof(size_t), pack);\
+    size_t __r_size = *__size;\
+    *(length) = __r_size / sizeof(type);\
+    unpack_data(data,__r_size,pack);\
 }while(0);
 
 int pack_data(void *data , size_t size, pomme_pack_t *pack);

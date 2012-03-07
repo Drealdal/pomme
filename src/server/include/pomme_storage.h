@@ -83,7 +83,7 @@ int put_data_2_storage(int file_handle,
        	size_t len,
 	off_t *start); 
 
-int set_file_head( int fd, int id);
+int set_file_head( int fd, int id,storage_status_t status);
 int is_file_valid(int fd , pomme_ds_head_t *head);
 
 #endif

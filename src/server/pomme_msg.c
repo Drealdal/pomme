@@ -54,11 +54,11 @@ int pomme_recv(int handle, void *buffer,
 	goto err;
     }
 
-    *r_len = recv( handle, buffer, len, flags);
+    ret = recv( handle, buffer, len, flags);
     
-    if( *r_len < 0 )
+    if( ret < 0 )
     {
-	debug("recv_error: %s", strerror(r_len));
+	debug("recv_error: %s", strerror(ret));
 	ret = POMME_RECV_MSG_ERROR;
 	goto err;
     }else if(*r_len ==0 ){
@@ -66,6 +66,7 @@ int pomme_recv(int handle, void *buffer,
 	ret = POMME_SHUTDOWN_PEER;
 	goto err;
     }
+	*r_len = ret;
 
 err:
     return ret;

@@ -391,11 +391,11 @@ static int cmp_int(void *a, void *b)
     int ib = *(int *) b;
     return ia<ib;
 }
-static int hash_int(void *a)
+static int hash_int(void *a,u_int32 len)
 {
     return *(int *)a;
 }
 int pomme_hash_int_int(int size, pomme_hash_t **hash)
 {
-    return pomme_hash_init(size, &cmp_int, &hash_int, hash);
+    return pomme_hash_init(size, &hash_int, &cmp_int, hash);
 }

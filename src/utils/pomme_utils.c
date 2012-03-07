@@ -24,7 +24,6 @@
  *-----------------------------------------------------------------------------*/
 int pomme_data_init(pomme_data_t *data, u_int32 size)
 {
-    int flags = 0;
     int ret = POMME_SUCCESS;
     if( data == NULL )
     {
@@ -97,8 +96,8 @@ struct tm* pomme_time_all()
 int pomme_get_endian()
 {
     int data = 1;
-    char *pdata = &data;
-    if( pdata == 0x01 )
+    char *pdata = (void *)&data;
+    if( *pdata == 0x01 )
     {
 	return POMME_LITTLE_ENDIAN;
     }

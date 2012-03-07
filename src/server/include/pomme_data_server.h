@@ -55,7 +55,7 @@ typedef struct pomme_ds
 	 *  fd is the handle of the opened file
 	 */
 	pomme_hash_t *storage_file;
-	pomme_env_t *env;
+	pomme_env_t env;
 	/*
 	 * the home directory of the  data server
 	 * and the db_env
@@ -145,6 +145,20 @@ int pomme_get_object(pomme_ds_t *ds,
 		int handle,
 		pomme_protocol_t *pro);
 
+
+/**
+ * @brief get_storage_files 
+ *
+ * @param path: the path of dir to scan
+ * @param storage: the hash table of stroage files
+ * @param cur_id: current used storage file 's id
+ * @param cur_fd: current used storage file 's fd
+ *
+ * @return 
+ */
+int get_storage_files(char *path, pomme_hash_t *storage,
+	int *cur_id,
+	int *cur_fd);
 /*****
  * the first version of the data server
  */
