@@ -26,7 +26,7 @@ char storage_path[MAX_PATH_LEN];
 int main()
 {
     char *sp = getenv("POMME_STORE_HOME");
-    size_t id;
+    int fd, id;
     int ret = 0;
 
     if( sp == NULL )
@@ -40,7 +40,7 @@ int main()
 	    sp = get_current_dir_name();
 	}
     }
-    sp = "/home/zhumeiqi/work/pomme/data",NULL";
+    sp = "/home/zhumeiqi/work/pomme/data";
     snprintf(storage_path, MAX_PATH_LEN, "%s",sp);
     char *ptr = storage_path+ strlen(sp) -1;
 

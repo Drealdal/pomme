@@ -23,6 +23,15 @@
 #include "pomme_protocol.h"
 
 
+typedef struct pomme_client
+{
+    /**
+     * @brief meta server, the root server of the cluster
+     */
+   int mserver_handle; 
+
+}pomme_client_t;
+
 /**
  * @brief pomme_put_data : put data to an connection
  *
@@ -32,7 +41,7 @@
  *
  * @return : < 0 failure, ==0 success
  */
-int pomme_put_data(int handle, 
+int pomme_client_put_data(int handle, 
 	void *buffer,
 	int len,
 	int flags);
@@ -46,7 +55,7 @@ int pomme_put_data(int handle,
  *
  * @return: < 0 failure, = 0 success 
  */
-int pomme_get_data(int handle,
+int pomme_client_get_data(int handle,
 	void **buffer,
 	int *len);
 

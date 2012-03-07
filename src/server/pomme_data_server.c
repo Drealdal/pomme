@@ -177,7 +177,8 @@ int pomme_ds_init( pomme_ds_t *ds,
 
     if( ds->cur_storage_id == -1 )
     {
-	ret = create_storage(ds->db_env.sfile, tid, ds->data_home,
+	//TODO  TXN
+	ret = create_storage(ds->env.sfile, NULL, ds->data_home,
 		&ds->cur_storage_id, &ds->cur_storage_fd);
 	if( ret < 0 )
 	{
@@ -328,6 +329,8 @@ int setnonblocking(int sock);
 static int handle_put_data(int handle, pomme_protocol_t *pro)
 {
 	assert( pro!=NULL );
+	pomme_print_proto(pro,NULL);
+	
 	return 1;
 }
 static int handle_request(int handle)
@@ -447,6 +450,8 @@ int server()
 //		    debug("epoll_ctl conn_sock fail");
 //		    goto err_exit;
 //		}
+		debug("before");
+		handle_request(conn_sock);
 		
 	    }
 	}

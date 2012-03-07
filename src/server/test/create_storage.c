@@ -26,7 +26,7 @@ char storage_path[MAX_PATH_LEN];
 int main()
 {
     char *sp = getenv("POMME_STORE_HOME");
-    size_t id;
+    int fd, id;
     int ret = 0;
 
     if( sp == NULL )
@@ -76,7 +76,7 @@ int main()
 
     debug("all pass");
 
-    if( (ret = create_storage(dbp , NULL , storage_path,&id) ) < 0 )
+    if( (ret = create_storage(dbp , NULL , storage_path,&id, &fd) ) < 0 )
     {
 	printf("create storage error\n");
     }else

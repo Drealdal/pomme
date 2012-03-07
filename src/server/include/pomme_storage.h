@@ -48,7 +48,8 @@ typedef struct pomme_ds_head
 int create_storage(DB *db_handle,
 	DB_TXN *txnid,
 	char *storage_path,
-	size_t *id);
+	int *id,
+	int *fd);
 /**
  * @brief check_storage_stat: check the state of the storage file
  * @param db_handle: the handle of the database where the storage file
