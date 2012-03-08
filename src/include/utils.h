@@ -37,6 +37,8 @@
 #include <sys/resource.h>
 #include <netinet/in.h>
 #include<sys/shm.h>
+#include<netdb.h>
+#include <errno.h>
 
 
 #include"pomme_type.h"

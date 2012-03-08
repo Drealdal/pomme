@@ -37,6 +37,7 @@ int pack_msg(pomme_protocol_t *pro, pomme_pack_t **buf)
     pomme_pack(&pro->op, pomme_protocol_type_t, *buf);
     pomme_pack(&pro->total_len, size_t , *buf);
 
+    debug("pack array");
     pomme_pack_array(&pro->data, char, pro->len , *buf);
     ret = t_len;
 err:
@@ -51,8 +52,13 @@ int unpack_msg(pomme_protocol_t *pro, pomme_pack_t *buf)
     assert( buf != NULL );
 
     pomme_protocol_type_t *p_op = &pro->op;
+
+    debug("unpack op");
     pomme_unpack( &p_op, pomme_protocol_type_t, buf);
-    pomme_unpack( &pro->total_len, size_t, buf);
+    debug("unpack total_len");
+    size_t p_tlen = &pro->total_len;
+    pomme_unpack( &p_tlen, size_t, buf);
+    debug("unpack data");
     pomme_unpack_array( &pro->data, char, &pro->len, buf);
 
 err:
@@ -64,10 +70,10 @@ static char * get_proto_type(pomme_protocol_t * t)
 	switch(t->op)
 	{
 	case put_data:
-		printf("put_data");
+		printf("put_data\n");
 		break;
 	case get_data:
-		printf("get_data");
+		printf("get_data\n");
 		break;
 	default:
 		ret = POMME_UNKNOWN_MSG;
@@ -80,7 +86,8 @@ int pomme_print_proto(pomme_protocol_t *pro,int (*data_printer)(void *))
 {
 	int ret = 0;
 	assert(pro!=NULL);
-	printf("OP_TYPE: %s \n",get_proto_type(pro));
+	printf("OP_TYPE:");
+	get_proto_type(pro);
 
 	// TODO add  logic to determine how to printf size_t
 	// use %u instead now

@@ -50,7 +50,7 @@ typedef struct pomme_package{
 #define IS_ENDIAN_BIG(pack) (pack->data[0] & POMME_LITTLE_ENDIAN ) == 0
 #define IS_ENDIAN_LITTLE(pack) (pack->data[0] & POMME_LITTLE_ENDIAN ) != 0 
 
-#define remaining_size(pack) (pack->size - pack->cur )
+#define remaining_size(pack) (pack->size - pack->cur+1 )
 
 
 /**
@@ -82,7 +82,7 @@ int pomme_pack_distroy( pomme_pack_t **pack);
 #define pomme_pack_array(data,type,length,pack) do{\
     size_t __len = length;\
     size_t __size = sizeof(type) * length;\
-    pomme_pack(&__len, size_t, pack);\
+    pomme_pack(&__len, sizeof(size_t), pack);\
     pomme_pack(data, __size, pack);\
 }while(0);
 

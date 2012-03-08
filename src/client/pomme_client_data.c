@@ -49,7 +49,7 @@ int pomme_client_put_data(int handle,
     	goto err;
     }
 
-    ret = pomme_send(handle, buf,
+    ret = pomme_send(handle, buf->data,
     		pomme_msg_len((&pro)), flags);
     if( ret < 0 )
     {
@@ -59,7 +59,7 @@ int pomme_client_put_data(int handle,
 
     if( len - first_msg_send > 0  )
     {
-    	ret = pomme_send(handle, buf + POMME_PACKAGE_SIZE,
+    	ret = pomme_send(handle, buf->data+ POMME_PACKAGE_SIZE,
     			len - first_msg_send, flags);
     	if( ret < 0 )
     	{

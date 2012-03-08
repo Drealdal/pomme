@@ -16,7 +16,39 @@
  * =====================================================================================
  */
 #include "pomme_client_data.h"
+#include "utils.h"
+extern errno;
 int main()
 {
-    return 0;
+    int ret , sock_fd;
+    char * host_name = "127.0.0.1";   
+    struct hostent * server_host_name;   
+    server_host_name = gethostbyname(host_name);   
+      
+    int port = POMME_DATA_PORT;   
+    struct sockaddr_in pin;   
+
+    pin.sin_family = AF_INET;   
+    pin.sin_addr.s_addr = htonl(INADDR_ANY);   
+    pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr; 
+    pin.sin_port = htons(port);   
+      
+    sock_fd = socket(AF_INET, SOCK_STREAM, 0);   
+    if( sock_fd == -1 )
+    {
+	debug("create socket failure:%s",strerror(errno));
+	return -1;
+    }
+    while( (ret = connect(sock_fd, (void *)&pin, sizeof(pin)) ) < 0 )
+    {
+	debug("connect error");
+    }
+    int buffer[100];
+    memset(&buffer,0,sizeof(buffer));
+    ret = pomme_client_put_data(sock_fd,
+	    &buffer, sizeof(buffer),0);
+    if( ret < 0 )
+    {
+	debug("put data error");
+    }
 }

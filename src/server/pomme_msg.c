@@ -30,7 +30,7 @@ int pomme_send(int handle, void *buffer,
 	    goto err;
 	}
 	ret = send( handle, buffer, len , flags);
-	if( ret <= len )
+	if( ret < len )
 	{
 	    debug("send msg error: %s", strerror(ret));
 	    ret = POMME_SEND_MSG_ERROR;
@@ -61,7 +61,7 @@ int pomme_recv(int handle, void *buffer,
 	debug("recv_error: %s", strerror(ret));
 	ret = POMME_RECV_MSG_ERROR;
 	goto err;
-    }else if(*r_len ==0 ){
+    }else if(ret ==0 ){
 	debug("The peer has been shutdown");
 	ret = POMME_SHUTDOWN_PEER;
 	goto err;

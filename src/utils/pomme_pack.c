@@ -39,6 +39,7 @@ int pomme_pack_create( pomme_pack_t **pack,
     memset(pBuf, 0 , sizeof( pomme_pack_t) );
 
     SET_PACK_MAGIC(pBuf);
+    debug("MAGIC:%d",pBuf->magic);
     if( flags == 1 )
     {
 	SET_PACK_NEED_FREE(pBuf);
@@ -66,6 +67,8 @@ int pomme_pack_create( pomme_pack_t **pack,
 	}
     }
     pBuf->cur = 1;
+    return ret;
+
 
 data_malloc_err:
     if( flags == 1 ) free(pBuf);
@@ -98,9 +101,13 @@ err:
 
 int pack_data(void *data , size_t size, pomme_pack_t *pack)
 {
+
     int ret = 0;
     void *tP = NULL;
     assert( pack!=NULL );
+
+    debug("SIZE TO PACK:%d %d",pack->cur,size);
+
     if( ! IS_VALID_PACK(pack) )
     {
 	debug("Not valid package");
@@ -127,6 +134,10 @@ int pack_data(void *data , size_t size, pomme_pack_t *pack)
     }
 
     memcpy( &pack->data[pack->cur] , data , size );
+    if(size == 4)
+    {
+	debug("data put:%d",*(pack->data+pack->cur));
+    }
     pack->cur += size;
 err:
     return ret;
@@ -135,6 +146,7 @@ int unpack_data(void **data, size_t length, pomme_pack_t *pack)
 {
     int ret = 0;
     assert( pack != NULL );
+    debug("MAGIC:%d",pack->magic);
     if( !( IS_VALID_PACK(pack)) )
     {
 	debug("Not valid package");
@@ -143,15 +155,19 @@ int unpack_data(void **data, size_t length, pomme_pack_t *pack)
     }
     if( remaining_size(pack) < length )
     {
-	debug("data not enough to packi, remainning %d , need %d", remaining_size(pack), length);
+	debug("data not enough to pack, remainning %d , need %d", remaining_size(pack), length);
 	ret = POMME_NOT_ENOUGH_UNPACK;
 	goto err;
     }
     if( *data == NULL )
     {
-	*data = pack->data + pack->cur;
+	*data = (char *)pack->data + pack->cur;
     }else{
 	memcpy( *data, &pack->data[pack->cur], length );
+    }
+    if(length == 4)
+    {
+	debug("data get:%d",*(int *)(pack->data + pack->cur) );
     }
     pack->cur += length;
 err:

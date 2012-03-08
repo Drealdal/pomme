@@ -335,8 +335,8 @@ static int handle_put_data(int handle, pomme_protocol_t *pro)
 }
 static int handle_request(int handle)
 {
-    char buffer[PACKAGE_LENGTH];
-    int flags=0, ret = 0;
+    unsigned char buffer[PACKAGE_LENGTH];
+    int flags=0, ret = 0,i=0;
     size_t r_len = 0;
 
     ret = pomme_recv(handle, buffer, PACKAGE_LENGTH, &r_len, flags);
@@ -349,7 +349,14 @@ static int handle_request(int handle)
    pomme_protocol_t pro;
    memset( &pro, 0, sizeof(pomme_protocol_t));
 
-   pomme_pack_t *p_buffer = &buffer;
+   pomme_pack_t *p_buffer = NULL;
+   ret = pomme_pack_create( &p_buffer,
+       &buffer,r_len);
+   if( ret < 0 )
+   {
+       debug("create pack fail");
+   }
+   debug("pbuffer:%d",p_buffer->magic);
 
    ret = unpack_msg( &pro, p_buffer);
    if( ret < 0 )
@@ -361,10 +368,10 @@ static int handle_request(int handle)
    switch( pro.op )
    {
        case put_data:
+	   handle_put_data(handle,&pro);
 	   break;
        case get_data:
 	   break;
-
        default:
 	   debug("unknown protocol msg");
 	   ret = POMME_UNKNOWN_MSG;
@@ -389,7 +396,7 @@ int server()
     bzero(&addr, sizeof(addr));
 
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(1234);
+    addr.sin_port = htons(POMME_DATA_PORT);
 
     ret = bind(socid, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
     if( ret < 0 )

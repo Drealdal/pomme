@@ -67,6 +67,10 @@
 #define POMME_MAX_PACKAGE_SIZE (1024*1024*1024)
 
 #define POMME_PATH_MAX 1024
+/*
+ * configure
+ */
+#define POMME_DATA_PORT 0x1e00
 
 
 #endif
