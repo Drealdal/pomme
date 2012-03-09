@@ -71,6 +71,8 @@
  * configure
  */
 #define POMME_DATA_PORT 0x1e00
-
+#define POMME_DATA_HOME "/tmp/"
+#define POMME_MFILE_NAME "/home/zhumeiqi/work/pomme/data/mfile.db"
+#define POMME_SFILE_NAME "/home/zhumeiqi/work/pomme/data/sfile.db"
 
 #endif

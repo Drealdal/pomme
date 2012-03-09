@@ -53,12 +53,9 @@ int unpack_msg(pomme_protocol_t *pro, pomme_pack_t *buf)
 
     pomme_protocol_type_t *p_op = &pro->op;
 
-    debug("unpack op");
     pomme_unpack( &p_op, pomme_protocol_type_t, buf);
-    debug("unpack total_len");
     size_t p_tlen = &pro->total_len;
     pomme_unpack( &p_tlen, size_t, buf);
-    debug("unpack data");
     pomme_unpack_array( &pro->data, char, &pro->len, buf);
 
 err:
@@ -100,7 +97,7 @@ int pomme_print_proto(pomme_protocol_t *pro,int (*data_printer)(void *))
 		ret = data_printer(pro->data);
 		if( ret < 0 )
 		{
-			debug("Wrong data format cased printer pring error");
+			debug("Wrong data format cased printer print error");
 		}
 		printf("\n");
 	}

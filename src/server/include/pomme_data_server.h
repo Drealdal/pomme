@@ -97,6 +97,7 @@ int pomme_env_init(pomme_env_t *env,
 	unsigned int o_flags,
 	char *home,
 	char *meta_file,
+	char *sfile_file,
 	int mode);
 /*
  * @param: distory an pomme_env_t structure
@@ -107,6 +108,7 @@ int pomme_env_distroy(pomme_env_t *env);
  * @param:init an pomme_ds_t structure
  * @param: home, the home dir of pomme_env
  * @param: meta_file, the file name of the meta database
+ * @param: sfile_file, the file name of the storage database
  * @env_c_flags: the create flags of the env structure
  * @env_o_flags: the open flags of the env structure
  * @env_mode: the open mode of the ds
@@ -115,6 +117,7 @@ int pomme_env_distroy(pomme_env_t *env);
 int pomme_ds_init(pomme_ds_t * ds,
 	char *home,
 	char *meta_file,
+	char *sfile_file,
 	unsigned int env_c_flags,
 	unsigned int env_o_flags,
 	int env_mode);

@@ -31,11 +31,20 @@ int pomme_env_init(pomme_env_t *env,
 	unsigned int o_flags,
 	char *home,
 	char *meta_file,
+	char *sfile_file,
 	int mode)
 {
     int ret = 0;
     assert( env != NULL );
     assert( home != NULL );
+    
+/*
+ * cp ? or something
+ * it may not be safe doing like this,
+ * if the sfile is auto
+ */
+    env->sfile_file = sfile_file;
+    env->meta_file = meta_file;
 
     ret = pthread_mutex_init(&env->mutex, NULL);
 
@@ -102,9 +111,9 @@ int pomme_env_init(pomme_env_t *env,
    dbp = env->sfile;
    dbp->set_re_len(dbp, POMME_PATH_MAX);
    dbp->set_re_pad(dbp,0x0);
-   if((ret = dbp->open(dbp, tid, env->sfile_file, NULL,DB_QUEUE,DB_CREATE,06444))!=0)
+   if((ret = dbp->open(dbp, tid, env->sfile_file, NULL,DB_QUEUE,DB_CREATE,0664))!=0)
    {
-       debug("open db env->sfile fail:%s",db_strerror(ret));
+       debug("open db env->sfile_file %s fail:%s",env->sfile_file,db_strerror(ret));
        goto create_sfile_fail;
    }
    return ret;
@@ -133,6 +142,7 @@ int pomme_env_distroy(pomme_env_t *env)
 int pomme_ds_init( pomme_ds_t *ds, 
 	char *home,
 	char *meta_file,
+	char *sfile_file,
 	unsigned int env_c_flags,
 	unsigned int env_o_flags,
 	int env_mode)
@@ -140,11 +150,12 @@ int pomme_ds_init( pomme_ds_t *ds,
     int ret = 0;
     assert( ds != NULL); 
     memset( ds , 0, sizeof(ds));
-    ds->cur_storage_id = -1;
 
     ret = pomme_env_init(&ds->env, 
 	    env_c_flags,env_o_flags,
-	    home,meta_file,
+	    home,
+	    meta_file,
+	    sfile_file,
 	    env_mode);
     if( ret < 0 )
     {
@@ -158,8 +169,11 @@ int pomme_ds_init( pomme_ds_t *ds,
 	debug("init hash fail");
 	goto hash_err;
     }
+    ds->cur_storage_id = 0;
+    debug("cur:%d",ds->cur_storage_id);
+    return 0;
     ret = get_storage_files(ds->data_home, ds->storage_file,
-	    &ds->cur_storage_id,&ds->cur_storage_fd);
+	    &(ds->cur_storage_id),&(ds->cur_storage_fd));
     if( ret < 0 )
     {
 	debug("get storage file fail");
@@ -222,6 +236,7 @@ int get_storage_files(char *path, pomme_hash_t *storage,
    DIR *dp;
    int fd;
    char tpath[POMME_PATH_MAX];
+   debug("before: %d",*cur_id);
 
    if( (ret = lstat( path ,&statbuf))<0 )
    {
@@ -275,7 +290,7 @@ int get_storage_files(char *path, pomme_hash_t *storage,
 	   fd = open(tpath,O_RDWR);
 	   if( fd < 0 )
 	   {
-	       debug("open file %s failure: %s",tpath,strerror(fd));
+	       debug("open file %s failure: %d %s",tpath,fd,strerror(fd));
 	       continue;
 	   }
 	  ret = is_file_valid(fd,&head); 
@@ -289,6 +304,7 @@ int get_storage_files(char *path, pomme_hash_t *storage,
 	  }
 	  if( head.status == CUR )
 	  {
+	      debug("cur %s %d\n",tpath, *cur_id);
 	      if( *cur_id == -1 )
 	      {
 		  *cur_id = head.id;
@@ -336,7 +352,7 @@ static int handle_put_data(int handle, pomme_protocol_t *pro)
 static int handle_request(int handle)
 {
     unsigned char buffer[PACKAGE_LENGTH];
-    int flags=0, ret = 0,i=0;
+    int flags=0, ret = 0;
     size_t r_len = 0;
 
     ret = pomme_recv(handle, buffer, PACKAGE_LENGTH, &r_len, flags);
@@ -457,7 +473,6 @@ int server()
 //		    debug("epoll_ctl conn_sock fail");
 //		    goto err_exit;
 //		}
-		debug("before");
 		handle_request(conn_sock);
 		
 	    }
