@@ -31,8 +31,8 @@ int pomme_client_put_data(int handle,
     int len_to_send, first_msg_send;
     pomme_protocol_t pro; 
     memset(&pro, 0, sizeof(pomme_protocol_t));
-    pro.op = put_data;
-    pro.total_len = len;
+    pro.op = put_data ;
+    pro.total_len = len ;
 
 
     first_msg_send = len > POMME_MAX_PROTO_DATA ? POMME_MAX_PROTO_DATA:len;

@@ -25,25 +25,25 @@ typedef struct pomme_protocol
 {
     pomme_protocol_type_t op;
     /*
-     * the len is the real length of the data
-     * if the len is bigger than the len of data,
-     * that means there will be more data behind
-     * the first message length is smaller than 
-     * 1024Byte , than means if the data is longer
-     * than (1024-sizeof(op)-sizeof(len))there will
-     * be more package
+     * the length of data in the package,
+     *
      */
     size_t len;
     /*
-     * the total length of the data, the len is the len of the
-     * data come with the protocol msg
+     * the length of the object data
      */
     size_t total_len;
+    u_int64 id;
+    size_t offset;
     void *data;
 }pomme_protocol_t;
-#define POMME_MAX_PROTO_DATA ( POMME_PACKAGE_SIZE - sizeof( pomme_protocol_type_t) \
-       -2*sizeof(size_t))
-#define pomme_msg_len(pro) (  pro->len+sizeof(pomme_protocol_type_t)+2*sizeof(size_t) )
+
+
+
+#define pomme_msg_len(pro) (  pro->len+sizeof(pomme_protocol_t) - sizeof(void *) )
+
+#define POMME_MAX_PROTO_DATA ( POMME_PACKAGE_SIZE - sizeof(pomme_protocol_t) +sizeof(void *)) 
+
 
 int pack_msg( pomme_protocol_t *pro , pomme_pack_t **buf);
 int unpack_msg( pomme_protocol_t *pro, pomme_pack_t *buf);
@@ -52,6 +52,7 @@ int unpack_msg( pomme_protocol_t *pro, pomme_pack_t *buf);
  * for debug use
  *
  */
+
 int pomme_print_proto(pomme_protocol_t *pro,int (*data_printer)(void *));
 
 

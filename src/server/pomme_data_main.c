@@ -62,7 +62,7 @@ int main()
  //   get_storage_files("/home/zhumeiqi/work/pomme/data",NULL,&cur_id, &cur_fd);
     
 
-    server();
+    server(&ds);
 err:
     return ret;
 }

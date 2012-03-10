@@ -36,8 +36,9 @@ int pack_msg(pomme_protocol_t *pro, pomme_pack_t **buf)
     
     pomme_pack(&pro->op, pomme_protocol_type_t, *buf);
     pomme_pack(&pro->total_len, size_t , *buf);
+    pomme_pack(&pro->id, u_int64 ,*buf);
+    pomme_pack(&pro->offset, size_t,*buf);
 
-    debug("pack array");
     pomme_pack_array(&pro->data, char, pro->len , *buf);
     ret = t_len;
 err:
@@ -54,13 +55,20 @@ int unpack_msg(pomme_protocol_t *pro, pomme_pack_t *buf)
     pomme_protocol_type_t *p_op = &pro->op;
 
     pomme_unpack( &p_op, pomme_protocol_type_t, buf);
+
     size_t p_tlen = &pro->total_len;
     pomme_unpack( &p_tlen, size_t, buf);
+    pomme_unpack( &pro->id, u_int64, buf);
+    pomme_unpack( &pro->offset, size_t ,buf);
+
     pomme_unpack_array( &pro->data, char, &pro->len, buf);
 
 err:
     return ret;
 }
+
+
+
 static char * get_proto_type(pomme_protocol_t * t)
 {
 	int ret = 0;

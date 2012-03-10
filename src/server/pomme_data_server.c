@@ -342,14 +342,53 @@ err:
 
 int setnonblocking(int sock);
 
-static int handle_put_data(int handle, pomme_protocol_t *pro)
+static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 {
-	assert( pro!=NULL );
-	pomme_print_proto(pro,NULL);
-	
-	return 1;
+    int ret = 0;
+    assert( pro!=NULL );
+    pomme_print_proto(pro,NULL);
+    pomme_object_t object;
+    memset(&object, 0 , sizeof(pomme_object_t));
+
+    object.sfid = pro->id;
+    object.offset = pro->offset;
+    object.len = pro->len;
+    time(&object.time);
+
+    object.ver = 1;
+
+    size_t wl = object.len,tmlen;
+
+    object.start = -1;
+    ret = put_data_2_storage(ds->cur_storage_fd,
+	    pro->data,pro->len,&object.start);
+    if( ret < 0 )
+    {
+	debug("write file error");
+    }
+    unsigned char buffer[POMME_PACKAGE_SIZE];
+    while( wl < pro->total_len)
+    {
+	ret = pomme_recv(handle,buffer,POMME_PACKAGE_SIZE,&tmlen,0);
+	if( ret < 0 )
+	{
+	    debug("recv data error");
+	    goto err;
+	}
+	ret = put_data_2_storage(ds->cur_storage_fd,
+		pro->data,ret,&object.start);
+	if(ret<0)
+	{
+	    debug("write fail");
+	    goto err;
+	}
+	wl += ret;
+    }
+
+err:	
+    return ret;
 }
-static int handle_request(int handle)
+static int handle_request(pomme_ds_t *ds,int handle)
 {
     unsigned char buffer[PACKAGE_LENGTH];
     int flags=0, ret = 0;
@@ -384,7 +423,7 @@ static int handle_request(int handle)
    switch( pro.op )
    {
        case put_data:
-	   handle_put_data(handle,&pro);
+	   handle_put_data(ds,handle,&pro);
 	   break;
        case get_data:
 	   break;
@@ -398,7 +437,7 @@ err:
     return ret;
 }
 
-int server()
+int server(pomme_ds_t *ds)
 {
     int ret = 0;
     struct sockaddr_in addr;
@@ -473,7 +512,7 @@ int server()
 //		    debug("epoll_ctl conn_sock fail");
 //		    goto err_exit;
 //		}
-		handle_request(conn_sock);
+		handle_request(ds,conn_sock);
 		
 	    }
 	}

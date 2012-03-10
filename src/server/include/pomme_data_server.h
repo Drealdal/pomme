@@ -23,6 +23,7 @@
 #include "pomme_hash.h"
 #include "pomme_protocol.h"
 #include "pomme_type.h"
+#include "pomme_meta.h"
 
 typedef struct pomme_env
 {
