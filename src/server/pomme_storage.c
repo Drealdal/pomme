@@ -30,6 +30,7 @@ int create_storage(DB *db_handle,
 	int *id,
 	int *fd)
 {
+    debug("create storage");
     int ret = 0, count, len;
     unsigned int flags = 0;
     DBT key,val;
@@ -38,12 +39,10 @@ int create_storage(DB *db_handle,
     {
 	storage_path = "./";
     }
-    debug("%p %s ",storage_path,storage_path);
 
     len = strlen(storage_path) +20;
     char fullpath[len];
 
-    debug("%s",storage_path);
     if( ( ret = get_dir_child_num(storage_path, &count) < 0 ))
     {
 	debug("Create Storage failure");
@@ -71,6 +70,7 @@ int create_storage(DB *db_handle,
     {
 	debug("put to database fail");
     }
+    debug("%d %p %d",*id,key.data,*(int *)key.data);
     *id = *(int *)(key.data);
 
     if( (ret = create_local_file(fullpath,*id,fd) ) < 0 )
@@ -79,6 +79,7 @@ int create_storage(DB *db_handle,
 	//TODO abort transaction
     	goto err;
     }
+    debug("exit");
 
 err:
     return ret;
@@ -148,20 +149,13 @@ static int create_local_file(char *path,int id,int *fd)
 {
     int ret = 0;
     *fd =-1;
-    if( (ret = open(path,O_RDWR)) != -1 )
-    {
-    	debug("File %s path is already exists",path);
-    	ret = POMME_LOCAL_FILE_ERROR;
-    	goto err;
-    }
-    *fd = ret;
-    if( ( ret = open(path,O_CREAT|O_RDWR) ) < 0 )
+    if( ( ret = open(path,O_CREAT|O_RDWR|O_EXCL,S_IREAD|S_IWRITE) ) < 0 )
     {
     	debug("Create File %s failed",path);
     	ret = POMME_LOCAL_FILE_ERROR;
     	goto err;
     }
-    debug("open");
+    *fd = ret;
     ret =  set_file_head(ret , id, CUR);
     if( ret < 0 )
     {
@@ -187,14 +181,15 @@ int put_data_2_storage(int file_handle,
  * we should seek the file_handle,
  * else the file is at the end
  */
-    ret  = lseek( file_handle, 0, SEEK_END ); 
-    if( ret < 0 )
+    if( start < 0 )
     {
-	debug("seek file fail , %s",strerror(ret));
-	goto err;
-    }
-    if( *start < 0 )
-    {
+	ret  = lseek( file_handle, 0, SEEK_END ); 
+	
+	if( ret < 0 )
+	{
+	    debug("seek filei:%d fail , %s",file_handle,strerror(ret));
+	    goto err;
+	}
 	*start = ret;
     }
     ret = write( file_handle, data, len);
@@ -258,7 +253,6 @@ err:
 int set_file_head( int fd, int id,
 	storage_status_t status)
 {
-    debug("?,begin");
     int ret = 0;
     pomme_ds_head_t head;
     memset(&head, 0 ,sizeof(head));
@@ -275,7 +269,6 @@ int set_file_head( int fd, int id,
     }
     int wl = 0;
     wl = write(fd, &head, sizeof(pomme_ds_head_t));
-    debug("write len:%u %d %s",wl,wl,strerror(wl));
     if( wl < sizeof(pomme_ds_head_t) )
     {
 	debug("write file failure");

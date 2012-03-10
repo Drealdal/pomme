@@ -32,7 +32,7 @@ int main()
     e_o_flags |= DB_INIT_MPOOL; // init shared mem
     e_o_flags |= DB_INIT_TXN; // using txn 
     e_o_flags |= DB_RECOVER; // recover if neccery
-    e_o_flags |= DB_THREAD; // free thread
+//    e_o_flags |= DB_THREAD; // free thread
 
     e_o_mode |= S_IRUSR;
     e_o_mode |= S_IWUSR;

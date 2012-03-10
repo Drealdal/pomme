@@ -96,7 +96,7 @@ int pomme_env_init(pomme_env_t *env,
 
    DB *dbp = env->db_meta;
 
-   if(( ret = dbp->open(dbp,tid,env->meta_file,NULL,DB_QUEUE,DB_CREATE,0664))!=0)
+   if(( ret = dbp->open(dbp,tid,env->meta_file,NULL,DB_BTREE,DB_CREATE,0664))!=0)
    {
        dbp->err(dbp,ret,"open failed%s",env->meta_file);
        goto create_db_err;
@@ -169,9 +169,9 @@ int pomme_ds_init( pomme_ds_t *ds,
 	debug("init hash fail");
 	goto hash_err;
     }
-    ds->cur_storage_id = 0;
+    ds->cur_storage_id = -1;
+    ds->data_home =home;
     debug("cur:%d",ds->cur_storage_id);
-    return 0;
     ret = get_storage_files(ds->data_home, ds->storage_file,
 	    &(ds->cur_storage_id),&(ds->cur_storage_fd));
     if( ret < 0 )
@@ -199,6 +199,7 @@ int pomme_ds_init( pomme_ds_t *ds,
 	    debug("create storage fail");
 	    goto storage_err;
 	}
+	debug("%d",ds->cur_storage_id);
     }
     return ret;
 storage_err:
@@ -304,7 +305,7 @@ int get_storage_files(char *path, pomme_hash_t *storage,
 	  }
 	  if( head.status == CUR )
 	  {
-	      debug("cur %s %d\n",tpath, *cur_id);
+	      debug("cur %s %d %d\n",tpath, *cur_id,head.id);
 	      if( *cur_id == -1 )
 	      {
 		  *cur_id = head.id;
@@ -364,7 +365,7 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	    pro->data,pro->len,&object.start);
     if( ret < 0 )
     {
-	debug("write file error");
+	debug("write file error:%s",strerror(ret));
     }
     unsigned char buffer[POMME_PACKAGE_SIZE];
     while( wl < pro->total_len)
