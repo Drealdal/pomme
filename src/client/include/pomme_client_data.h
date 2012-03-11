@@ -41,7 +41,8 @@ typedef struct pomme_client
  *
  * @return : < 0 failure, ==0 success
  */
-int pomme_client_put_data(int handle, 
+int pomme_client_put_data(u_int64 id,
+	int handle, 
 	void *buffer,
 	int len,
 	int flags);

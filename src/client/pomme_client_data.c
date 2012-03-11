@@ -18,7 +18,7 @@
 #include "pomme_client_data.h"
 
 
-int pomme_client_put_data(int handle, 
+int pomme_client_put_data(u_int64 id,int handle, 
 	void *buffer,
 	int len,
 	int flags)
@@ -33,6 +33,7 @@ int pomme_client_put_data(int handle,
     memset(&pro, 0, sizeof(pomme_protocol_t));
     pro.op = put_data ;
     pro.total_len = len ;
+    pro.id = id;
 
 
     first_msg_send = len > POMME_MAX_PROTO_DATA ? POMME_MAX_PROTO_DATA:len;

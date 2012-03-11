@@ -346,12 +346,13 @@ int setnonblocking(int sock);
 static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 {
     int ret = 0;
+    DBT key,val;
     assert( pro!=NULL );
     pomme_print_proto(pro,NULL);
     pomme_object_t object;
     memset(&object, 0 , sizeof(pomme_object_t));
 
-    object.sfid = pro->id;
+    object.sfid = ds->cur_storage_id; 
     object.offset = pro->offset;
     object.len = pro->len;
     time(&object.time);
@@ -384,7 +385,31 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	    goto err;
 	}
 	wl += ret;
+	debug("Get data:%d",ret);
     }
+    memset(&key,0,sizeof(key));
+    memset(&key,0,sizeof(val));
+    val.data = &object;
+    val.size = sizeof(pomme_object_t);
+
+    key.data = &pro->id;
+    key.size = sizeof(pro->id); 
+
+    DB *pdb = ds->env.db_meta;
+    unsigned int flags = 0;
+
+    ret = pdb->put(pdb, NULL, &key, &val,flags);
+    if( ret < 0 )
+    {
+	debug("put to database fail, %s",db_strerror(ret));
+	POMME_LOG_ERROR("write to database fail",ds->ds_logger);
+	goto put_err;
+    }
+    debug("create ok");
+    return ret;
+    
+put_err:
+    ftruncate(ds->cur_storage_fd, object.start);
 
 err:	
     return ret;

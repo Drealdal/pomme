@@ -43,9 +43,9 @@ int main()
     {
 	debug("connect error");
     }
-    int buffer[100];
+    int buffer[1024];
     memset(&buffer,0,sizeof(buffer));
-    ret = pomme_client_put_data(sock_fd,
+    ret = pomme_client_put_data(100,sock_fd,
 	    &buffer, sizeof(buffer),0);
     if( ret < 0 )
     {
