@@ -50,13 +50,18 @@ int pomme_client_put_data(u_int64 id,
 /**
  * @brief pomme_get_data : get  data from an 
  *
+ * @param off: the offset within the object
+ * @param len: the len of data to get
  * @param handle: the handle of the connection
  * @param buffer: where the received data is stored
  * @param len: the recved data length
  *
  * @return: < 0 failure, = 0 success 
  */
-int pomme_client_get_data(int handle,
+int pomme_client_get_data(u_int64 id,
+	size_t off,
+	size_t len,
+	int handle,
 	void **buffer,
 	int *len);
 

@@ -71,3 +71,25 @@ int pomme_client_put_data(u_int64 id,int handle,
 err:
     return ret;
 }
+
+int pomme_client_get_data(u_int64 id,
+	size_t off,
+	size_t len,
+	int handle,
+	void **buffer,
+	int *len)
+{
+    int ret = 0;
+    pomme_protocol_t pro;
+    memset( &pro, 0, sizeof(pro));
+
+    pro.op = get_data;
+    pro.len = len;
+    pro.offset = off;
+
+    pomme_pack_t *buf = NULL;
+    ret = pack_msg(&pro, &buf);
+
+
+    return ret;
+}
