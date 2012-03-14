@@ -69,6 +69,7 @@ int pomme_client_put_data(u_int64 id,int handle,
     }
 
 err:
+    pomme_pack_distroy(&buf);
     return ret;
 }
 
@@ -79,17 +80,28 @@ int pomme_client_get_data(u_int64 id,
 	void **buffer,
 	int *len)
 {
-    int ret = 0;
+    int ret = 0,flags=0;
     pomme_protocol_t pro;
     memset( &pro, 0, sizeof(pro));
 
     pro.op = get_data;
-    pro.len = len;
+    pro.total_len = len;
     pro.offset = off;
+    pro.id = id;
 
     pomme_pack_t *buf = NULL;
-    ret = pack_msg(&pro, &buf);
-
-
+    if( ( ret = pack_msg(&pro, &buf) ) < 0 )
+    {
+	debug("pack msg failure");
+	goto err;
+    }
+    if( ( ret = pomme_send(handle, buf->data, 
+		    pomme_msg_get_len(&pro),flags )) < 0)
+    {
+	debug("send data fail");
+	goto err;
+    }
+err:
+    pomme_pack_distroy(&buf); 
     return ret;
 }

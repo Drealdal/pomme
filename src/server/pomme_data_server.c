@@ -405,13 +405,121 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	POMME_LOG_ERROR("write to database fail",ds->ds_logger);
 	goto put_err;
     }
-    debug("create ok");
     return ret;
     
 put_err:
     ftruncate(ds->cur_storage_fd, object.start);
 
 err:	
+    return ret;
+}
+static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
+{
+    int ret = 0;
+    DBT key,val;
+
+    assert( ds!=NULL );
+    assert( pro != NULL );
+
+    memset( &key, 0,sizeof(key));
+    memset( &val, 0,sizeof(val));
+
+    pomme_object_t object;
+    memset(&object, 0 , sizeof(pomme_object_t));
+
+    key.data = &pro->data;
+    key.size = sizeof(pro->id);
+
+    val.data = &object;
+    val.ulen = sizeof(pomme_object_t);
+    
+    val.flag |= DB_DBT_USERMEM; 
+    DB *pdb = ds->env.db_meta;
+
+    unsigned int flags = 0;
+
+    if( ( ret = pdb->get(pdb, NULL, &key,&val,flags) ) < 0 )
+    {
+	debug("read err");
+	goto err;
+    }
+    //read  from localfile
+    pomme_data_t key,val;
+    memset(&key, 0, sizeof(pomme_data_t));
+    memset(&val, 0, sizeof(pomme_data_t));
+
+    int fd;
+
+    key.size = sizeof(object.sfid);
+    key.data = &object.sfid;
+
+    val.size = sizeof(int); 
+    val.data = &fd;
+
+    if( (ret = pomme_hash_get(ds->storage_file, 
+	    &key,&data)) < 0 )
+    {
+	debug("get storage failure");
+	goto err;
+    }
+
+    debug("sfid:%u fd:%d",object.sfid,fd);
+    int l2r = pro->len;
+    if( pro->len > object.len)
+    {
+	l2r = object.len;
+	debug("Too long read:%u",object.len);
+    }
+    unsigned char buffer[POMME_PACKAGE_SIZE];
+    int first_to_send = l2r > POMME_MAX_PROTO_DATA ? POMME_MAX_PROTO_DATA:l2r;
+
+    fseek(fd,pro->offset,SEEK_SET);
+    if( ( ret = read(fd,buffer,first_to_send))< first_to_send)
+    {
+	debug("read data fail");
+	goto ret;
+    }
+
+    pomme_protocol_t spro;
+    memset(&spro, 0, sizeof(spro));
+
+    spro->op = put_data;
+    spro->len = first_to_send;
+    spro->total_len = l2r;
+    spro->id = pro->id;
+    spro->offset = pro->offset;
+    spro->data = buffer;
+
+    pomme_package_t *buf = NULL;
+    if( ( ret = pack_msg( &spro, &buf) ) < 0 )
+    {
+	debug("pack msg fail");
+	goto err;
+    }
+
+    if( ( ret = pomme_send(handle,buf->data,
+		    pomme_msg_len(&pro),flags)) < 0 )
+    {
+	debug("send error");
+	goto err;
+    }
+    int sent = first_to_send;
+    while( sent < l2r )
+    {
+	int re = read(fd, buffer, POMME_PACKAGE_SIZE);
+	if( re < 0 )
+	{
+	    debug("error:%s",strerror(ret));
+	}
+	if( (ret = pomme_send(handle, buffer, re, flags) ) < 0 )
+	{
+	    debug("send error");
+	    goto err;
+	}else{
+	sent += re;
+	}
+    }
+err:
     return ret;
 }
 static int handle_request(pomme_ds_t *ds,int handle)

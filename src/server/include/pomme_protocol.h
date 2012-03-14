@@ -41,6 +41,7 @@ typedef struct pomme_protocol
 
 
 #define pomme_msg_len(pro) (  pro->len+sizeof(pomme_protocol_t) - sizeof(void *) )
+#define pomme_msg_get_len(pro) ( sizeof(pomme_protocol_t) -sizeof(void *)+sizeof(pro->len))
 
 #define POMME_MAX_PROTO_DATA ( POMME_PACKAGE_SIZE - sizeof(pomme_protocol_t) +sizeof(void *)) 
 
