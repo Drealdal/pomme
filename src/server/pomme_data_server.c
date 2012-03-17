@@ -433,7 +433,7 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     val.data = &object;
     val.ulen = sizeof(pomme_object_t);
     
-    val.flag |= DB_DBT_USERMEM; 
+    val.flags |= DB_DBT_USERMEM; 
     DB *pdb = ds->env.db_meta;
 
     unsigned int flags = 0;
@@ -444,20 +444,20 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	goto err;
     }
     //read  from localfile
-    pomme_data_t key,val;
-    memset(&key, 0, sizeof(pomme_data_t));
-    memset(&val, 0, sizeof(pomme_data_t));
+    pomme_data_t k,v;
+    memset(&k, 0, sizeof(pomme_data_t));
+    memset(&v, 0, sizeof(pomme_data_t));
 
     int fd;
 
-    key.size = sizeof(object.sfid);
-    key.data = &object.sfid;
+    k.size = sizeof(object.sfid);
+    k.data = &object.sfid;
 
-    val.size = sizeof(int); 
-    val.data = &fd;
+    v.size = sizeof(int); 
+    v.data = &fd;
 
     if( (ret = pomme_hash_get(ds->storage_file, 
-	    &key,&data)) < 0 )
+	    &k,&v)) < 0 )
     {
 	debug("get storage failure");
 	goto err;
@@ -477,20 +477,20 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     if( ( ret = read(fd,buffer,first_to_send))< first_to_send)
     {
 	debug("read data fail");
-	goto ret;
+	goto err;
     }
 
     pomme_protocol_t spro;
     memset(&spro, 0, sizeof(spro));
 
-    spro->op = put_data;
-    spro->len = first_to_send;
-    spro->total_len = l2r;
-    spro->id = pro->id;
-    spro->offset = pro->offset;
-    spro->data = buffer;
+    spro.op = put_data;
+    spro.len = first_to_send;
+    spro.total_len = l2r;
+    spro.id = pro->id;
+    spro.offset = pro->offset;
+    spro.data = buffer;
 
-    pomme_package_t *buf = NULL;
+    pomme_pack_t *buf = NULL;
     if( ( ret = pack_msg( &spro, &buf) ) < 0 )
     {
 	debug("pack msg fail");
@@ -544,8 +544,8 @@ static int handle_request(pomme_ds_t *ds,int handle)
    if( ret < 0 )
    {
        debug("create pack fail");
+       goto err;
    }
-   debug("pbuffer:%d",p_buffer->magic);
 
    ret = unpack_msg( &pro, p_buffer);
    if( ret < 0 )
@@ -566,7 +566,8 @@ static int handle_request(pomme_ds_t *ds,int handle)
 	   ret = POMME_UNKNOWN_MSG;
 	   break;
    }
-	
+handle_err:
+   pomme_pack_distroy(&p_buffer);
 err:
     return ret;
 }

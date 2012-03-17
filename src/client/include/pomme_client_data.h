@@ -62,8 +62,8 @@ int pomme_client_get_data(u_int64 id,
 	size_t off,
 	size_t len,
 	int handle,
-	void **buffer,
-	int *len);
+	void *buffer,
+	int *r_len);
 
 
 #endif

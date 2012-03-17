@@ -77,12 +77,16 @@ int pomme_client_get_data(u_int64 id,
 	size_t off,
 	size_t len,
 	int handle,
-	void **buffer,
-	int *len)
+	void *buffer,
+	int *r_len)
 {
+    assert( buffer !=NULL );
+    assert( r_len  != NULL );
     int ret = 0,flags=0;
-    pomme_protocol_t pro;
+
+    pomme_protocol_t pro,rpro;
     memset( &pro, 0, sizeof(pro));
+    memset( &rpro, 0, sizeof(rpro));
 
     pro.op = get_data;
     pro.total_len = len;
@@ -95,12 +99,70 @@ int pomme_client_get_data(u_int64 id,
 	debug("pack msg failure");
 	goto err;
     }
+
     if( ( ret = pomme_send(handle, buf->data, 
-		    pomme_msg_get_len(&pro),flags )) < 0)
+		    pomme_msg_get_len((&pro)),flags )) < 0)
     {
 	debug("send data fail");
 	goto err;
     }
+    /*
+     * recv data package
+     */
+    unsigned char t_buffer[POMME_PACKAGE_SIZE];
+    int t_len = 0;
+
+    if( ( ret = pomme_recv(handle, t_buffer, POMME_PACKAGE_SIZE,
+	    &t_len, flags) ) < 0 )
+    {
+	debug("recv first fail");
+	goto err;
+    }
+
+    pomme_pack_t *p_buffer = NULL;
+
+    if( (ret = pomme_pack_create(&p_buffer,t_buffer,
+		    t_len)) < 0 )
+    {
+	debug("create buffer error");
+	goto err;
+    }	
+
+    if( (ret = unpack_msg( &rpro, p_buffer) ) < 0 )
+    {
+	debug("unpack msg fail");
+	goto data_err;
+    }
+
+    if( rpro.op != put_data )
+    {
+	debug("wrong operation");
+	goto data_err;
+    }
+
+    if( rpro.total_len > len )
+    {
+	debug("too much data recved");
+	goto data_err;
+    }
+
+    int tr_len = rpro.len;
+    memcpy(buffer,t_buffer, tr_len);
+    while( tr_len < rpro.total_len )
+    {
+	int tmp = 0;
+	ret = pomme_recv(handle, buffer+tr_len, rpro.total_len - tr_len, &tmp, flags);
+	if( ret < 0 )
+	{
+	    debug("recv err,data total get:%d",tr_len);
+	    break;
+	}
+	tr_len += tmp;
+    }
+    *r_len = tr_len;
+data_err:
+    pomme_pack_distroy(&p_buffer);
+
 err:
     pomme_pack_distroy(&buf); 
     return ret;
