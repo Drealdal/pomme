@@ -348,22 +348,23 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     int ret = 0;
     DBT key,val;
     assert( pro!=NULL );
-    pomme_print_proto(pro,NULL);
     pomme_object_t object;
     memset(&object, 0 , sizeof(pomme_object_t));
 
     object.sfid = ds->cur_storage_id; 
     object.offset = pro->offset;
-    object.len = pro->len;
+    object.len = pro->total_len;
+
     time(&object.time);
 
     object.ver = 1;
 
-    size_t wl = object.len,tmlen;
+    size_t wl = pro->len,tmlen;
 
     object.start = -1;
     ret = put_data_2_storage(ds->cur_storage_fd,
 	    pro->data,pro->len,&object.start);
+    debug("start:%d",object.start);
     if( ret < 0 )
     {
 	debug("write file error:%s",strerror(ret));
@@ -371,21 +372,23 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     unsigned char buffer[POMME_PACKAGE_SIZE];
     while( wl < pro->total_len)
     {
-	ret = pomme_recv(handle,buffer,POMME_PACKAGE_SIZE,&tmlen,0);
+	int rets = pro->total_len -wl < POMME_PACKAGE_SIZE ? pro->total_len - wl:POMME_PACKAGE_SIZE; 
+	ret = pomme_recv(handle,buffer,rets,&tmlen,0);
 	if( ret < 0 )
 	{
 	    debug("recv data error");
 	    goto err;
 	}
 	ret = put_data_2_storage(ds->cur_storage_fd,
-		pro->data,ret,&object.start);
+		pro->data,tmlen,&object.start);
+   	 debug("start:%d",object.start);
 	if(ret<0)
 	{
 	    debug("write fail");
 	    goto err;
 	}
 	wl += ret;
-	debug("Get data:%d",ret);
+	debug("Get data:tmlen:%d  ret:%d %d %d",tmlen,ret,wl,pro->total_len);
     }
     memset(&key,0,sizeof(key));
     memset(&key,0,sizeof(val));
@@ -397,6 +400,7 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 
     DB *pdb = ds->env.db_meta;
     unsigned int flags = 0;
+    debug("put start:%d",object.start);
 
     ret = pdb->put(pdb, NULL, &key, &val,flags);
     if( ret < 0 )
@@ -415,6 +419,8 @@ err:
 }
 static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 {
+    debug("Get data");
+
     int ret = 0;
     DBT key,val;
 
@@ -427,7 +433,7 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     pomme_object_t object;
     memset(&object, 0 , sizeof(pomme_object_t));
 
-    key.data = &pro->data;
+    key.data = &pro->id;
     key.size = sizeof(pro->id);
 
     val.data = &object;
@@ -440,7 +446,7 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 
     if( ( ret = pdb->get(pdb, NULL, &key,&val,flags) ) < 0 )
     {
-	debug("read err");
+	debug("read err, %s",db_strerror(ret));
 	goto err;
     }
     //read  from localfile
@@ -464,24 +470,29 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     }
 
     debug("sfid:%u fd:%d",object.sfid,fd);
-    int l2r = pro->len;
-    if( pro->len > object.len)
+    int l2r = pro->total_len;
+    if( pro->total_len > object.len)
     {
 	l2r = object.len;
 	debug("Too long read:%u",object.len);
     }
     unsigned char buffer[POMME_PACKAGE_SIZE];
     int first_to_send = l2r > POMME_MAX_PROTO_DATA ? POMME_MAX_PROTO_DATA:l2r;
+    debug("seek %d %d %d",ds->cur_storage_fd,fd,object.start);
 
-    fseek(fd,pro->offset,SEEK_SET);
+    lseek(fd,object.start,SEEK_SET);
+//    fseek(fd,object.start,SEEK_SET);
+    debug("aseek");
     if( ( ret = read(fd,buffer,first_to_send))< first_to_send)
     {
 	debug("read data fail");
 	goto err;
     }
+    debug("seek");
 
     pomme_protocol_t spro;
     memset(&spro, 0, sizeof(spro));
+    debug("1");
 
     spro.op = put_data;
     spro.len = first_to_send;
@@ -497,8 +508,10 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	goto err;
     }
 
+    debug("send: %d",first_to_send);
+    debug("%d",pomme_msg_len((&spro)));
     if( ( ret = pomme_send(handle,buf->data,
-		    pomme_msg_len(&pro),flags)) < 0 )
+		    pomme_msg_len((&spro)),flags)) < 0 )
     {
 	debug("send error");
 	goto err;
@@ -519,6 +532,7 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	sent += re;
 	}
     }
+    debug("over: %d",sent);
 err:
     return ret;
 }
@@ -554,12 +568,16 @@ static int handle_request(pomme_ds_t *ds,int handle)
        goto err;
    }
 
+    pomme_print_proto(&pro,NULL);
+
    switch( pro.op )
    {
        case put_data:
 	   handle_put_data(ds,handle,&pro);
 	   break;
        case get_data:
+	   debug("get_data");
+	   handle_get_data(ds,handle,&pro);
 	   break;
        default:
 	   debug("unknown protocol msg");
@@ -638,17 +656,18 @@ int server(pomme_ds_t *ds)
 		    debug("accept error");
 		    goto err_exit;
 		}
-//		setnonblocking(conn_sock);
-//		ev.events = EPOLLIN | EPOLLET;
-//		ev.data.fd = conn_sock;
-//
-//		if( epoll_ctl(epid, EPOLL_CTL_ADD, conn_sock, &ev) < 0 )
-//		{
-//		    debug("epoll_ctl conn_sock fail");
-//		    goto err_exit;
-//		}
+		setnonblocking(conn_sock);
+		ev.events = EPOLLIN | EPOLLET;
+		ev.data.fd = conn_sock;
+
+		if( epoll_ctl(epid, EPOLL_CTL_ADD, conn_sock, &ev) < 0 )
+		{
+		    debug("epoll_ctl conn_sock fail");
+		    goto err_exit;
+		}
+	    }else{
 		handle_request(ds,conn_sock);
-		
+		debug("handle");
 	    }
 	}
     }

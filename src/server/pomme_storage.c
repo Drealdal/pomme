@@ -181,7 +181,7 @@ int put_data_2_storage(int file_handle,
  * we should seek the file_handle,
  * else the file is at the end
  */
-    if( start < 0 )
+    if( *start < 0 )
     {
 	ret  = lseek( file_handle, 0, SEEK_END ); 
 	
@@ -191,6 +191,7 @@ int put_data_2_storage(int file_handle,
 	    goto err;
 	}
 	*start = ret;
+	debug("start assigned here:%d",ret);
     }
     ret = write( file_handle, data, len);
     if( ret < len )

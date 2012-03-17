@@ -106,6 +106,7 @@ int pomme_client_get_data(u_int64 id,
 	debug("send data fail");
 	goto err;
     }
+    debug("begin recv");
     /*
      * recv data package
      */
@@ -119,6 +120,7 @@ int pomme_client_get_data(u_int64 id,
 	goto err;
     }
 
+    debug("recv first");
     pomme_pack_t *p_buffer = NULL;
 
     if( (ret = pomme_pack_create(&p_buffer,t_buffer,
@@ -134,11 +136,14 @@ int pomme_client_get_data(u_int64 id,
 	goto data_err;
     }
 
+    pomme_print_proto(&rpro,NULL);
+
     if( rpro.op != put_data )
     {
 	debug("wrong operation");
 	goto data_err;
     }
+    debug("waiting rest");
 
     if( rpro.total_len > len )
     {
@@ -160,6 +165,7 @@ int pomme_client_get_data(u_int64 id,
 	tr_len += tmp;
     }
     *r_len = tr_len;
+    debug("data len %d",tr_len);
 data_err:
     pomme_pack_distroy(&p_buffer);
 
