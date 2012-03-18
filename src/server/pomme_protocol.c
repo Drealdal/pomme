@@ -36,6 +36,7 @@ int pack_msg(pomme_protocol_t *pro, pomme_pack_t **buf)
     
     pomme_pack(&pro->op, pomme_protocol_type_t, *buf);
     pomme_pack(&pro->total_len, size_t , *buf);
+
     pomme_pack(&pro->id, u_int64 ,*buf);
     pomme_pack(&pro->offset, size_t,*buf);
 
@@ -53,21 +54,21 @@ int unpack_msg(pomme_protocol_t *pro, pomme_pack_t *buf)
     assert( buf != NULL );
 
     pomme_protocol_type_t *p_op = &pro->op;
-
     pomme_unpack( &p_op, pomme_protocol_type_t, buf);
 
     size_t p_tlen = &pro->total_len;
-    pomme_unpack( &p_tlen, size_t, buf);
-    pomme_unpack( &pro->id, u_int64, buf);
-    pomme_unpack( &pro->offset, size_t ,buf);
+    u_int64 *tid = &pro->id;
+    size_t *p_off = &pro->offset;
 
+    pomme_unpack( &p_tlen, size_t, buf);
+    pomme_unpack( &tid, u_int64, buf);
+
+    pomme_unpack( &p_off, size_t ,buf);
     pomme_unpack_array( &pro->data, char, &pro->len, buf);
 
 err:
     return ret;
 }
-
-
 
 static char * get_proto_type(pomme_protocol_t * t)
 {
@@ -79,6 +80,9 @@ static char * get_proto_type(pomme_protocol_t * t)
 		break;
 	case get_data:
 		printf("get_data\n");
+		break;
+	case pomme_close:
+		printf("close_conn\n");
 		break;
 	default:
 		ret = POMME_UNKNOWN_MSG;

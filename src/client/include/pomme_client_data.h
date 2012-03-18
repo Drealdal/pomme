@@ -64,6 +64,7 @@ int pomme_client_get_data(u_int64 id,
 	int handle,
 	void *buffer,
 	int *r_len);
+int pomme_client_close(int handle);
 
 
 #endif

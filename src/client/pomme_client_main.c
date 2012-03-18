@@ -17,7 +17,7 @@
  */
 #include "pomme_client_data.h"
 #include "utils.h"
-extern errno;
+extern int errno;
 int main()
 {
     int ret , sock_fd;
@@ -48,16 +48,15 @@ int main()
     int r_buffer[1024];
 
     memset(&buffer,'c',sizeof(buffer));
-//    memset(&r_buffer,0,sizeof(buffer));
+    memset(&r_buffer,0,sizeof(buffer));
     int g_len = 0;
-//
-//    ret = pomme_client_put_data(101,sock_fd,
-//	    &buffer, sizeof(buffer),0);
-//    if( ret < 0 )
-//    {
-//	debug("put data error");
-//    }
-    sleep(1);
+
+    ret = pomme_client_put_data(101,sock_fd,
+	    &buffer, sizeof(buffer),0);
+    if( ret < 0 )
+    {
+	debug("put data error");
+    }
 
     ret = pomme_client_get_data(101,0,1024,sock_fd,
 	    &r_buffer,&g_len);
@@ -66,12 +65,8 @@ int main()
 	debug("Get data error");
 	goto err;
     }
-    char *p_b = r_buffer;
-    int i;
-    for(i = 0; i++; i<10);
-    {
-	printf("%c\n",*p_b++);
-    }
+    char *p_b = &r_buffer;
+    putchar(*p_b);
 err:
     return ret;
 }

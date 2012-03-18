@@ -57,11 +57,6 @@ int main()
 	debug("data server memory init failure");
 	goto err;
     }
-
-    int cur_id = -1, cur_fd=-1;
- //   get_storage_files("/home/zhumeiqi/work/pomme/data",NULL,&cur_id, &cur_fd);
-    
-
     server(&ds);
 err:
     return ret;

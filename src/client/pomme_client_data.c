@@ -28,7 +28,7 @@ int pomme_client_put_data(u_int64 id,int handle,
 	 * use async way to send, of use sync interface
 	 */
     int ret = 0;
-    int len_to_send, first_msg_send;
+    int first_msg_send;
     pomme_protocol_t pro; 
     memset(&pro, 0, sizeof(pomme_protocol_t));
     pro.op = put_data ;
@@ -106,7 +106,6 @@ int pomme_client_get_data(u_int64 id,
 	debug("send data fail");
 	goto err;
     }
-    debug("begin recv");
     /*
      * recv data package
      */
@@ -120,9 +119,7 @@ int pomme_client_get_data(u_int64 id,
 	goto err;
     }
 
-    debug("recv first");
     pomme_pack_t *p_buffer = NULL;
-
     if( (ret = pomme_pack_create(&p_buffer,t_buffer,
 		    t_len)) < 0 )
     {
@@ -137,14 +134,11 @@ int pomme_client_get_data(u_int64 id,
     }
 
     pomme_print_proto(&rpro,NULL);
-
     if( rpro.op != put_data )
     {
 	debug("wrong operation");
 	goto data_err;
     }
-    debug("waiting rest");
-
     if( rpro.total_len > len )
     {
 	debug("too much data recved");
@@ -172,4 +166,33 @@ data_err:
 err:
     pomme_pack_distroy(&buf); 
     return ret;
+}
+
+int pomme_client_close(int handle)
+{
+    int ret;
+    int flags = 0;
+    pomme_protocol_t pro;
+    memset( &pro, 0, sizeof(pro));
+
+    pro.op = pomme_close;
+    pomme_pack_t *buf = NULL;
+    if( ( ret = pack_msg(&pro, &buf) ) < 0 )
+    {
+	debug("pack msg failure");
+	goto err;
+    }
+
+    if( ( ret = pomme_send(handle, buf->data, 
+		    pomme_msg_get_len((&pro)),flags )) < 0)
+    {
+	debug("send data fail");
+	goto buf_err;
+    }
+    close(handle);
+buf_err:
+    pomme_pack_distroy(&buf);
+err:
+    return ret;
+
 }

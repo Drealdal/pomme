@@ -345,7 +345,11 @@ int setnonblocking(int sock);
 
 static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 {
+
     int ret = 0;
+    unsigned char buffer[POMME_PACKAGE_SIZE];
+    unsigned int flags = 0;
+
     DBT key,val;
     assert( pro!=NULL );
     pomme_object_t object;
@@ -364,12 +368,11 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     object.start = -1;
     ret = put_data_2_storage(ds->cur_storage_fd,
 	    pro->data,pro->len,&object.start);
-    debug("start:%d",object.start);
+
     if( ret < 0 )
     {
 	debug("write file error:%s",strerror(ret));
     }
-    unsigned char buffer[POMME_PACKAGE_SIZE];
     while( wl < pro->total_len)
     {
 	int rets = pro->total_len -wl < POMME_PACKAGE_SIZE ? pro->total_len - wl:POMME_PACKAGE_SIZE; 
@@ -381,14 +384,12 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	}
 	ret = put_data_2_storage(ds->cur_storage_fd,
 		pro->data,tmlen,&object.start);
-   	 debug("start:%d",object.start);
 	if(ret<0)
 	{
 	    debug("write fail");
 	    goto err;
 	}
 	wl += ret;
-	debug("Get data:tmlen:%d  ret:%d %d %d",tmlen,ret,wl,pro->total_len);
     }
     memset(&key,0,sizeof(key));
     memset(&key,0,sizeof(val));
@@ -397,10 +398,9 @@ static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 
     key.data = &pro->id;
     key.size = sizeof(pro->id); 
-
     DB *pdb = ds->env.db_meta;
-    unsigned int flags = 0;
-    debug("put start:%d",object.start);
+
+    debug("Create object:%lld",pro->id);
 
     ret = pdb->put(pdb, NULL, &key, &val,flags);
     if( ret < 0 )
@@ -419,9 +419,9 @@ err:
 }
 static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 {
-    debug("Get data");
-
+    int fd;
     int ret = 0;
+    unsigned int flags = 0;
     DBT key,val;
 
     assert( ds!=NULL );
@@ -442,19 +442,18 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     val.flags |= DB_DBT_USERMEM; 
     DB *pdb = ds->env.db_meta;
 
-    unsigned int flags = 0;
+    debug("Get object:%lld",pro->id);
 
     if( ( ret = pdb->get(pdb, NULL, &key,&val,flags) ) < 0 )
     {
 	debug("read err, %s",db_strerror(ret));
 	goto err;
     }
-    //read  from localfile
+
     pomme_data_t k,v;
     memset(&k, 0, sizeof(pomme_data_t));
     memset(&v, 0, sizeof(pomme_data_t));
 
-    int fd;
 
     k.size = sizeof(object.sfid);
     k.data = &object.sfid;
@@ -471,19 +470,23 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 
     debug("sfid:%u fd:%d",object.sfid,fd);
     int l2r = pro->total_len;
+
     if( pro->total_len > object.len)
     {
 	l2r = object.len;
-	debug("Too long read:%u",object.len);
+	debug("Too long read:%lld",object.len);
     }
-    unsigned char buffer[POMME_PACKAGE_SIZE];
-    int first_to_send = l2r > POMME_MAX_PROTO_DATA ? POMME_MAX_PROTO_DATA:l2r;
-    debug("seek %d %d %d",ds->cur_storage_fd,fd,object.start);
 
+    unsigned char buffer[POMME_PACKAGE_SIZE];
+    int first_to_send = l2r > POMME_MAX_PROTO_DATA ? 
+	POMME_MAX_PROTO_DATA:l2r;
+
+    debug("seek %d %d %d",
+	    ds->cur_storage_fd,fd,object.start);
     lseek(fd,object.start,SEEK_SET);
-//    fseek(fd,object.start,SEEK_SET);
-    debug("aseek");
-    if( ( ret = read(fd,buffer,first_to_send))< first_to_send)
+
+    if( ( ret = read(fd,buffer,first_to_send))
+	    < first_to_send)
     {
 	debug("read data fail");
 	goto err;
@@ -508,14 +511,13 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	goto err;
     }
 
-    debug("send: %d",first_to_send);
-    debug("%d",pomme_msg_len((&spro)));
     if( ( ret = pomme_send(handle,buf->data,
 		    pomme_msg_len((&spro)),flags)) < 0 )
     {
 	debug("send error");
 	goto err;
     }
+
     int sent = first_to_send;
     while( sent < l2r )
     {
