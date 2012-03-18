@@ -149,7 +149,7 @@ static int create_local_file(char *path,int id,int *fd)
 {
     int ret = 0;
     *fd =-1;
-    if( ( ret = open(path,O_CREAT|O_RDWR|O_EXCL,S_IREAD|S_IWRITE) ) < 0 )
+    if( ( ret = open(path,O_CREAT|O_RDWR|O_EXCL,S_IRWXU|S_IRWXG|S_IWGRP) ) < 0 )
     {
     	debug("Create File %s failed",path);
     	ret = POMME_LOCAL_FILE_ERROR;
