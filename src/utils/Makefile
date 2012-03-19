@@ -1,4 +1,4 @@
-all_utils_depends=$(addprefix $(OBJECT_DIR)/,pomme_utils.o pomme_blist.o pomme_queue.o pomme_hash.o pomme_buffer.o pomme_pack.o pomme_conf.o)
+all_utils_depends=$(addprefix $(OBJECT_DIR)/,pomme_utils.o pomme_blist.o pomme_queue.o pomme_hash.o pomme_buffer.o pomme_pack.o pomme_conf.o pomme_rpcs.o)
 
 
 
