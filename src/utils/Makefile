@@ -23,6 +23,9 @@ $(OBJECT_DIR)/pomme_pack.o:	$(UTIL_DIR)/pomme_pack.c $(INCLUDE_DIR)/pomme_pack.h
 $(OBJECT_DIR)/pomme_conf.o:	$(UTIL_DIR)/pomme_conf.c $(INCLUDE_DIR)/pomme_conf.h
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
+$(OBJECT_DIR)/pomme_rpcs.o:	$(UTIL_DIR)/pomme_rpcs.c $(INCLUDE_DIR)/pomme_rpcs.h
+	$(CC) -c $(CFLAGS) $< -o $@ 
+
 clean_utils: 
 	rm -f $(UTIL_DIR)/*~
 
