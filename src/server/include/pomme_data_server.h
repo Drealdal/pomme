@@ -17,7 +17,7 @@
  */
 #ifndef _POMME_DATA_SERVER_H
 #define _POMME_DATA_SERVER_H
-#define version 0.01
+//#define pomme_version 0.01
 #include "utils.h"
 #include "pomme_log.h"
 #include "pomme_hash.h"
