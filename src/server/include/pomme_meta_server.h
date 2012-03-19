@@ -36,8 +36,6 @@ typedef struct pomme_ms
     /* meta db */
     DB *meta_db
 
-
-
 }pomme_ms_t;
 
 #endif
