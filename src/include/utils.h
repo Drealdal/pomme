@@ -39,6 +39,7 @@
 #include<sys/shm.h>
 #include<netdb.h>
 #include <errno.h>
+#include <semaphore.h>
 
 
 #include"pomme_type.h"

@@ -16,14 +16,16 @@
  * =====================================================================================
  */
 #include "pomme_thread.h"
+#include "pomme_queue.h"
 #include "utils.h"
 
 static int start(pomme_tpool_t *ptp); 
 static int stop(pomme_tpool_t *);
 static int add_worker(pomme_tpool_t *, 
 	pomme_worker_t *wr);
-static int thread_routine(pomme_worker_t *worker);
+static void * thread_routine(void *worker);
 
+static int add_thread(pomme_tpool_t *ptp);
 static int remove_thread(pomme_tpool_t *ptp);
 static int extend_pool(pomme_tpool_t *ptp, int n);
 
@@ -37,7 +39,7 @@ int pomme_tp_init(pomme_tpool_t *ptp,int num,
 
     ptp->max_thread_num = num;
     ptp->max_waiting = w_num;
-    ptp->cur_num = cur_num;
+    ptp->cur_thread_num = cur_num;
     ptp->tids = malloc(sizeof(pthread_t)*num);
 
     if(ptp->tids == NULL)
@@ -103,17 +105,17 @@ static int start(pomme_tpool_t *ptp)
     {
 	routine_arg arg;
 	arg.rank = i;
-        if( ( ret = pthread_create(tids+i, NULL,
-		       	ptp->routine, &arg )) < 0 )
+        if( ( ret = pthread_create(ptp->tids+i, NULL,
+		       	ptp->thread_routine, &arg )) < 0 )
 	{
 	    debug("create thread %d fail %s",ret, strerror(ret));
-	    goto ret;
+	    goto err;
 	}
     }	
     for(; i < ptp->max_thread_num;i++)
     {
-	thread_ids *ids = malloc(sizeof(thread_ids));	
-	memset(ids, 0, sizeof(thread_ids));
+	thread_ids_t *ids = malloc(sizeof(thread_ids_t));	
+	memset(ids, 0, sizeof(thread_ids_t));
 	ids->rank = i;
 	queue_push_back(ptp->finished,&ids->next); 
     }
@@ -124,7 +126,7 @@ int pomme_tp_distroy(pomme_tpool_t *ptp)
 {
     int ret = 0;
     assert( ptp != NULL );
-    if( ptp->stop != 1)
+    if( ptp->stoped != 1)
     {
 	ptp->stop(ptp);
     }
@@ -132,7 +134,7 @@ int pomme_tp_distroy(pomme_tpool_t *ptp)
     queue_distroy(ptp->workers);
     queue_distroy(ptp->finished);
 
-    free(tids);
+    free(ptp->tids);
 
     ret = sem_destroy(&ptp->sem);
 
@@ -164,8 +166,6 @@ err:
 
 static void * thread_routine(void *arg)
 {
-    int ret = 0;
-
     routine_arg *info = arg; 
     info->tid = pthread_self();
 
@@ -174,14 +174,15 @@ static void * thread_routine(void *arg)
     while(1)
     {
 	sem_wait(&ptp->sem);	
-	queue_body_t *w = queue_get_front(ptp->workers);
+	queue_body_t *wr = queue_get_front(ptp->workers);
+	pomme_worker_t *w = queue_entry(wr,pomme_worker_t,next);
 	/* The sem make this assert true */
 	assert( w!=NULL );
 	if(w->process == NULL )
 	{
 	    /* exit from the thread pool */
 	    ptp->tids[info->rank] = 0;
-	    thread_ids *ids = malloc(sizeof(thread_ids_t));
+	    thread_ids_t *ids = malloc(sizeof(thread_ids_t));
 
 	    assert( ids != NULL );
 
@@ -223,12 +224,13 @@ static int add_thread(pomme_tpool_t *ptp)
 	debug("exceed max");
 	return POMME_TOO_MANY_THREAD; 
     }
-    thread_ids *ids = queue_get_front( ptp->finished );
+    queue_body_t *id = queue_get_front( ptp->finished );
+    thread_ids_t *ids = queue_entry(id, thread_ids_t, next);
     assert( ids != NULL );
     routine_arg arg;
-    arg.rank = i;
-    if( ( ret = pthread_create(tids+i, NULL,
-		    ptp->routine, &arg )) < 0 )
+    arg.rank = ids->rank;
+    if( ( ret = pthread_create(ptp->tids+ids->rank, NULL,
+		    ptp->thread_routine, &arg )) < 0 )
     {
 	debug("create thread %d fail %s",ret, strerror(ret));
     }else{
@@ -263,7 +265,7 @@ static int stop(pomme_tpool_t *ptp)
 {
    int ret = 0,i; 
    if(( ret = extend_pool(ptp, 
-		   0-ptp->cur_thread_pool)) < 0 )
+		   0-ptp->cur_thread_num)) < 0 )
    {
        debug("fail");
    }
@@ -274,6 +276,6 @@ static int stop(pomme_tpool_t *ptp)
 	   pthread_join(ptp->tids[i],NULL);
        }
    } 
-   ptp->stop = 1;
+   ptp->stoped = 1;
  return 0; 
 }
