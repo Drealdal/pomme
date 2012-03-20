@@ -22,7 +22,10 @@ static int fregister(pomme_rpcs_t *,char *,void *);
 static int func_print(pomme_rpcs_t *rpcs);
 static int start(pomme_rpcs_t *rpcs);
 
-int pomme_rpcs_init(pomme_rpcs_t *rpcs)
+int pomme_rpcs_init(pomme_rpcs_t *rpcs,
+	int max_thread,
+	int max_waiting,
+	int cur_num)
 {
     int ret = 0;
 
@@ -31,6 +34,9 @@ int pomme_rpcs_init(pomme_rpcs_t *rpcs)
     init_link(&rpcs->func);
     rpcs->func_register = (void *)fregister;
     rpcs->func_print = (void *)func_print;
+
+    ret = pomme_tp_init(&rpcs->thread_pool,
+	    max_thread,max_waiting,cur_num);
 
     return ret;
 }
