@@ -24,7 +24,7 @@ static int add_worker(pomme_tpool_t *, pomme_worker_t *wr);
 static int shutdown(pomme_tpool_t *);
 static int stop(pomme_tpool_t *);
 
-static int thread_routine(pomme_worker_t *worker);
+static int thread_routine();
 
 int pomme_tp_init(pomme_tpool_t *ptp,int num,
 	int w_num)
@@ -68,6 +68,14 @@ err:
     return ret;
 }
 
+int pomme_tp_distroy(pomme_tpool_t *ptp)
+{
+    int ret = 0;
+    assert( ptp != NULL );
+
+    return ret;
+}
+
 static int start(pomme_tpool_t *ptp)
 {
     if( ptp->inited != 1 )
@@ -95,18 +103,14 @@ static int add_worker(pomme_tpool_t *ptp, pomme_worker_t *wr)
 
     int ret = 0;
     assert( wr != NULL );
-
+    memset(&wr->next, 0, sizeof(queue_body_t));
+    queue_push_back(ptp->workers,&wr->next);
 
     return ret;
 }
-
-
-int pomme_tp_distroy(pomme_tpool_t *ptp)
+static int thread_routine()
 {
-    int ret = 0;
-
-    assert( ptp != NULL );
-
-    return ret;
-
+	
 }
+
+
