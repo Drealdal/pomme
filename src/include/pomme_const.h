@@ -43,6 +43,8 @@
 #define POMME_READ_DB_ERROR (-402)
                                                 /** thread pool */
 #define POMME_THREAD_POOL_NOTINIT (-501)
+#define POMME_THREAD_POOL_FULL (-502)
+#define POMME_TOO_MANY_THREAD (-503)
 
 
 /*
