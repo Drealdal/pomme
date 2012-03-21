@@ -58,6 +58,25 @@ int pomme_rpcs_distroy(pomme_rpcs_t *rpcs)
 
     return ret;
 }
+static int fregister(pomme_rpcs_t *rpcs,
+	char *funcn,
+	void *funcp)
+{
+    int ret = 0;
+    assert( funcn != NULL );
+    assert( funcp != NULL );
+
+    pomme_func_t *pf = malloc(sizeof(pomme_func_t));
+    memset(pf, 0, sizeof(pomme_func_t));
+
+    pf->name = funcn;
+    pf->fp = funcp;
+    link_add( &pf->next, &rpcs->func);
+
+    return ret;
+}
+
+
 static int start(pomme_rpcs_t *rpcs)
 {
 

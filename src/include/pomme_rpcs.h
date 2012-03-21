@@ -23,7 +23,7 @@
 typedef struct pomme_func
 {
     char *name;
-    void *pointer;
+    void *fp;
     pomme_link_t next;
 }pomme_func_t;
 
