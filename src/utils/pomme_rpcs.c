@@ -52,27 +52,49 @@ int pomme_rpcs_distroy(pomme_rpcs_t *rpcs)
     list_for_each_entry(pos, head, next)
     {
 	link_del(pos);
+	/* the pomme_arg_t->args[i]->data is NULL in func list*/
+	POMME_ARG_F(pos->arg);
 	free(pos);
     }
     memset(rpcs, 0, sizeof(pomme_rpcs_t));
 
     return ret;
 }
+
+/**
+ * @brief fregister 
+ * @param funcn: function name
+ * @param funcp: function pointer
+ * @param n: argument of number
+ * @param args: writable array
+ *
+ * @return ==0 success, < failure 
+ */
 static int fregister(pomme_rpcs_t *rpcs,
 	char *funcn,
-	void *funcp)
+	void *funcp,
+	int n,
+	writable *args)
 {
     int ret = 0;
     assert( funcn != NULL );
     assert( funcp != NULL );
+    assert( args != NULL);
 
     pomme_func_t *pf = malloc(sizeof(pomme_func_t));
     memset(pf, 0, sizeof(pomme_func_t));
 
+    pomme_arg_t *arg = malloc(sizeof(pomme_arg_t));
+    memset(arg, 0, sizeof(pomme_arg_t));
+
+    arg->n = n;
+    arg->args = args;
+
     pf->name = funcn;
     pf->fp = funcp;
-    link_add( &pf->next, &rpcs->func);
+    pf->arg = arg;
 
+    link_add( &pf->next, &rpcs->func);
     return ret;
 }
 

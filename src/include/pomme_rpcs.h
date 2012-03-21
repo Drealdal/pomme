@@ -19,11 +19,42 @@
 #define _POMME_RPC_SERVER_H
 #include "pomme_blist.h"
 #include "pomme_rpcs.h"
+#include "pomme_serilize.h"
 #include "utils.h"
+/* thre argument of an function */
+typedef struct pomme_arg
+{
+    int n;// argument num
+    writable *args;
+}pomme_arg_t;
+
+
+#define POMME_ARG(arg,n) \
+    pomme_arg_t *arg = NULL;\
+do{\
+    arg=malloc(sizeof(pomme_arg_t));\
+    arg->n = n;\
+    arg->args = malloc(n*sizeof(pomme_arg_t));\
+    memset(arg->args, 0, sizeof(pomme_arg_t)*n);\
+}while(0)
+
+#define POMME_ARG_I(arg,i,type) \
+    do{\
+	arg->args[i]->len = sizeof(type);\
+    }while(0);
+#define POMME_ARG_F_I(arg,i) free(arg->args[i]->data);
+#define POMME_ARG_F(arg) do{\
+int i;for(i=0;i<arg->n;i++){\
+    POMME_ARG_F_I(arg,i);}\
+    free(arg);\
+    arg=NULL;\    
+}while(0);
+
 typedef struct pomme_func
 {
     char *name;
     void *fp;
+    void *arg; 
     pomme_link_t next;
 }pomme_func_t;
 
@@ -36,7 +67,7 @@ typedef struct pomme_rpcs
     pomme_link_t func; 
     pomme_tpool_t thread_pool;
     /*regist an function*/ 
-    int  (*func_register) (pomme_rpcs_t *rpcs,char *,void *);
+    int  (*func_register) (pomme_rpcs_t *rpcs,char *fn,void *fp,void *arg);
     /** print all the function */
     void (*func_print)(pomme_rpcs_t *rpcs);
     /**  start the server */
