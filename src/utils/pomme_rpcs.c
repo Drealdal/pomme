@@ -17,8 +17,9 @@
  */
 #include "pomme_rpcs.h"
 #include "pomme_blist.h"
+#include "pomme_serilize.h"
 
-static int fregister(pomme_rpcs_t *,char *,void *);
+static int fregister(pomme_rpcs_t *,char *,void *, int, writable *);
 static int func_print(pomme_rpcs_t *rpcs);
 static int start(pomme_rpcs_t *rpcs);
 

@@ -8,4 +8,5 @@
 3:the relation among client, data server (object server), meta server( file server) and master server()
 4:check sum of the data
 5:dedum, we only need to copy meta, inheritly copy on write, inheritly log structure
-
+//
+6: rewrite makefile system
