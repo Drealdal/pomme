@@ -20,12 +20,19 @@
 static int sync_call(rpcc_t *rh, int n,
 	pomme_data_t *argu, 
 	pomme_data_t **res,
-	int time_out = -1);
+	int time_out = -1)
+{
+    int ret = 0;
+    return ret;
+
+}
 
 static int asyn_call(rpcc_t *rh, int n,
 	pomme_data_t *argu,
 	pomme_data_t **res,
-	int time_out = -1);
+	int time_out = -1)
+{
+}
 
 int pomme_rpcc_init(rpcc_t *rh,
 	u_int32 ip,
@@ -44,3 +51,4 @@ int pomme_rpcc_init(rpcc_t *rh,
 
     return ret;
 }
+
