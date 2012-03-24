@@ -64,14 +64,14 @@ int pomme_tp_init(pomme_tpool_t *ptp,int num,
    }
 		   
 
-   ptp->add_worker = add_worker;
-   ptp->start = start;
+   ptp->add_worker = &add_worker;
+   ptp->start = &start;
 
-   ptp->stop = stop;
-   ptp->add_thread = add_thread;
+   ptp->stop = &stop;
+   ptp->add_thread = &add_thread;
 
-   ptp->remove_thread = remove_thread;
-   ptp->extend_pool = extend_pool;
+   ptp->remove_thread = &remove_thread;
+   ptp->extend_pool = &extend_pool;
 
    ptp->thread_routine = thread_routine;
    if( (ret =  sem_init(&ptp->sem,0,0) ) < 0)
@@ -92,13 +92,6 @@ err:
     return ret;
 }
 
-int pomme_tp_distroy(pomme_tpool_t *ptp)
-{
-    int ret = 0;
-    assert( ptp != NULL );
-
-    return ret;
-}
 
 static int start(pomme_tpool_t *ptp)
 {

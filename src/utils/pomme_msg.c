@@ -42,7 +42,7 @@ err:
 }
 
 int pomme_recv(int handle, void *buffer,
-	size_t len,size_t *r_len, int flags)
+	int len,int *r_len, int flags)
 {
     int ret = 0 ;
     *r_len = 0;

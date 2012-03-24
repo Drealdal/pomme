@@ -33,8 +33,8 @@ int pomme_rpcs_init(pomme_rpcs_t *rpcs,
     assert( rpcs != NULL);
     memset( rpcs, 0, sizeof(pomme_rpcs_t));
     init_link(&rpcs->func);
-    rpcs->func_register = (void *)fregister;
-    rpcs->func_print = (void *)func_print;
+    rpcs->func_register = &fregister;
+    rpcs->func_print = &func_print;
 
     ret = pomme_tp_init(&rpcs->thread_pool,
 	    max_thread,max_waiting,cur_num);
@@ -52,7 +52,7 @@ int pomme_rpcs_distroy(pomme_rpcs_t *rpcs)
 
     list_for_each_entry(pos, head, next)
     {
-	link_del(pos);
+	link_del(&pos->next);
 	/* the pomme_arg_t->args[i]->data is NULL in func list*/
 	POMME_ARG_F(pos->arg);
 	free(pos);
@@ -102,5 +102,5 @@ static int fregister(pomme_rpcs_t *rpcs,
 
 static int start(pomme_rpcs_t *rpcs)
 {
-
+    return 0;
 }

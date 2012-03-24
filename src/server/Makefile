@@ -15,8 +15,6 @@ clean_server:
 $(OBJECT_DIR)/pomme_storage.o: $(SERVER_DIR)/pomme_storage.c $(SERVER_INCLUDE)/pomme_storage.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
-$(OBJECT_DIR)/pomme_msg.o: $(SERVER_DIR)/pomme_msg.c $(SERVER_INCLUDE)/pomme_msg.h
-	$(CC) -c $(CFLAGS) $< -o $@
 
 $(OBJECT_DIR)/pomme_protocol.o:  $(SERVER_DIR)/pomme_protocol.c $(SERVER_INCLUDE)/pomme_protocol.h
 	$(CC) -c $(CFLAGS) $< -o $@

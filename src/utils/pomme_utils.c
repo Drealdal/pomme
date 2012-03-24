@@ -62,9 +62,7 @@ int pomme_data_distroy(pomme_data_t *data)
 {
     if(data == NULL)
     {
-#ifdef DEBUG
-	fprintf(stderr,"Trying to Distroy an Null Pointer@%s %s %d\n",__FILE__,__func__,__LINE__);
-#endif
+	debug("distroy null pointer");
 	return 0;
     }
     if( (data->flags & POMME_DATA_NEED_FREE) != 0 && data->data != NULL)

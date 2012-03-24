@@ -45,6 +45,9 @@
 #define POMME_THREAD_POOL_NOTINIT (-501)
 #define POMME_THREAD_POOL_FULL (-502)
 #define POMME_TOO_MANY_THREAD (-503)
+                                                /** rpc */
+#define POMME_UNMATCH_ARGU_NUM (-601)
+#define POMME_UNMATCH_ARGU_TYPE (-602)
 
 
 /*
@@ -72,9 +75,12 @@
 
 #define POMME_PATH_MAX 1024
 /*
- * configure
+ * configure change to configure file???
  */
 #define POMME_DATA_PORT 0x1e00
+#define POMME_RPC_PORT 0x1E01
+#define POMME_META_PORT 0x1e02
+
 #define POMME_DATA_HOME "/tmp/"
 #define POMME_MFILE_NAME "/home/zhumeiqi/work/pomme/data/mfile.db"
 #define POMME_SFILE_NAME "/home/zhumeiqi/work/pomme/data/sfile.db"

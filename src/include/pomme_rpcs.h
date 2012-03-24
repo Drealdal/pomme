@@ -20,12 +20,13 @@
 #include "pomme_blist.h"
 #include "pomme_rpcs.h"
 #include "pomme_serilize.h"
+#include "pomme_thread.h"
 #include "utils.h"
 /* thre argument of an function */
 typedef struct pomme_arg
 {
     int n;// argument num
-    writable *args;
+    pomme_data_t *args;
 }pomme_arg_t;
 
 
@@ -42,10 +43,9 @@ do{\
     do{\
 	arg->args[i]->len = sizeof(type);\
     }while(0);
-#define POMME_ARG_F_I(arg,i) free(arg->args[i]->data);
 #define POMME_ARG_F(arg) do{\
 int i;for(i=0;i<arg->n;i++){\
-    POMME_ARG_F_I(arg,i);}\
+    pomme_data_distroy(&arg[i]);\
     free(arg);\
     arg=NULL;\    
 }while(0);
@@ -54,16 +54,19 @@ typedef struct pomme_func
 {
     char *name;
     void *fp;
-    void *arg; 
+    pomme_arg_t *arg; 
     pomme_link_t next;
 }pomme_func_t;
 
 typedef struct pomme_rpcs pomme_rpcs_t;
 
-typedef struct pomme_rpcs
+struct pomme_rpcs
 {
     int version; //the version of the rpc server
     int is_start;
+
+    /* the port to use */
+    short port;
     pomme_link_t func; 
     pomme_tpool_t thread_pool;
     /*regist an function*/ 
