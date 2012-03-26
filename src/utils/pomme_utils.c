@@ -73,6 +73,91 @@ int pomme_data_distroy(pomme_data_t *data)
 }
 
 
+int create_server(short port,
+	int max_pending,
+	int max_clients,
+ 	struct epoll_event *events,	
+	int *  sockid,
+	int *  epid)
+{
+    int ret = 0;
+    struct sockaddr_in addr;
+    *sockid = socket(AF_INET,SOCK_STREAM,0);
+    if( *sockid < 0 )
+    {
+	debug("create socket fail:%s",strerror(*sockid));
+	return *sockid;
+    }
+    bzero(&addr, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+
+    if( (ret = bind(*sockid, (struct sockaddr *) &addr,
+	    sizeof(struct sockaddr_in)) ) < 0 )
+    {
+	debug("bind errori:%s",strerror(ret));
+	return ret;
+    }
+
+    if( ( ret = listen(*sockid, max_pending) < 0 ))
+    {
+	debug("listen error:%s",strerror(ret));	
+	return ret;
+    }
+
+    if( (*epid = epoll_create(max_clients+1)) < 0 )
+    {
+	debug("epoll create error:%s",strerror(*epid));
+	return *epid;
+    }
+    struct epoll_event ev;
+    ev.events = EPOLLIN;
+    ev.data.fd = *sockid;
+
+    if( (ret = epoll_ctl( *epid,
+		    EPOLL_CTL_ADD, *sockid, &ev)) < 0)
+    {
+	debug("epoll ctl fail:%s",strerror(ret));
+	exit(ret);
+    }
+    return 0;
+}
+
+int create_client(char *ip,
+	short port,
+	int *sock_fd)
+{
+    int ret;
+    struct sockaddr_in pin;   
+    int  times = 1;
+    pin.sin_family = AF_INET;   
+
+    pin.sin_addr.s_addr = inet_addr(ip);
+    pin.sin_port = htons(port);   
+      
+    *sock_fd = socket(AF_INET, SOCK_STREAM, 0);   
+    if( *sock_fd < 0 )
+    {
+	debug("create socket failure:%s",strerror(errno));
+	return -1;
+    }
+
+    while( (ret = connect(*sock_fd, 
+		    (void *)&pin, sizeof(pin)) ) < 0 )
+    {
+	debug("connect %d ,Sleeping Zzzz...",times);
+
+	sleep(1<<times);
+	times++;
+	if( times > 4)
+	{
+	    return -1;
+	}
+    }
+    return 0;
+
+}
+
 char *pomme_time(char *buf)
 {
     time_t t = time(NULL);
@@ -101,4 +186,21 @@ int pomme_get_endian()
     }
     return POMME_BIG_ENDIAN;
 
+}
+int setnonblocking(int sock)
+{
+    int opts;
+    opts=fcntl(sock,F_GETFL);
+    if(opts<0)
+    {
+	debug("fcntl(sock,GETFL)");
+	return -1;
+    }
+    opts = opts|O_NONBLOCK;
+    if(fcntl(sock,F_SETFL,opts)<0)
+    {
+	perror("fcntl(sock,SETFL,opts)");
+	return -1;
+    }
+    return 0;
 }

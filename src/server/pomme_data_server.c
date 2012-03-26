@@ -679,21 +679,4 @@ err_exit:
     return -1;
 }
 
-int setnonblocking(int sock)
-{
-    int opts;
-    opts=fcntl(sock,F_GETFL);
-    if(opts<0)
-    {
-	debug("fcntl(sock,GETFL)");
-	return -1;
-    }
-    opts = opts|O_NONBLOCK;
-    if(fcntl(sock,F_SETFL,opts)<0)
-    {
-	perror("fcntl(sock,SETFL,opts)");
-	return -1;
-    }
-    return 0;
-}
 

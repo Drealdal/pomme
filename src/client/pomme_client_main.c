@@ -29,8 +29,10 @@ int main()
     struct sockaddr_in pin;   
 
     pin.sin_family = AF_INET;   
-    pin.sin_addr.s_addr = htonl(INADDR_ANY);   
-    pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr; 
+//    pin.sin_addr.s_addr = htonl(INADDR_ANY);   
+//    pin.sin_addr.s_addr = ((struct in_addr *)(server_host_name->h_addr))->s_addr; 
+
+    pin.sin_addr.s_addr = inet_addr("127.0.0.1");
     pin.sin_port = htons(port);   
       
     sock_fd = socket(AF_INET, SOCK_STREAM, 0);   

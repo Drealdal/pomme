@@ -33,6 +33,38 @@ int pomme_data_init(pomme_data_t *data, u_int32 size);
 int pomme_data_distroy(pomme_data_t *data);
 char *pomme_time(char *buf);
 struct tm *pomme_time_all();
+
+/**
+ * @brief create_server : create an server at localhost
+ *
+ * @param port: the port to listen
+ * @param max_pending: the max pending client of the socket
+ * @param max_clients: the max events of epoll
+ * @param events: where the events used by the epoll , size == max_client+1
+ * @param sockid: the sockid of the listen handle
+ * @param epid: the epid of the epoll
+ *
+ * @return: < 0 for failure , ==0 sucess 
+ */
+int create_server(short port,
+	int max_pending,
+	int max_clients,
+ 	struct epoll_event *events,	
+	int  *sockid,
+	int  * epid);
+
+/**
+ * @brief create_client: connect to an server , and get an client handle 
+ * @param ip: the ip of the server
+ * @param port: the port of the server
+ * @param sock_fd: the client handle created
+ * @return: < 0 failure, ==0 for success 
+ */
+int create_client(char *ip,
+	short port,
+	int *sock_fd);
+
+int setnonblocking(int sock);
 /**
  * @brief pomme_get_endian : test the endian of the server
  */

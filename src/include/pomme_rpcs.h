@@ -47,7 +47,7 @@ do{\
 int i;for(i=0;i<arg->n;i++){\
     pomme_data_distroy(&arg[i]);\
     free(arg);\
-    arg=NULL;\    
+    arg=NULL;}\    
 }while(0);
 
 typedef struct pomme_func
@@ -67,10 +67,12 @@ struct pomme_rpcs
 
     /* the port to use */
     short port;
+    int max_pending;
+    int max_clients;
     pomme_link_t func; 
     pomme_tpool_t thread_pool;
     /*regist an function*/ 
-    int  (*func_register) (pomme_rpcs_t *rpcs,char *fn,void *fp,int n,writable *arg);
+    int  (*func_register) (pomme_rpcs_t *rpcs,char *fn,void *fp,int n,pomme_data_t *arg);
     /** print all the function */
     void (*func_print)(pomme_rpcs_t *rpcs);
     /**  start the server */
