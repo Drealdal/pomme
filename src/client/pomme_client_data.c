@@ -110,7 +110,7 @@ int pomme_client_get_data(u_int64 id,
      * recv data package
      */
     unsigned char t_buffer[POMME_PACKAGE_SIZE];
-    int t_len = 0;
+    size_t t_len = 0;
 
     if( ( ret = pomme_recv(handle, t_buffer, POMME_PACKAGE_SIZE,
 	    &t_len, flags) ) < 0 )
@@ -145,11 +145,11 @@ int pomme_client_get_data(u_int64 id,
 	goto data_err;
     }
 
-    int tr_len = rpro.len;
+    size_t tr_len = rpro.len;
     memcpy(buffer,t_buffer, tr_len);
     while( tr_len < rpro.total_len )
     {
-	int tmp = 0;
+	size_t tmp = 0;
 	ret = pomme_recv(handle, buffer+tr_len, rpro.total_len - tr_len, &tmp, flags);
 	if( ret < 0 )
 	{

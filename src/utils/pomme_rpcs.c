@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "pomme_rpcs.h"
+#include "pomme_rpc.h"
 #include "pomme_blist.h"
 #include "pomme_serilize.h"
 
@@ -36,6 +37,8 @@ int pomme_rpcs_init(pomme_rpcs_t *rpcs,
     init_link(&rpcs->func);
     rpcs->func_register = &fregister;
     rpcs->func_print = &func_print;
+    rpcs->start = &start;
+    rpcs->call  = &call;
 
     ret = pomme_tp_init(&rpcs->thread_pool,
 	    max_thread,max_waiting,cur_num);
@@ -111,7 +114,7 @@ malloc_err:
 err:
     return ret;
 }
-static int printf_arg(pomme_arg_t *arg)
+static int printf_arg(int n,pomme_data_t *arg)
 {
     int i;
     if(arg == NULL)
@@ -120,14 +123,15 @@ static int printf_arg(pomme_arg_t *arg)
 	printf("arg: NULL\n");
 	return 0;
     }
-    printf("arg num:%d\n",arg->n);
+    printf("arg num:%d\n",n);
     printf("\tlen\n");
 
-    for( i = 0 ; i < arg->n ; i ++)
+    for( i = 0 ; i < n ; i ++)
     {
-	printf("\targ->args[i].size");
+	printf("\t%u",arg[i].size);
     }
     printf("\n");
+    return 0;
 }
 static int func_print(pomme_rpcs_t *rpcs)
 {
@@ -137,7 +141,7 @@ static int func_print(pomme_rpcs_t *rpcs)
     list_for_each_entry(pos, (&rpcs->func),next)
     {
 	printf("func name:%s\n",pos->name);
-	printf_arg(pos->arg);
+	printf_arg(pos->n,pos->arg);
     }
     return ret;
 }
@@ -227,7 +231,7 @@ static int handle_request(pomme_rpcs_t *rpcs,
 	ret = -1;
 	goto func_name_err;
     }
-    debug("Calling: %s",func_name->data);
+    debug("Calling: %s",(char *)func_name->data);
 
     /* will be release in the rpcs->call */
     call_param_t *argu = malloc(sizeof(call_param_t));
@@ -249,6 +253,7 @@ static int handle_request(pomme_rpcs_t *rpcs,
     if( worker == NULL )
     {
 	ret = POMME_MEM_ERROR;
+	goto malloc_worker_err;
     }
     memset(worker, 0, sizeof(worker));
 
@@ -323,7 +328,7 @@ static int start(pomme_rpcs_t *rpcs)
 		    continue;
 		}
 	    }else{
-
+		handle_request(rpcs,epid,events[i].data.fd);
 	    }
 	}
 

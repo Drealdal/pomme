@@ -174,7 +174,7 @@ int get_storage_files(char *path, pomme_hash_t *storage,
  * the first version of the data server
  */
 int heartbeat();
-int server_init();
+int server(pomme_ds_t *);
 
 #endif
 

@@ -33,7 +33,7 @@
  */
 int pomme_send(int handle, 
 	void *buffer,
-       	int len,
+       	size_t len,
 	int flags);
 
 /**
@@ -49,8 +49,8 @@ int pomme_send(int handle,
  */
 int pomme_recv(int handle,
        	void *buffer,
-       	int len,
-	int *r_len,
+       	size_t len,
+	size_t *r_len,
 	int flags);
 
 #endif

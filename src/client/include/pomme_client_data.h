@@ -21,6 +21,7 @@
 #include "utils.h"
 #include "pomme_pack.h"
 #include "pomme_protocol.h"
+#include "pomme_msg.h"
 
 
 typedef struct pomme_client

@@ -19,7 +19,7 @@
 #include "utils.h"
 
 int pomme_send(int handle, void *buffer, 
-	int len, int flags)
+	size_t len, int flags)
 {
 	int ret = 0;
 	assert(buffer != NULL );
@@ -42,7 +42,7 @@ err:
 }
 
 int pomme_recv(int handle, void *buffer,
-	int len,int *r_len, int flags)
+	size_t len,size_t *r_len, int flags)
 {
     int ret = 0 ;
     *r_len = 0;
