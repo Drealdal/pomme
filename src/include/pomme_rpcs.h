@@ -31,30 +31,23 @@ typedef struct pomme_arg
 
 
 #define POMME_ARG(arg,n) \
-    pomme_arg_t *arg = NULL;\
+    pomme_data_t *arg = NULL;\
 do{\
-    arg=malloc(sizeof(pomme_arg_t));\
-    arg->n = n;\
-    arg->args = malloc(n*sizeof(pomme_arg_t));\
-    memset(arg->args, 0, sizeof(pomme_arg_t)*n);\
+    arg=malloc(n*sizeof(pomme_data_t));\
+    memset(arg, 0, sizeof(pomme_arg_t)*n);\
 }while(0)
 
 #define POMME_ARG_I(arg,i,type) \
     do{\
-	arg->args[i]->len = sizeof(type);\
+	arg[i].size = sizeof(type);\
     }while(0);
-#define POMME_ARG_F(arg) do{\
-int i;for(i=0;i<arg->n;i++){\
-    pomme_data_distroy(&arg[i]);\
-    free(arg);\
-    arg=NULL;}\    
-}while(0);
 
 typedef struct pomme_func
 {
     char *name;
-    pomme_data_t (*fp) (pomme_arg_t *arg);
-    pomme_arg_t *arg; 
+    pomme_data_t * (*fp) (pomme_data_t *arg,int n);
+    int n;
+    pomme_data_t *arg; 
     pomme_link_t next;
 }pomme_func_t;
 
@@ -79,6 +72,16 @@ struct pomme_rpcs
     /**  start the server */
     int (*start)(pomme_rpcs_t *rpcs);
 };
+
+typedef struct call_param
+{
+    int epid;
+    /** connection handle */
+    int conn;
+    /* function name */
+    pomme_data_t *fname;
+    pomme_rpcs_t *rpcs;
+}call_param_t;
 
 /**
  * @brief pomme_rpcs_init 

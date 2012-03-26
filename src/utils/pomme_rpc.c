@@ -44,7 +44,14 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *epect, pomme_data_t **read)
 	debug("read_error");
 	return POMME_READ_MSG_ERROR; 
     }
-   *read = malloc(rn*sizeof(pomme_data_t)); 
+
+    if(rn == 0 )
+    {
+	*read = malloc(rn*sizeof(pomme_data_t)); 
+    }else{
+	*read = NULL;
+    }
+
    for( i = 0; i < rn ; i++)
    {
         read_data(*read+i, fd);

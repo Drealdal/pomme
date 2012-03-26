@@ -55,7 +55,7 @@ int pomme_rpcs_distroy(pomme_rpcs_t *rpcs)
     {
 	link_del(&pos->next);
 	/* the pomme_arg_t->args[i]->data is NULL in func list*/
-	POMME_ARG_F(pos->arg);
+	free(pos->arg);
 	free(pos);
     }
     memset(rpcs, 0, sizeof(pomme_rpcs_t));
@@ -84,19 +84,31 @@ static int fregister(pomme_rpcs_t *rpcs,
     assert( args != NULL);
 
     pomme_func_t *pf = malloc(sizeof(pomme_func_t));
+    if( pf == NULL )
+    {
+	ret = POMME_MEM_ERROR;
+	goto err;
+    }
     memset(pf, 0, sizeof(pomme_func_t));
 
     pomme_arg_t *arg = malloc(sizeof(pomme_arg_t));
+    if( arg == NULL )
+    {
+	ret = POMME_MEM_ERROR;
+	goto malloc_err;
+    }
     memset(arg, 0, sizeof(pomme_arg_t));
-
-    arg->n = n;
-    arg->args = args;
+    pf->n = n;
+    pf->arg = args;
 
     pf->name = funcn;
     pf->fp = funcp;
-    pf->arg = arg;
 
     link_add( &pf->next, &rpcs->func);
+    return ret;
+malloc_err:
+    free(pf);
+err:
     return ret;
 }
 static int printf_arg(pomme_arg_t *arg)
@@ -136,7 +148,7 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
     int find = 0 ;
 
     pomme_data_t rat;
-    memset(&rat, 0, sizeof(pomme_dat_t));
+    memset(&rat, 0, sizeof(pomme_data_t));
 
     pomme_func_t *pfunc = NULL;
     list_for_each_entry(pfunc,(&rpcs->func),next)
@@ -157,8 +169,8 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	return ret;
     }
     pomme_data_t *argus = NULL;
-    if((ret = pomme_rpc_read(conn, 
-		    rpcs->arg,&argus) ) < 0)
+    if((ret = pomme_rpc_read(conn,pfunc->n, 
+		    pfunc->arg,&argus) ) < 0)
     {
 	debug("read argument error");
 	/*
@@ -169,7 +181,7 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	return ret;
     }
 
-    pomme_data_t *ra = pfunc->fp(argus);
+    pomme_data_t *ra = pfunc->fp(argus,pfunc->n);
     if( ra == NULL )
     {
 	debug("error occured call the function");
@@ -184,11 +196,83 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
     return ret ;
 
 }
-static int handle_request(pomme_rpcs_t *rpcs, )
+
+static void thread_call(void *argu)
+{
+    /* the mem of worker and argu will be freed by the caller thread */
+    call_param_t *param = (call_param_t *)argu;
+    pomme_rpcs_t *rpcs = param->rpcs;
+    rpcs->call(rpcs,param->fname->data, param->conn);
+/* clear and free */
+    close(param->conn);
+    pomme_data_distroy(param->fname);
+}
+static int handle_request(pomme_rpcs_t *rpcs,
+	int epid,
+	int conn)
 {
     int ret = 0;
+    pomme_data_t *func_name = malloc(sizeof(pomme_data_t));
+    if( func_name ==  NULL )
+    {
+	debug("malloc error");
+	return POMME_MEM_ERROR;
+    }
+    memset(func_name, 0, sizeof(pomme_data_t));
 
+    ret = read_data(func_name, conn);
+    if(ret < 0)
+    {
+	debug("read error");
+	ret = -1;
+	goto func_name_err;
+    }
+    debug("Calling: %s",func_name->data);
+
+    /* will be release in the rpcs->call */
+    call_param_t *argu = malloc(sizeof(call_param_t));
+
+    if( argu == NULL )
+    {
+	ret = POMME_MEM_ERROR;
+	goto func_name_err;
+    }
+    memset(argu, 0, sizeof(call_param_t));
+
+    argu->rpcs = rpcs;
+    argu->epid = epid;
+
+    argu->fname = func_name;
+    argu->conn = conn; 
+
+    pomme_worker_t *worker = malloc(sizeof(pomme_worker_t));
+    if( worker == NULL )
+    {
+	ret = POMME_MEM_ERROR;
+    }
+    memset(worker, 0, sizeof(worker));
+
+    worker->process = &thread_call;
+    /*
+     * argu will be free by worker thread 
+     */
+    worker->arg = argu;
+
+    if( (ret = rpcs->thread_pool.add_worker(&rpcs->thread_pool, worker)))
+    {
+	debug("add worker fail");
+	goto add_worker_err; 
+    }
     return ret;
+    
+add_worker_err:
+    free(worker);
+malloc_worker_err:
+    free(argu);
+func_name_err:
+    pomme_data_distroy(func_name);
+    return ret;
+
 }
 
 static int start(pomme_rpcs_t *rpcs)
