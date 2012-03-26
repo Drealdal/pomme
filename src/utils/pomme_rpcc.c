@@ -32,6 +32,11 @@ static int asyn_call(rpcc_t *rh, int n,
 	pomme_data_t **res,
 	int time_out = -1)
 {
+    int ret = 0;
+
+
+
+    return ret;
 }
 
 int pomme_rpcc_init(rpcc_t *rh,

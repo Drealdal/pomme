@@ -27,7 +27,11 @@ int read_data(pomme_data_t *wt, int handle)
 	debug("read error %s",strerror(errno));
     }
     int readed = 0;
-
+    if( tl < 0 )
+    {
+	wt == NULL;
+	return tl;
+    }
     pomme_data_init(&wt, tl);
     unsigned char *pb = wt->data;
     while( ( st = read(handle, pb+readed, tl) ) >= 0 )
@@ -44,6 +48,10 @@ int write_data(pomme_data_t *wt, int handle)
     int wrl = 0;
 
     ssize_t wl = write(handle, &wt->size, sizeof(int));
+    if( wt->size < 0 )
+    {
+	return 0;
+    }
 
     wl = write(handle, wt->data, wt->size);
 

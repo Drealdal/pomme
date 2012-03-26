@@ -20,7 +20,7 @@
 #include "pomme_serilize.h"
 
 int pomme_rpc_write(int fd,int n, pomme_data_t *wrs);
-int pomme_rpc_read(int fd,int n, pomme_data_t *wrs);
+int pomme_rpc_read(int fd,int n,pomme_data_t *expect,pomme_data_t *wrs);
 
 
 #endif

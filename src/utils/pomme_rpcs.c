@@ -22,6 +22,7 @@
 static int fregister(pomme_rpcs_t *,char *,void *, int, pomme_data_t *);
 static int func_print(pomme_rpcs_t *rpcs);
 static int start(pomme_rpcs_t *rpcs);
+static int call(pomme_rpcs_t *rpcs, char *name, int conn); 
 
 int pomme_rpcs_init(pomme_rpcs_t *rpcs,
 	int max_thread,
@@ -126,6 +127,67 @@ static int func_print(pomme_rpcs_t *rpcs)
 	printf("func name:%s\n",pos->name);
 	printf_arg(pos->arg);
     }
+    return ret;
+}
+
+static int call(pomme_rpcs_t *rpcs, char *name, int conn)
+{
+    int ret = 0 ;
+    int find = 0 ;
+
+    pomme_data_t rat;
+    memset(&rat, 0, sizeof(pomme_dat_t));
+
+    pomme_func_t *pfunc = NULL;
+    list_for_each_entry(pfunc,(&rpcs->func),next)
+    {
+	if(strcmp(name,pfunc->name) == 0 )
+	{
+	    find = 1;
+	    break;
+	}
+    }
+    if( find == 0 )
+    {
+	/*
+	 * send not found
+	 */
+	rat.size = POMME_UNFIND_FUNC;
+	write_data(&rat, conn);
+	return ret;
+    }
+    pomme_data_t *argus = NULL;
+    if((ret = pomme_rpc_read(conn, 
+		    rpcs->arg,&argus) ) < 0)
+    {
+	debug("read argument error");
+	/*
+	 * send argument error
+	 */
+	rat.size = ret;
+	write_data(&rat, conn);
+	return ret;
+    }
+
+    pomme_data_t *ra = pfunc->fp(argus);
+    if( ra == NULL )
+    {
+	debug("error occured call the function");
+	rat.size = POMME_ERROR_EXE;
+	write_data(&rat, conn);
+
+	return POMME_ERROR_EXE;
+    }
+
+    ret = write_data(ra, conn);
+
+    return ret ;
+
+}
+static int handle_request(pomme_rpcs_t *rpcs, )
+{
+    int ret = 0;
+
     return ret;
 }
 

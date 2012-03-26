@@ -48,6 +48,8 @@
                                                 /** rpc */
 #define POMME_UNMATCH_ARGU_NUM (-601)
 #define POMME_UNMATCH_ARGU_TYPE (-602)
+#define POMME_ERROR_EXE (-603)
+#define POMME_UNFIND_FUNC (-604)
 
 
 /*

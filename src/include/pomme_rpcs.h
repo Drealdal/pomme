@@ -53,7 +53,7 @@ int i;for(i=0;i<arg->n;i++){\
 typedef struct pomme_func
 {
     char *name;
-    void *fp;
+    pomme_data_t (*fp) (pomme_arg_t *arg);
     pomme_arg_t *arg; 
     pomme_link_t next;
 }pomme_func_t;
@@ -74,9 +74,10 @@ struct pomme_rpcs
     /*regist an function*/ 
     int  (*func_register) (pomme_rpcs_t *rpcs,char *fn,void *fp,int n,pomme_data_t *arg);
     /** print all the function */
-    void (*func_print)(pomme_rpcs_t *rpcs);
+    int (*func_print)(pomme_rpcs_t *rpcs);
+    void (*call)(pomme_rpcs_t *rpcs, char *name,int conn);
     /**  start the server */
-    void (*start)(pomme_rpcs_t *rpcs);
+    int (*start)(pomme_rpcs_t *rpcs);
 };
 
 /**
