@@ -17,7 +17,7 @@
  */
 #ifndef _POMME_SERILIZE_H
 #define _POMME_SERILIZE_H
-#include "pomme_type.h"
+#include "utils.h"
 
 int read_data(pomme_data_t * wt, int handle);
 int write_data(pomme_data_t * wt, int handle);

@@ -41,12 +41,12 @@ struct pomme_rpc_handle
     int (*sync_call)(rpcc_t *rh, int n,
 	    pomme_data_t *argu, 
 	    pomme_data_t **res,
-	    int time_out = -1);
+	    int time_out );
 
     int (*asyn_call)(rpcc_t *rh, int n,
 	    pomme_data_t *argu,
 	    pomme_data_t **res,
-	    int time_out = -1);
+	    int time_out );
 };
 
 int pomme_rpcc_init(rpcc_t *rh,

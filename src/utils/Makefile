@@ -1,4 +1,4 @@
-all_utils_depends=$(addprefix $(OBJECT_DIR)/,pomme_utils.o pomme_blist.o pomme_queue.o pomme_hash.o pomme_buffer.o pomme_pack.o pomme_conf.o pomme_rpcs.o pomme_thread.o)
+all_utils_depends=$(addprefix $(OBJECT_DIR)/,pomme_utils.o pomme_blist.o pomme_queue.o pomme_hash.o pomme_buffer.o pomme_pack.o pomme_conf.o pomme_rpcs.o pomme_thread.o pomme_rpc.o pomme_serilize.o pomme_rpcc.o)
 
 
 
@@ -31,6 +31,9 @@ $(OBJECT_DIR)/pomme_thread.o:	$(UTIL_DIR)/pomme_thread.c $(INCLUDE_DIR)/pomme_th
 
 $(OBJECT_DIR)/pomme_msg.o: $(UTIL_DIR)/pomme_msg.c $(INCLUDE_DIR)/pomme_msg.h
 	$(CC) -c $(CFLAGS) $< -o $@
+$(OBJECT_DIR)/%.o: $(UTIL_DIR)/%.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
 
 clean_utils: 
 	rm -f $(UTIL_DIR)/*~

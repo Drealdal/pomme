@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include "pomme_rpc.h"
+#include "pomme_const.h"
+#include "utils.h"
 
 int pomme_rpc_write(int fd, int n , pomme_data_t *wrs)
 {
@@ -33,7 +35,7 @@ int pomme_rpc_write(int fd, int n , pomme_data_t *wrs)
     return ret;
 }
 
-int pomme_rpc_read(int fd, int n , pomme_data_t *epect, pomme_data_t **read)
+int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
 {
     int i  , ret = 0;
     /* read the number of agument */
@@ -47,34 +49,34 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *epect, pomme_data_t **read)
 
     if(rn == 0 )
     {
-	*read = malloc(rn*sizeof(pomme_data_t)); 
+	*re = malloc(rn*sizeof(pomme_data_t)); 
     }else{
-	*read = NULL;
+	*re = NULL;
     }
 
    for( i = 0; i < rn ; i++)
    {
-        read_data(*read+i, fd);
+        read_data(*re+i, fd);
    }
    if(n != rn )
    {
-       ret = POMME_UNMATCH_ARGU_UNM;
+       ret = POMME_UNMATCH_ARGU_NUM;
        goto unmatch;
    }
    for( i = 0; i < n ; i++ )
    {
-       if(expect[i].size != (*read)[i].size)
+       if(expect[i].size != -1 && expect[i].size != (*re)[i].size)
        {
-	   ret = POMME_UNMATCH_ARG_TYPE;
+	   ret = POMME_UNMATCH_ARGU_TYPE;
 	   break;
        } 
    }
 unmatch:
    for(i = 0 ; i < rn ; i++)
    {
-       pomme_data_distroy(*read+i);
+       pomme_data_distroy(*re+i);
    } 
-   free(*read);
+   free(*re);
 ex:
    return ret;
 }
