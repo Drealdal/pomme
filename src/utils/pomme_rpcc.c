@@ -38,7 +38,7 @@ static int sync_call(rpcc_t *rh, int n,
 
 
     /* write funcnaem */
-    if( ( ret = write_data(argu[0],conn) ) < 0 )
+    if( ( ret = write_data(argu,conn) ) < 0 )
     {
 	debug("write error");
 	return POMME_WRITE_ARGU_ERROR;
@@ -46,7 +46,7 @@ static int sync_call(rpcc_t *rh, int n,
 
 
     if( ( ret = pomme_rpc_write(conn, 
-		    argu+1, n-1) ) < 0 )
+		    n-1,argu+1) ) < 0 )
     {
 	debug("write error");
 	return POMME_WRITE_ARGU_ERROR;
@@ -64,7 +64,7 @@ static int sync_call(rpcc_t *rh, int n,
 
 static int asyn_call(rpcc_t *rh, int n,
 	pomme_data_t *argu,
-	pomme_data_t **res,
+	pomme_data_t *res,
 	int time_out )
 {
     int ret = 0;
@@ -99,4 +99,5 @@ int pomme_rpcc_init(rpcc_t *rh,
 int pomme_rpcc_distroy(rpcc_t *rh)
 {
     free(rh->ip);
+    return 0;
 }

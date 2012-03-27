@@ -18,6 +18,7 @@
 #ifndef _POMME_RPCC_H
 #define _POMME_RPCC_H
 #include "pomme_type.h"
+#include "pomme_rpc.h"
 
 typedef struct pomme_rpc_handle rpcc_t;
 
