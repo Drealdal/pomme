@@ -68,7 +68,7 @@ struct pomme_rpcs
     int  (*func_register) (pomme_rpcs_t *rpcs,char *fn,void *fp,int n,pomme_data_t *arg);
     /** print all the function */
     int (*func_print)(pomme_rpcs_t *rpcs);
-    void (*call)(pomme_rpcs_t *rpcs, char *name,int conn);
+    int (*call)(pomme_rpcs_t *rpcs, char *name,int conn);
     /**  start the server */
     int (*start)(pomme_rpcs_t *rpcs);
 };

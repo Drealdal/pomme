@@ -49,14 +49,14 @@ int pomme_tp_init(pomme_tpool_t *ptp,int num,
 	goto err;
     }
 
-   if ( ( ret = queue_init( &ptp->workers,
+   if ( ( ret = init_queue( &ptp->workers,
 	    "pomme thread pool",w_num)) < 0 )
    {
        debug("queue init failure");
        goto queue_err;
    }
 
-   if( ( ret = queue_init( &ptp->finished,
+   if( ( ret = init_queue( &ptp->finished,
 		   "pomme thread finish", num)) < 0 )
    {
        debug("queue init failure");
@@ -83,9 +83,9 @@ int pomme_tp_init(pomme_tpool_t *ptp,int num,
 
    return ret;
 sem_err:
-   distroy_queue(ptp->finished);
+   destroy_queue(ptp->finished);
 finish_err:
-   distroy_queue(ptp->workers);
+   destroy_queue(ptp->workers);
 queue_err:
   free(ptp->tids); 
 err:
@@ -132,8 +132,8 @@ int pomme_tp_distroy(pomme_tpool_t *ptp)
 	ptp->stop(ptp);
     }
 
-    queue_distroy(ptp->workers);
-    queue_distroy(ptp->finished);
+    destroy_queue(ptp->workers);
+    destroy_queue(ptp->finished);
 
     free(ptp->tids);
 
@@ -169,7 +169,7 @@ static void * thread_routine(void *arg)
     info->tid = pthread_self();
 
     pomme_tpool_t *ptp = info->ptp;
-    debug("thread %d @ %d",info->tid,info->rank);
+    debug("thread %d @ %d",(int)info->tid,info->rank);
     while(1)
     {
 	sem_wait(&ptp->sem);	

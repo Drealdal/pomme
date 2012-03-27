@@ -67,7 +67,7 @@ int main()
 	debug("Get data error");
 	goto err;
     }
-    char *p_b = &r_buffer;
+    char *p_b = (char *)&r_buffer;
     putchar(*p_b);
 err:
     return ret;

@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  pomme_serilize.h
+ *       Filename:  pomme_master.h
  *
- *    Description:  serilize
+ *    Description:  the master node of whole system
  *
  *        Version:  1.0
- *        Created:  03/20/2012 08:11:11 PM
+ *        Created:  03/27/2012 12:31:00 AM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,11 +15,12 @@
  *
  * =====================================================================================
  */
-#ifndef _POMME_SERILIZE_H
-#define _POMME_SERILIZE_H
-#include "utils.h"
+#ifndef _POMME_MASTER_H
+#define _POMME_MASTER_H
+typedef struct pomme_master
+{
+    float master_version;
+}pomme_master_t;
 
-int read_data(pomme_data_t * wt, int handle);
-int write_data(pomme_data_t * wt, int handle);
 
 #endif

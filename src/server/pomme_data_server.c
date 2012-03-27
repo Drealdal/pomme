@@ -481,8 +481,8 @@ static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     int first_to_send = l2r > POMME_MAX_PROTO_DATA ? 
 	POMME_MAX_PROTO_DATA:l2r;
 
-    debug("seek %d %d %d",
-	    ds->cur_storage_fd,fd,object.start);
+    debug("seek %d %d %lld",
+	    ds->cur_storage_fd,fd,(long long)object.start);
     lseek(fd,object.start,SEEK_SET);
 
     if( ( ret = read(fd,buffer,first_to_send))
@@ -586,7 +586,6 @@ static int handle_request(pomme_ds_t *ds,int handle)
 	   ret = POMME_UNKNOWN_MSG;
 	   break;
    }
-handle_err:
    pomme_pack_distroy(&p_buffer);
 err:
     return ret;

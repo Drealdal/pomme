@@ -86,5 +86,6 @@ int put_data_2_storage(int file_handle,
 
 int set_file_head( int fd, int id,storage_status_t status);
 int is_file_valid(int fd , pomme_ds_head_t *head);
-
+int get_dir_child_num(char *path, int *count);
+int create_local_file(char *path,int id,int *fd);
 #endif

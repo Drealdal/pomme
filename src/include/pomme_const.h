@@ -35,9 +35,11 @@
 #define POMME_NOT_ENOUGH_UNPACK (-204)
 #define POMME_WRONG_ARG (-204)
                                                 /* transport errors */
-#define POMME_SEND_MSG_ERROR (-301)
+#define POMME_SEND_MSG_ERROR (-301)	
 #define POMME_RECV_MSG_ERROR (-302)
 #define POMME_UNKNOWN_MSG (-303)
+#define POMME_WRITE_MSG_ERROR (-304)
+#define POMME_READ_MSG_ERROR (-305)
                                          /* db errors */
 #define POMME_WRITE_DB_ERROR (-401)
 #define POMME_READ_DB_ERROR (-402)

@@ -21,8 +21,8 @@
 
 extern int file_count_strict;
 
-static int get_dir_child_num(char *path, int *count);
-static int create_local_file(char *path,int id,int *fd);
+
+
 
 int create_storage(DB *db_handle,
 	DB_TXN *txnid,
@@ -93,7 +93,7 @@ err:
  *
  * @return: 0 for success , < 0 for failure 
  */
-static int get_dir_child_num(char *path,int *num)
+int get_dir_child_num(char *path,int *num)
 {
     int ret , len, file_count = 0;
     struct stat statbuf;
@@ -145,7 +145,7 @@ err:
     return ret;
 
 }
-static int create_local_file(char *path,int id,int *fd)
+int create_local_file(char *path,int id,int *fd)
 {
     int ret = 0;
     *fd =-1;
