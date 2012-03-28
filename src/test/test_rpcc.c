@@ -21,6 +21,7 @@
 
 int main()
 {
+    int ret = 0;
     rpcc_t rpcc;
     if( (ret = pomme_rpcc_init(&rpcc, "127.0.0.1",
 	    POMME_RPC_PORT,0)) < 0 )
@@ -37,7 +38,7 @@ int main()
     arg[1].data = name;
 
     pomme_data_t res;
-    rpcc.sysc_call(&rpcc, arg,&res,0); 
+    rpcc.sync_call(&rpcc,2, arg,&res,0); 
     printf("Get from server:%s",res.data);
 
     free(arg);

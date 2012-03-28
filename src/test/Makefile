@@ -5,7 +5,9 @@ test_buffer_depends=$(addprefix $(OBJECT_DIR)/,pomme_buffer.o pomme_queue.o)
 
 test_rpcs_depends =$(addprefix $(OBJECT_DIR)/,pomme_utils.o pomme_rpcs.o pomme_rpc.o pomme_serilize.o pomme_msg.o pomme_queue.o pomme_blist.o pomme_thread.o)
 
-all_test_depends=$(addprefix $(BIN_DIR)/,test_log test_queue test_hash test_buffer test_rpcs rest_rpcc)
+test_rpcc_depends =$(addprefix $(OBJECT_DIR)/,pomme_utils.o pomme_rpcs.o pomme_rpc.o pomme_serilize.o pomme_msg.o pomme_queue.o pomme_blist.o pomme_thread.o pomme_rpcc.o)
+
+all_test_depends=$(addprefix $(BIN_DIR)/,test_log test_queue test_hash test_buffer test_rpcc)
 
 
 
@@ -24,8 +26,9 @@ $(BIN_DIR)/test_buffer: $(test_buffer_depends) $(TEST_DIR)/test_buffer.c
 $(BIN_DIR)/test_rpcs: $(test_rpcs_depends) $(TEST_DIR)/test_rpcs.c 	
 	$(CC) -o $@ $(CFLAGS) $^
 
-$(BIN_DIR)/%: $(test_rpcs_depends) $(TEST_DIR)/%.c 	
+$(BIN_DIR)/test_rpcc: $(test_rpcc_depends) $(TEST_DIR)/test_rpcc.c 	
 	$(CC) -o $@ $(CFLAGS) $^
+
 
 $(OBJECT_DIR)/all_test: $(all_test_depends)
 	touch $@
