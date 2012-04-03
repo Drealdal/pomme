@@ -16,11 +16,13 @@
  * =====================================================================================
  */
 #include "pomme_rpcc.h"
+#include "pomme_serilize.h"
+#include "utils.h"
 
 static int sync_call(rpcc_t *rh, int n,
 	pomme_data_t *argu, 
 	pomme_data_t *res,
-	int time_out = -1)
+	int time_out )
 {
     int ret = 0;
     int conn=0;
@@ -36,7 +38,7 @@ static int sync_call(rpcc_t *rh, int n,
 
 
     /* write funcnaem */
-    if( ( ret = write_data(argu[0],conn) ) < 0 )
+    if( ( ret = write_data(argu,conn) ) < 0 )
     {
 	debug("write error");
 	return POMME_WRITE_ARGU_ERROR;
@@ -44,7 +46,7 @@ static int sync_call(rpcc_t *rh, int n,
 
 
     if( ( ret = pomme_rpc_write(conn, 
-		    argu+1, n - 1) ) < 0 )
+		    n-1,argu+1) ) < 0 )
     {
 	debug("write error");
 	return POMME_WRITE_ARGU_ERROR;
@@ -62,8 +64,8 @@ static int sync_call(rpcc_t *rh, int n,
 
 static int asyn_call(rpcc_t *rh, int n,
 	pomme_data_t *argu,
-	pomme_data_t **res,
-	int time_out = -1)
+	pomme_data_t *res,
+	int time_out )
 {
     int ret = 0;
     return ret;
@@ -78,12 +80,12 @@ int pomme_rpcc_init(rpcc_t *rh,
     assert( rh != NULL );
 
     int nl = strlen(ip);
-    rh->ip = malloc(nl_1);
+    rh->ip = malloc(nl+1);
     if(rh->ip == NULL)
     {
 	exit(-1);
     }
-    strcpy(rh->ip, nl);
+    strcpy(rh->ip, ip);
     
     rh->port = port;
     rh->default_timeout = time_out;
@@ -97,4 +99,5 @@ int pomme_rpcc_init(rpcc_t *rh,
 int pomme_rpcc_distroy(rpcc_t *rh)
 {
     free(rh->ip);
+    return 0;
 }

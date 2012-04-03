@@ -33,8 +33,25 @@ typedef struct pomme_ms
      * the ds < id <--> ip>
      */
     pomme_hash_t *ds;
-    /* meta db */
-    DB *meta_db
+    /* meta db 
+     * Use Btree, alloc multiple data item 
+     * for one key
+     * */
+    DB *meta_db;
+    /*
+     * The infomation of the data node;
+     *
+     * data_node is organised as group, every
+     * object is write to a group,
+     * a node is beyond to a group, this means 
+     * the data on every node within a group is
+     * the same. borrow from facebook (find needle
+     * in haystack)
+     *
+     * considering use diffirent storage file on
+     * data node to enable one nodes in serval group
+     */
+    DB *data_nodes;
 
 }pomme_ms_t;
 

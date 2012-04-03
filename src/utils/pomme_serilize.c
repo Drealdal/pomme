@@ -32,7 +32,7 @@ int read_data(pomme_data_t *wt, int handle)
 	wt == NULL;
 	return tl;
     }
-    pomme_data_init(&wt, tl);
+    pomme_data_init(wt, tl);
     unsigned char *pb = wt->data;
     while( ( st = read(handle, pb+readed, tl) ) >= 0 )
     {

@@ -18,6 +18,7 @@
 #ifndef POMME_BDB_H
 #define POMME_BDB_H
 #include "bdb.h"
+
 /**
  * @brief pomme_db_setvalue 
  *

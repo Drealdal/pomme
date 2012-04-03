@@ -18,6 +18,7 @@
 #ifndef _POMME_RPCC_H
 #define _POMME_RPCC_H
 #include "pomme_type.h"
+#include "pomme_rpc.h"
 
 typedef struct pomme_rpc_handle rpcc_t;
 
@@ -40,13 +41,13 @@ struct pomme_rpc_handle
      */
     int (*sync_call)(rpcc_t *rh, int n,
 	    pomme_data_t *argu, 
-	    pomme_data_t **res,
+	    pomme_data_t *res,
 	    int time_out );
 
     int (*asyn_call)(rpcc_t *rh, int n,
 	    pomme_data_t *argu,
-	    pomme_data_t **res,
-	    int time_out );
+	    pomme_data_t *res,
+	    int time_out);
 };
 
 int pomme_rpcc_init(rpcc_t *rh,

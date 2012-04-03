@@ -340,10 +340,9 @@ err:
    return ret;
 
 }
-
 int setnonblocking(int sock);
 
-static int handle_put_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
+int pomme_put_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 {
 
     int ret = 0;
@@ -417,7 +416,7 @@ put_err:
 err:	
     return ret;
 }
-static int handle_get_data(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
+int pomme_get_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 {
     int fd;
     int ret = 0;
@@ -575,11 +574,11 @@ static int handle_request(pomme_ds_t *ds,int handle)
    switch( pro.op )
    {
        case put_data:
-	   handle_put_data(ds,handle,&pro);
+	   pomme_put_object(ds,handle,&pro);
 	   break;
        case get_data:
 	   debug("get_data");
-	   handle_get_data(ds,handle,&pro);
+	  pomme_get_object(ds,handle,&pro);
 	   break;
        default:
 	   debug("unknown protocol msg");

@@ -143,7 +143,7 @@ int pomme_storage_init(pomme_ds_t *ds);
  * @@para:handle the handle of the connection
  * @param:pro the recved package, maybe just first part of the data
  */
-int pomme_add_object(pomme_ds_t *ds,
+int pomme_put_object(pomme_ds_t *ds,
 		int handle,
 		pomme_protocol_t *pro);
 /*
