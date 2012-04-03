@@ -23,7 +23,6 @@
 typedef struct pomme_dir
 {
     time_t ctime; // last status change time
-
     u_int32 acl;
 }pomme_dir_t;
 #endif

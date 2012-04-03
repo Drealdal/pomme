@@ -31,6 +31,4 @@ typedef struct pomme_file
     u_int32 acl;// u g o
 }pomme_file_t;
 
-
-
 #endif

@@ -340,7 +340,6 @@ err:
    return ret;
 
 }
-
 int setnonblocking(int sock);
 
 int pomme_put_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
