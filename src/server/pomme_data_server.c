@@ -627,7 +627,7 @@ int server(pomme_ds_t *ds)
     }
 
     struct epoll_event ev, events[MAX_CLIENTS+1];
-    ev.events = EPOLLIN;
+    ev.events = EPOLLIN | EPOLLONESHOT;
     ev.data.fd = socid;
 
     if( epoll_ctl(epid, EPOLL_CTL_ADD, socid, &ev) < 0 )

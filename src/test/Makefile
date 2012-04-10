@@ -7,7 +7,7 @@ test_rpcs_depends =$(addprefix $(OBJECT_DIR)/,pomme_utils.o pomme_rpcs.o pomme_r
 
 test_rpcc_depends =$(addprefix $(OBJECT_DIR)/,pomme_utils.o pomme_rpcs.o pomme_rpc.o pomme_serilize.o pomme_msg.o pomme_queue.o pomme_blist.o pomme_thread.o pomme_rpcc.o)
 
-all_test_depends=$(addprefix $(BIN_DIR)/,test_log test_queue test_hash test_buffer test_rpcc)
+all_test_depends=$(addprefix $(BIN_DIR)/,test_log test_queue test_hash test_buffer test_rpcc test_rpcs)
 
 
 

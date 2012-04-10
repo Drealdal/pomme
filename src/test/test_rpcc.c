@@ -31,18 +31,24 @@ int main()
     }
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
     char *name = "remote_print";
-    arg[0].size=strlen(name);
+    arg[0].size=strlen(name)+1;
     arg[0].data = name;
 
-    arg[1].size = strlen(name);
+    arg[1].size = strlen(name)+1;
     arg[1].data = name;
 
     pomme_data_t res;
-    rpcc.sync_call(&rpcc,2, arg,&res,0); 
+    memset(&res, 0, sizeof(pomme_data_t));
+    debug("before call");
+   if( (ret = rpcc.sync_call(&rpcc,2, arg,&res,0) ) < 0 )
+   {
+       debug("remote call error");
+   }else{
     printf("Get from server:%s",res.data);
-
+   }
     free(arg);
     pomme_data_distroy(&res);
+
 
     return ret;
 }

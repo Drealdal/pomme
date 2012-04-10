@@ -32,7 +32,7 @@ typedef unsigned long long u_int64;
 
 
 typedef struct pomme_data{
-	u_int32 size;
+	int size;
 	u_int32 flags;//the operation for the flag, BDB likely interface 
 	void *data;
 }pomme_data_t;

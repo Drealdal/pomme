@@ -28,7 +28,8 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn);
 int pomme_rpcs_init(pomme_rpcs_t *rpcs,
 	int max_thread,
 	int max_waiting,
-	int cur_num)
+	int cur_num,
+	short port)
 {
     int ret = 0;
 
@@ -39,6 +40,8 @@ int pomme_rpcs_init(pomme_rpcs_t *rpcs,
     rpcs->func_print = &func_print;
     rpcs->start = &start;
     rpcs->call  = &call;
+
+    rpcs->port = port;
 
     ret = pomme_tp_init(&rpcs->thread_pool,
 	    max_thread,max_waiting,cur_num);
@@ -148,6 +151,7 @@ static int func_print(pomme_rpcs_t *rpcs)
 
 static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 {
+    debug("begin call");
     int ret = 0 ;
     int find = 0 ;
 
@@ -168,11 +172,13 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	/*
 	 * send not found
 	 */
+	debug("not found");
 	rat.size = POMME_UNFIND_FUNC;
 	write_data(&rat, conn);
 	return ret;
     }
     pomme_data_t *argus = NULL;
+    debug("Before read");
     if((ret = pomme_rpc_read(conn,pfunc->n, 
 		    pfunc->arg,&argus) ) < 0)
     {
@@ -184,8 +190,9 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	write_data(&rat, conn);
 	return ret;
     }
+    debug("%p %d",argus,argus->size);
 
-    pomme_data_t *ra = pfunc->fp(argus,pfunc->n);
+    pomme_data_t *ra = pfunc->fp(pfunc->n,argus);
     if( ra == NULL )
     {
 	debug("error occured call the function");
@@ -203,6 +210,7 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 
 static void thread_call(void *argu)
 {
+    debug("thread call");
     /* the mem of worker and argu will be freed by the caller thread */
     call_param_t *param = (call_param_t *)argu;
     pomme_rpcs_t *rpcs = param->rpcs;
@@ -235,6 +243,7 @@ static int handle_request(pomme_rpcs_t *rpcs,
 
     /* will be release in the rpcs->call */
     call_param_t *argu = malloc(sizeof(call_param_t));
+    
 
     if( argu == NULL )
     {
@@ -268,6 +277,7 @@ static int handle_request(pomme_rpcs_t *rpcs,
 	debug("add worker fail");
 	goto add_worker_err; 
     }
+    debug("add to queue");
     return ret;
     
 add_worker_err:
@@ -320,7 +330,7 @@ static int start(pomme_rpcs_t *rpcs)
 		}
 		setnonblocking(conn_sock);
 
-		ev.events = EPOLLIN | EPOLLET;
+		ev.events = EPOLLIN | EPOLLET| EPOLLONESHOT;
 		ev.data.fd = conn_sock;
 		if( epoll_ctl(epid, EPOLL_CTL_ADD, conn_sock, &ev) < 0 )
 		{
@@ -328,6 +338,7 @@ static int start(pomme_rpcs_t *rpcs)
 		    continue;
 		}
 	    }else{
+		
 		handle_request(rpcs,epid,events[i].data.fd);
 	    }
 	}
