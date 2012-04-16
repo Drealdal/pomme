@@ -73,7 +73,7 @@ int pomme_tp_init(pomme_tpool_t *ptp,int num,
    ptp->remove_thread = &remove_thread;
    ptp->extend_pool = &extend_pool;
 
-   ptp->thread_routine = thread_routine;
+   ptp->thread_routine = &thread_routine;
    if( (ret =  sem_init(&ptp->sem,0,0) ) < 0)
    {
        debug("sem init fail:%s",strerror(ret));
@@ -169,11 +169,14 @@ static void * thread_routine(void *arg)
     info->tid = pthread_self();
 
     pomme_tpool_t *ptp = info->ptp;
-    debug("thread %d @ %d",(int)info->tid,info->rank);
+//    debug("thread %d @ %d",(int)info->tid,info->rank);
     while(1)
     {
+	debug("get process");
 	sem_wait(&ptp->sem);	
+	debug("get process");
 	queue_body_t *wr = queue_get_front(ptp->workers);
+	debug("get process");
 	pomme_worker_t *w = queue_entry(wr,pomme_worker_t,next);
 	/* The sem make this assert true */
 	assert( w!=NULL );
