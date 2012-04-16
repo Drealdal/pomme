@@ -32,6 +32,7 @@ static int extend_pool(pomme_tpool_t *ptp, int n);
 int pomme_tp_init(pomme_tpool_t *ptp,int num,
 	int w_num,int cur_num)
 {
+    debug("ptp:%p",ptp);
     int ret = 0;
 
     assert( ptp != NULL);
@@ -55,6 +56,7 @@ int pomme_tp_init(pomme_tpool_t *ptp,int num,
        debug("queue init failure");
        goto queue_err;
    }
+   debug("worker:%p",ptp->workers);
 
    if( ( ret = init_queue( &ptp->finished,
 		   "pomme thread finish", num)) < 0 )
@@ -104,10 +106,11 @@ static int start(pomme_tpool_t *ptp)
     int i;
     for( i = 0; i < ptp->cur_thread_num; i++ )
     {
-	routine_arg arg;
-	arg.rank = i;
+	routine_arg *arg = malloc(sizeof(routine_arg));
+	arg->rank = i;
+	arg->ptp = ptp;
         if( ( ret = pthread_create(ptp->tids+i, NULL,
-		       	ptp->thread_routine, &arg )) < 0 )
+		       	ptp->thread_routine, arg )) < 0 )
 	{
 	    debug("create thread %d fail %s",ret, strerror(ret));
 	    goto err;
@@ -169,14 +172,11 @@ static void * thread_routine(void *arg)
     info->tid = pthread_self();
 
     pomme_tpool_t *ptp = info->ptp;
-//    debug("thread %d @ %d",(int)info->tid,info->rank);
     while(1)
     {
-	debug("get process");
 	sem_wait(&ptp->sem);	
-	debug("get process");
+
 	queue_body_t *wr = queue_get_front(ptp->workers);
-	debug("get process");
 	pomme_worker_t *w = queue_entry(wr,pomme_worker_t,next);
 	/* The sem make this assert true */
 	assert( w!=NULL );
@@ -201,6 +201,7 @@ static void * thread_routine(void *arg)
 	free(w->arg);
 	free(w);
     }
+    free(info);
     //TODO  use lock?
     return NULL; 
 }

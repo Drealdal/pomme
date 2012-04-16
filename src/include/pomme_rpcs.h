@@ -91,7 +91,8 @@ typedef struct call_param
 int pomme_rpcs_init( pomme_rpcs_t *rpcs,
 	int max_thread,
 	int max_waiting,
-	int cur_num);
+	int cur_num,
+	short port);
 /**
  * @brief pomme_rpcs_distroy 
  * @param rpcs

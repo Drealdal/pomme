@@ -145,7 +145,7 @@ int create_client(char *ip,
     while( (ret = connect(*sock_fd, 
 		    (void *)&pin, sizeof(pin)) ) < 0 )
     {
-	debug("connect %d ,Sleeping Zzzz...",times);
+	debug("connect %d %s,Sleeping Zzzz...",times,strerror(ret));
 
 	sleep(1<<times);
 	times++;
