@@ -105,4 +105,6 @@ int pomme_data_distroy(pomme_data_t *data);
  */
 int pomme_hash_int_int(int size, pomme_hash_t **hash);
 
+int pomme_hash_int_longlong(int szie, pomme_hash_t **hash);
+
 #endif

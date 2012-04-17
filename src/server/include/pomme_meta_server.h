@@ -37,6 +37,9 @@ typedef struct pomme_ms
      * Use Btree, alloc multiple data item 
      * for one key
      * */
+
+    DB_ENV *env;
+
     DB *meta_db;
     /*
      * The infomation of the data node;
@@ -53,6 +56,20 @@ typedef struct pomme_ms
      */
     DB *data_nodes;
 
+    pomme_rpcs_t rpcs;
+    int (*start)(pomme_ms_t *ms);
+    int (*stop)(pomme_ms_t *ms);
+    pomme_data_t * (*create_file)(int n , pomme_data_t *arg);
+    pomme_data_t * (*read_file)(int n , pomme_data_t *arg);
+
+    /**
+     * @brief rpc funtion which will be called by the data
+     * server to report infomation 
+     */
+    pomme_data_t * (*heart_beat)(int n , pomme_data_t *arg);
+
 }pomme_ms_t;
+
+int pomme_ms_init(pomme_ms_t *ms);
 
 #endif

@@ -389,13 +389,27 @@ static int cmp_int(void *a, void *b)
 {
     int ia = *(int *)a;
     int ib = *(int *) b;
-    return ia<ib;
+    if( ia == ib ) return 0;
+    if( ia < ib ) return -1;
+    return 1;
 }
 static int hash_int(void *a,u_int32 len)
 {
     return *(int *)a;
 }
+static int cmp_longlong(void *a, void *b)
+{
+    long long la = *(long long *)a;
+    long long lb = *(long long *)b;
+    if( la < lb ) return -1;
+    else if (la == lb) return 0;
+    return 1;
+}
 int pomme_hash_int_int(int size, pomme_hash_t **hash)
 {
     return pomme_hash_init(size, &hash_int, &cmp_int, hash);
+}
+int pomme_hash_int_longlong(int szie, pomme_hash_t **hash)
+{
+    return pomme_hash_init(size, &hash_int, &cmp_longlong,hash);
 }

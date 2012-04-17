@@ -217,13 +217,9 @@ int pomme_ds_distroy( pomme_ds_t *ds )
 {
     int ret = 0;
     POMME_LOG_INFO("STOP DATA SERVER",ds->ds_logger);
-    stop_log = 1;
     pomme_env_distroy(&ds->env);
     pomme_hash_distroy(&ds->storage_file);
-    while(stop_log == 1)
-    {
-	sleep(1);
-    }
+    stop_logger();
 
     return ret;
 }

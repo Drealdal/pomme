@@ -32,11 +32,6 @@ int main()
 		POMME_LOG_WARNING(message,logger);
 		POMME_LOG_ERROR(message,eror);
 	}
-	stop_log = 1;
-	while(stop_log == 1)
-	{
-		printf("%d\n",i++);
-		sleep(1);
-	}
+	stop_logger();
 	return 0;
 }

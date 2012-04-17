@@ -17,7 +17,7 @@
  */
 #include "pomme_log.h"
 #include "utils.h"
-int stop_log = 0;
+static int stop_log = 0;
 static log_t * get_log_from_logger(struct logger *loger);
 static log_t * get_log(pomme_log_level_t level,struct logger *logger);
 static int add_log(char *message,struct logger *logger);
@@ -190,6 +190,17 @@ int init_log()
 	init_queue(&slots,"Free Log slots",1000000);
 	init_queue(&logger,"Loggers",100);
 	int err = pthread_create(&log_thread, NULL,&write_log,NULL);
+}
+int stop_logger()
+{
+    debug("Trying to stop log.");
+    stop_log = 1;
+    while(stop_log == 1 )
+    {
+	sleep(1);
+	debug("Waiting log Zzzzz....");
+    }
+    return 0;
 }
 static void* write_log(void * argc)
 {
