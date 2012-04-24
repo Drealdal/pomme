@@ -14,8 +14,7 @@ CLIENT_INCLUDE=./client/include
 CLIENT_TEST=./client/test
 
 TEST_DIR=./test
-BDB_DIR=/home/zhumeiqi/BDB
-INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_DIR)/include -I$(SERVER_DIR)/include -I$(CLIENT_DIR)/include
+INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_HOME)/include -I$(SERVER_DIR)/include -I$(CLIENT_DIR)/include
 LIB_FLAG=-L$(BDB_DIR)/lib -lpthread -ldb
 CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall -DDEBUG=1
 INSTALL_DIR=$(POMME_HOME)
@@ -29,9 +28,9 @@ include $(CLIENT_DIR)/Makefile
 all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils all_client)
 all_clean= $(addprefix clean_, test log server utils client)
 
-.PHONY: all $(all_depends) all_clean
+.PHONY: all $(all_depends) all_clean init
 
-all: $(all_depends)
+all: init $(all_depends)
 	mkdir -p .object
 
 default:
@@ -47,3 +46,7 @@ install:
 	cp ../bin/* $(INSTALL_DIR)/bin
 	cp ../lib/* $(INSTALL_DIR)/lib
 	
+init:
+	mkdir -p .object
+	mkdir -p ../bin
+	mkdir -p ../lib
