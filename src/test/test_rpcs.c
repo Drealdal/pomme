@@ -20,7 +20,7 @@
 /*
  * return the arg pass in
  */
-pomme_data_t * remote_print(int n , pomme_data_t *arg)
+pomme_data_t * remote_print(void *extra,int n , pomme_data_t *arg)
 {
     debug("arrg_num:%d",n);
     if( n != 1 )
@@ -34,7 +34,7 @@ pomme_data_t * remote_print(int n , pomme_data_t *arg)
 int main()
 {
     pomme_rpcs_t rpcs ;
-    pomme_rpcs_init(&rpcs,10,100,2,POMME_RPC_PORT);
+    pomme_rpcs_init(&rpcs,NULL,10,100,2,POMME_RPC_PORT);
     pomme_data_t *arg = malloc(sizeof(pomme_data_t));
 
     memset(arg,0,sizeof(pomme_data_t));

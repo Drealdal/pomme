@@ -409,7 +409,7 @@ int pomme_hash_int_int(int size, pomme_hash_t **hash)
 {
     return pomme_hash_init(size, &hash_int, &cmp_int, hash);
 }
-int pomme_hash_int_longlong(int szie, pomme_hash_t **hash)
+int pomme_hash_int_longlong(int size, pomme_hash_t **hash)
 {
     return pomme_hash_init(size, &hash_int, &cmp_longlong,hash);
 }

@@ -82,6 +82,7 @@
 #define POMME_MAX_PACKAGE_SIZE (1024*1024*1024)
 
 #define POMME_PATH_MAX 1024
+#define POMME_MAX_REPLICA 5
 /*
  * configure change to configure file???
  */
@@ -89,6 +90,8 @@
 #define POMME_RPC_PORT 0x1E01
 #define POMME_META_PORT 0x1e02
 
+#define POMME_META_FILE "pomme_meta.db"
+#define POMME_META_NAME "pomme_meta"
 #define POMME_DATA_HOME "/tmp/"
 #define POMME_MFILE_NAME "/home/zhumeiqi/work/pomme/data/mfile.db"
 #define POMME_SFILE_NAME "/home/zhumeiqi/work/pomme/data/sfile.db"

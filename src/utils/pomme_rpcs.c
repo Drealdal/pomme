@@ -26,15 +26,16 @@ static int start(pomme_rpcs_t *rpcs);
 static int call(pomme_rpcs_t *rpcs, char *name, int conn); 
 
 int pomme_rpcs_init(pomme_rpcs_t *rpcs,
+	void *extra,
 	int max_thread,
 	int max_waiting,
 	int cur_num,
 	short port)
 {
     int ret = 0;
-
     assert( rpcs != NULL);
     memset( rpcs, 0, sizeof(pomme_rpcs_t));
+    rpcs->extra = extra;
     init_link(&rpcs->func);
     rpcs->func_register = &fregister;
     rpcs->func_print = &func_print;
@@ -192,7 +193,7 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
     }
     debug("%p %d",argus,argus->size);
 
-    pomme_data_t *ra = pfunc->fp(pfunc->n,argus);
+    pomme_data_t *ra = pfunc->fp(rpcs->extra,pfunc->n,argus);
     if( ra == NULL )
     {
 	debug("error occured call the function");

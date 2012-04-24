@@ -20,9 +20,16 @@
 
 #include "utils.h"
 
+/*
+ * the name of the dir is used as the key of
+ * a dir object
+ */
+
 typedef struct pomme_dir
 {
     time_t ctime; // last status change time
     u_int32 acl;
 }pomme_dir_t;
+
+
 #endif
