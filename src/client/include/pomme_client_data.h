@@ -36,6 +36,7 @@ typedef struct pomme_client
 /**
  * @brief pomme_put_data : put data to an connection
  *
+ * @param id: the id of the object
  * @param handle: the handle of the connection
  * @param buffer: the buffer where the data to be sent is stored
  * @param len: the length of the data
@@ -51,6 +52,7 @@ int pomme_client_put_data(u_int64 id,
 /**
  * @brief pomme_get_data : get  data from an 
  *
+ * @param id: id of the object
  * @param off: the offset within the object
  * @param len: the len of data to get
  * @param handle: the handle of the connection
