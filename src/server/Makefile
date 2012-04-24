@@ -1,6 +1,6 @@
 include $(SERVER_TEST)/Makefile
 
-$(OBJECT_DIR)/all_server:$(addprefix $(OBJECT_DIR)/, pomme_storage.o all_server_test) $(BIN_DIR)/data_server
+$(OBJECT_DIR)/all_server:$(addprefix $(OBJECT_DIR)/, pomme_storage.o pomme_meta_server.o all_server_test) $(BIN_DIR)/data_server
 	touch $@
 
 pomme_protocol_depends=$(addprefix $(OBJECT_DIR)/,pomme_pack.o)
@@ -20,6 +20,9 @@ $(OBJECT_DIR)/pomme_protocol.o:  $(SERVER_DIR)/pomme_protocol.c $(SERVER_INCLUDE
 	$(CC) -c $(CFLAGS) $< -o $@
 $(OBJECT_DIR)/pomme_data_server.o: $(SERVER_DIR)/pomme_data_server.c $(SERVER_INCLUDE)/pomme_data_server.h
 	$(CC) -c $(CFLAGS) $< -o $@
+$(OBJECT_DIR)/pomme_meta_server.o:$(SERVER_DIR)/pomme_meta_server.c $(SERVER_INCLUDE)/pomme_meta_server.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
 
 $(BIN_DIR)/data_server: $(data_server_depends) $(SERVER_DIR)/pomme_data_main.c
 	$(CC) -o $@ -O2 $(CFLAGS) $^

@@ -60,6 +60,10 @@ typedef struct pomme_file
 	 * path is used as the key of the file
 	 */
 	u_int8 *path;
+	/* where the objects stored,will not be changed utils some server is down
+	* if any server in a dsgroup fails, we just modify infomation of the 
+	 * dsgroup */
+	u_int32 dsgroup;
 	/*
 	 * the create time of the file
 	 */
@@ -82,6 +86,7 @@ typedef struct pomme_file
 	 *access
 	 */
 	u_int32 access;
+	/* storage server */
 }pomme_file_t;
 
 #endif

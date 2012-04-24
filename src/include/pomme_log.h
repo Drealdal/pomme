@@ -56,6 +56,7 @@ void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level,str
  */
 struct logger * create_logger(pomme_log_level_t level, char *name);
 int init_log();
+int stop_logger();
 
 #define POMME_LOG_ERROR(message,logger) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_ERROR,logger)
 #define POMME_LOG_WARNING(message,logger) POMME_LOG(__FILE__,__LINE__,message,POMME_LOG_WARNING,logger)

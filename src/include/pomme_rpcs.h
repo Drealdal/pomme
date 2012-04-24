@@ -45,7 +45,7 @@ do{\
 typedef struct pomme_func
 {
     char *name;
-    pomme_data_t * (*fp) (pomme_data_t *arg,int n);
+    pomme_data_t * (*fp) (void *extra,int n, pomme_data_t *arg);
     int n;
     pomme_data_t *arg; 
     pomme_link_t next;
@@ -55,6 +55,10 @@ typedef struct pomme_rpcs pomme_rpcs_t;
 
 struct pomme_rpcs
 {
+    /*
+     * pass argument from local
+     */
+    void *extra;
     int version; //the version of the rpc server
     int is_start;
 
@@ -89,6 +93,7 @@ typedef struct call_param
  * @return < 0 failure, = 0 for success 
  */
 int pomme_rpcs_init( pomme_rpcs_t *rpcs,
+	void *extra,
 	int max_thread,
 	int max_waiting,
 	int cur_num,
