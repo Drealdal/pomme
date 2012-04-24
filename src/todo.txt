@@ -1,3 +1,4 @@
+6: rewrite makefile system
 0.5: implement of rpc && thread_pool
 	1: need test(4,1 deadline)
 1:timeout of connections
@@ -10,4 +11,3 @@
 4:check sum of the data
 5:dedum, we only need to copy meta, inheritly copy on write, inheritly log structure
 //
-6: rewrite makefile system
