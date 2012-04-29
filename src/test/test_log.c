@@ -21,8 +21,8 @@ extern int stop_log;
 int main()
 {
 	init_log();
-  	struct logger *	logger = create_logger(POMME_LOG_MAX,"test_logger");
-	struct logger * eror =  create_logger(POMME_LOG_MAX,"eror_logger");
+  	struct logger *	logger = create_logger(POMME_LOG_ALL,"test_logger");
+	struct logger * eror =  create_logger(POMME_LOG_ALL,"eror_logger");
 	int i = 0;
 	for(i = 0 ;i<1000;i++)
 	{

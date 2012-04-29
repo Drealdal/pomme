@@ -56,7 +56,7 @@ int unpack_msg(pomme_protocol_t *pro, pomme_pack_t *buf)
     pomme_protocol_type_t *p_op = &pro->op;
     pomme_unpack( &p_op, pomme_protocol_type_t, buf);
 
-    size_t p_tlen = &pro->total_len;
+    size_t *p_tlen = &pro->total_len;
     u_int64 *tid = &pro->id;
     size_t *p_off = &pro->offset;
 

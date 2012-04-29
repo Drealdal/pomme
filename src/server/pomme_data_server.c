@@ -181,7 +181,7 @@ int pomme_ds_init( pomme_ds_t *ds,
     }
 
     init_log();
-    ds->ds_logger = create_logger(POMME_LOG_MAX,"data_server");
+    ds->ds_logger = create_logger(POMME_DATA_LOG_LEVEL,"data_server");
     if( NULL == ds->ds_logger )
     {
 	debug("create logger failure");

@@ -81,20 +81,6 @@ int str_hash(void *str,u_int32 str_len);
  *  cmp to void * data , they are cmpared BYTE WISE
  *-----------------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------------------
- *  init an pomme_data_t with an memory of length size,if this data is used when
- *  calling the put operation,the memory will be managed by the system,otherwise
- *  the application should do it.
- *  @param: size ,the size of memory needed
- *  @return , if NULL error happens
- *-----------------------------------------------------------------------------*/
-int pomme_data_init(pomme_data_t *data,u_int32 size);
-
-/*-----------------------------------------------------------------------------
- *  distory an pomme_data_t structure,manage the Memory allocated by sys
- *-----------------------------------------------------------------------------*/
-int pomme_data_distroy(pomme_data_t *data);
-
 /**
  * @brief pomme_hash_int_int : init an hash of <int, int> pair
  *

@@ -11,3 +11,4 @@
 4:check sum of the data
 5:dedum, we only need to copy meta, inheritly copy on write, inheritly log structure
 //
+1. The logger sysetm should be reconsiderd

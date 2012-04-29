@@ -75,6 +75,7 @@ struct pomme_rpcs
     int (*call)(pomme_rpcs_t *rpcs, char *name,int conn);
     /**  start the server */
     int (*start)(pomme_rpcs_t *rpcs);
+    int (*stop)(pomme_rpcs_t *rpcs);
 };
 
 typedef struct call_param
@@ -104,5 +105,7 @@ int pomme_rpcs_init( pomme_rpcs_t *rpcs,
  * @return <0 failure, ==0 for success 
  */
 int pomme_rpcs_distroy( pomme_rpcs_t *rpcs);
+
+#define DEF_POMME_RPC_FUNC(func_name) pomme_data_t *func_name(void *extra,const int n, const pomme_data_t* arg)
 
 #endif

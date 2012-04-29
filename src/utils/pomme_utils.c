@@ -22,9 +22,22 @@
 /*-----------------------------------------------------------------------------
  *  init pomme_data_t
  *-----------------------------------------------------------------------------*/
-int pomme_data_init(pomme_data_t *data, u_int32 size)
+int pomme_data_init(pomme_data_t **pdata, u_int32 size)
 {
     int ret = POMME_SUCCESS;
+
+    if( *pdata == NULL )
+    {
+	*pdata = malloc(sizeof(pomme_data_t));
+	if( *pdata == NULL )
+	{
+	    return POMME_MEM_ERROR;
+	}
+	memset(*pdata, 0, sizeof(pomme_data_t));
+	(*pdata)->flags |= POMME_SELF_NEED_FREE;
+    }
+    pomme_data_t *data = *pdata;
+    
     if( data == NULL )
     {
 	debug("init an null pointer");
@@ -58,8 +71,9 @@ err:
 /*-----------------------------------------------------------------------------
  *  distroy a pomme_data_t
  *-----------------------------------------------------------------------------*/
-int pomme_data_distroy(pomme_data_t *data)
+int pomme_data_distroy(pomme_data_t **pdata)
 {
+    pomme_data_t *data = *pdata;
     if(data == NULL)
     {
 	debug("distroy null pointer");
@@ -69,6 +83,15 @@ int pomme_data_distroy(pomme_data_t *data)
     {
 	free(data->data);
     }
+    if( (data->flags & POMME_SELF_NEED_FREE) != 0 )
+    {
+	free(data);
+	*pdata = NULL;
+    }
+    else{
+	memset(data, 0 , sizeof(pomme_data_t));
+    }
+    
     return 0;
 }
 

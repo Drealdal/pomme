@@ -22,6 +22,7 @@
  * error code definitions
  */
 #define POMME_SUCCESS 0
+#define POMME_RPC_EXIT 1
                                                 /* local file errors */
 #define POMME_LOCAL_DIR_ERROR (-101) 
 #define POMME_LOCAL_FILE_ERROR (-102)
@@ -74,6 +75,9 @@
  */
 #define POMME_PACKAGE_MAGIC 0x1e
 #define POMME_STORAGE_MAGIC 0X1e
+
+#define POMME_DATA_LOG_LEVEL POMME_LOG_ALL
+#define POMME_META_LOG_LEVEL POMME_LOG_ALL
 
 #define POMME_LITTLE_ENDIAN 1
 #define POMME_BIG_ENDIAN 2

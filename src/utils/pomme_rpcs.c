@@ -153,7 +153,7 @@ static int func_print(pomme_rpcs_t *rpcs)
 static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 {
     debug("begin call");
-    int ret = 0 ;
+    int i,ret = 0 ;
     int find = 0 ;
 
     pomme_data_t rat;
@@ -200,11 +200,20 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	rat.size = POMME_ERROR_EXE;
 	write_data(&rat, conn);
 
-	return POMME_ERROR_EXE;
+	ret = POMME_ERROR_EXE;
+	goto clean_ret;
     }
-
+    pomme_data_distroy(&ra);
     ret = write_data(ra, conn);
-
+    pomme_data_t *pa = NULL;
+clean_ret:
+    for( i = 0; i < pfunc->n; i++)
+    {
+	pa = argus+i;
+	pomme_data_distroy(&pa);
+    }
+    free(argus);
+    
     return ret ;
 
 }
@@ -218,7 +227,7 @@ static void thread_call(void *argu)
     rpcs->call(rpcs,param->fname->data, param->conn);
 /* clear and free */
     close(param->conn);
-    pomme_data_distroy(param->fname);
+    pomme_data_distroy(&param->fname);
 }
 static int handle_request(pomme_rpcs_t *rpcs,
 	int epid,
@@ -286,7 +295,7 @@ add_worker_err:
 malloc_worker_err:
     free(argu);
 func_name_err:
-    pomme_data_distroy(func_name);
+    pomme_data_distroy(&func_name);
     return ret;
 
 }
@@ -340,11 +349,19 @@ static int start(pomme_rpcs_t *rpcs)
 		}
 	    }else{
 		
-		handle_request(rpcs,epid,events[i].data.fd);
+		if( (ret = handle_request(rpcs,epid,events[i].data.fd) )
+		       	== POMME_RPC_EXIT )
+		{
+		    break;
+		}
 	    }
 	}
 
     }
 
     return 0;
+}
+int stop(pomme_rpcs_t *rpcs)
+{
+    rpcs->thread_pool.stop(&rpcs->thread_pool);
 }

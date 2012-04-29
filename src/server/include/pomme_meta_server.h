@@ -30,7 +30,7 @@
 typedef struct pomme_ms pomme_ms_t;
 typedef struct pomme_ms
 {
-    logger_t *ds_logger;
+    logger_t *ms_logger;
     /*
      * the ds < id <--> ip>
      */
@@ -62,14 +62,14 @@ typedef struct pomme_ms
     int (*start)(pomme_ms_t *ms);
     int (*stop)(pomme_ms_t *ms);
     /* file management */
-    pomme_data_t * (*create_file)(int n , pomme_data_t *arg);
-    pomme_data_t * (*pomme_stat)(int n , pomme_data_t *arg);
+    pomme_data_t * (*create_file)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*pomme_stat)(void *ms, int n , pomme_data_t *arg);
     // get all the object of the file
-    pomme_data_t * (*read_file)(int n , pomme_data_t *arg);
+    pomme_data_t * (*read_file)(void *ms, int n , pomme_data_t *arg);
     /* data server group management */
-    pomme_data_t * (*join_dsgroup)(int n , pomme_data_t *arg);
-    pomme_data_t * (*leave_dsgroup)(int n , pomme_data_t *arg);
-    pomme_data_t * (*heart_beat)(int n , pomme_data_t *arg);
+    pomme_data_t * (*join_dsgroup)(void *ms,int n , pomme_data_t *arg);
+    pomme_data_t * (*leave_dsgroup)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*heart_beat)(void *ms, int n , pomme_data_t *arg);
     /**
      * @brief rpc funtion which will be called by the data
      * server to report infomation 
@@ -79,6 +79,8 @@ typedef struct pomme_ms
 
 int pomme_ms_init(pomme_ms_t *ms,
 	pomme_log_level_t log_level,
-	int hash_size);
+	int hash_size,
+	int max_thread,
+	int max_wating);
 
 #endif

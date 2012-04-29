@@ -33,7 +33,7 @@ typedef enum LOG_LEVEL{
 	POMME_LOG_WARNING,
 	POMME_LOG_INFO,
 	POMME_LOG_DEBUG,
-	POMME_LOG_MAX
+	POMME_LOG_ALL
 }pomme_log_level_t;
 
 typedef struct log {

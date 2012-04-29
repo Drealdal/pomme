@@ -20,9 +20,26 @@
 #include "pomme_meta_server.h"
 
 int object_dup_cmp(DB *db,const DBT*dbt1, const DBT* dbt2);
+
+static const int create_file_arg_num = 2; 
+DEF_POMME_RPC_FUNC(create_file);
+DEF_POMME_RPC_FUNC(read_file);
+DEF_POMME_RPC_FUNC(pomme_stat);
+
+
+static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode);
+static int ms_register_funcs(pomme_ms_t *ms);
+
+static int ms_start(pomme_ms_t *ms);
+static int ms_stop(pomme_ms_t *ms);
+
+
+
 int pomme_ms_init(pomme_ms_t *ms,
 	pomme_log_level_t log_level,
-	int hash_size)
+	int hash_size,
+	int max_thread,
+	int max_waiting)
 {
     int ret = 0;
     /* flags to open metadb*/
@@ -32,18 +49,18 @@ int pomme_ms_init(pomme_ms_t *ms,
     {
 	debug("Init log error");
     }
-    ms->ds_logger = create_logger(log_level, "Meta_Server");
+    ms->ms_logger = create_logger(log_level, "Meta_Server");
 
     if( (ret = pomme_hash_int_longlong(hash_size,&ms->ds) ) < 0 )
     {
-	POMME_LOG_ERROR("Meta server hash init failure",ms->ds_logger);
+	POMME_LOG_ERROR("Meta server hash init failure",ms->ms_logger);
 	debug("init hash error");
 	goto hash_err;
     }
 
     if( ( ret = db_env_create(&ms->env, 0) ) != 0 )
     {
-	POMME_LOG_ERROR("Meta Server create env error",ms->ds_logger);
+	POMME_LOG_ERROR("Meta Server create env error",ms->ms_logger);
 	debug("create env error:%s",db_strerror(ret));
 	goto env_err;
     }
@@ -51,7 +68,7 @@ int pomme_ms_init(pomme_ms_t *ms,
     if( ( ret = db_create(&ms->meta_db, ms->env, 0) ) != 0 )
     {
 	POMME_LOG_ERROR("Meta Server Create meta db hanle fail",
-		ms->ds_logger);
+		ms->ms_logger);
 	debug("ms->meta_db create error");
 	goto meta_db_err;
     }
@@ -84,6 +101,26 @@ int pomme_ms_init(pomme_ms_t *ms,
     } 
 
 
+//int pomme_rpcs_init( pomme_rpcs_t *rpcs,
+//	void *extra,
+//	int max_thread,
+//	int max_waiting,
+//	int cur_num,
+//	short port);
+
+    ms->create_file = &create_file;
+    ms->start = &ms_start;
+
+
+    if( (ret = pomme_rpcs_init( &ms->rpcs,ms, max_thread,max_waiting,
+	    2,POMME_META_PORT) ) != 0)
+    {
+	debug("init thread fail");
+	goto rpcs_err;
+    }
+    ms_register_funcs(ms);
+
+rpcs_err:
 sdb_err:
 meta_db_err:
 env_err:
@@ -92,4 +129,55 @@ hash_err:
     stop_logger();
 
     return ret;
+}
+
+static int ms_register_funcs(pomme_ms_t *ms)
+{
+// create file
+    pomme_data_t *arg = malloc(sizeof(pomme_data_t)*create_file_arg_num);
+    memset(arg,0,sizeof(pomme_data_t)*create_file_arg_num);
+    arg[0].size = -1;
+    arg[1].size = sizeof(int);
+    ms->rpcs.func_register(&ms->rpcs,"create_file",ms->create_file,1,arg);
+    return 0;
+}
+
+DEF_POMME_RPC_FUNC(create_file)
+{
+    assert( n == 2 );
+    assert( extra != NULL);
+    pomme_ms_t *ms = (pomme_ms_t *)extra;
+
+    char *path = (char *)arg[0].data;
+    int mode = (int *)arg[1].data;
+    return pomme_create_file(ms, path, mode);
+}
+
+static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
+{
+    debug("Create file:%s\n",path);
+    debug("Mode:%d\n",mode);
+    pomme_data_t *re ; 
+    pomme_data_init(&re,sizeof(10));
+    snprintf((char *)re->data,10,"created");
+    return re;
+}
+
+
+static int ms_start(pomme_ms_t *ms)
+{
+    assert( ms != NULL);
+    int ret  = 0;
+    if( (ret = ms->rpcs.start(&ms->rpcs) ) != 0 )
+    {
+	POMME_LOG_ERROR("RPC SERVER start error",ms->ms_logger);
+	goto err;
+    }
+err:
+    return ret;
+}
+static int ms_stop(pomme_ms_t *ms)
+{
+    ms->rpcs.stop(&ms->rpcs);
+    stop_logger();
 }

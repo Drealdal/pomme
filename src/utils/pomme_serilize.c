@@ -30,11 +30,11 @@ int read_data(pomme_data_t *wt, int handle)
     int readed = 0;
     if( tl < 0 )
     {
-	wt == NULL;
+	wt = NULL;
 	return tl;
     }
     debug("tl:%d",tl);
-    pomme_data_init(wt, tl);
+    pomme_data_init(&wt, tl);
     unsigned char *pb = wt->data;
     while( st < tl && ( st = read(handle, pb+readed, tl) ) >= 0 )
     {

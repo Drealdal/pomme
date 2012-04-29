@@ -44,10 +44,11 @@ int main()
    {
        debug("remote call error");
    }else{
-    printf("Get from server:%s",res.data);
+    printf("Get from server:%s",(char *)res.data);
    }
     free(arg);
-    pomme_data_distroy(&res);
+    pomme_data_t *pres = &res;
+    pomme_data_distroy(&pres);
 
 
     return ret;

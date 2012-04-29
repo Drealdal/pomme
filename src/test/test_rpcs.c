@@ -33,6 +33,7 @@ pomme_data_t * remote_print(void *extra,int n , pomme_data_t *arg)
 
 int main()
 {
+
     pomme_rpcs_t rpcs ;
     pomme_rpcs_init(&rpcs,NULL,10,100,2,POMME_RPC_PORT);
     pomme_data_t *arg = malloc(sizeof(pomme_data_t));
