@@ -12,3 +12,4 @@
 5:dedum, we only need to copy meta, inheritly copy on write, inheritly log structure
 //
 1. The logger sysetm should be reconsiderd
+2. learn cgi(common gateway interface)
