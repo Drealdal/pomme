@@ -79,6 +79,7 @@ int pomme_rpcc_init(rpcc_t *rh,
 {
     int ret = 0;
     assert( rh != NULL );
+    memset( rh , 0 , sizeof(rpcc_t));
 
     int nl = strlen(ip);
     rh->ip = malloc(nl+1);

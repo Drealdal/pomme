@@ -92,12 +92,22 @@
  */
 #define POMME_DATA_PORT 0x1e00
 #define POMME_RPC_PORT 0x1E01
-#define POMME_META_PORT 0x1e02
+#define POMME_META_RPC_PORT 0x1e02
 
-#define POMME_META_FILE "pomme_meta.db"
+#define POMME_META_FILE "/home/zhumeiqi/work/pomme/data/pomme_meta.db"
 #define POMME_META_NAME "pomme_meta"
+#define POMME_META_ENV_HOME "/home/zhumeiqi/work/pomme/datam/"
+
+
 #define POMME_DATA_HOME "/tmp/"
 #define POMME_MFILE_NAME "/home/zhumeiqi/work/pomme/data/mfile.db"
 #define POMME_SFILE_NAME "/home/zhumeiqi/work/pomme/data/sfile.db"
+
+/*  function names */
+#define POMME_META_CREATE_FILE create_file
+#define POMME_META_CREATE_FILE_S "create_file"
+
+#define POMME_META_READ_FILE read_file
+#define POMME_META_READ_FILE_S "create_file"
 
 #endif

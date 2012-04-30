@@ -25,6 +25,8 @@ typedef struct pomme_rpc_handle rpcc_t;
 struct pomme_rpc_handle
 {
     char *ip; 
+    int conn;
+    int closed ;
     u_int16 port;
     u_int32 default_timeout;// in ms
 
@@ -48,6 +50,13 @@ struct pomme_rpc_handle
 	    pomme_data_t *argu,
 	    pomme_data_t *res,
 	    int time_out);
+
+    /**
+     * @brief close the rpc connection
+     *
+     * @param 
+     */
+    int (*close)(rpcc_t *rh);
 };
 
 int pomme_rpcc_init(rpcc_t *rh,

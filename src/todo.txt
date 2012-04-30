@@ -13,3 +13,4 @@
 //
 1. The logger sysetm should be reconsiderd
 2. learn cgi(common gateway interface)
+3. reduce the connection to be used using rpc

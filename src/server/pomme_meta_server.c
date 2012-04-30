@@ -22,9 +22,9 @@
 int object_dup_cmp(DB *db,const DBT*dbt1, const DBT* dbt2);
 
 static const int create_file_arg_num = 2; 
-DEF_POMME_RPC_FUNC(create_file);
-DEF_POMME_RPC_FUNC(read_file);
-DEF_POMME_RPC_FUNC(pomme_stat);
+DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE);
+DEF_POMME_RPC_FUNC(POMME_META_READ_FILE);
+DEF_POMME_RPC_FUNC(POMME_MEATA_STAT);
 
 
 static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode);
@@ -37,6 +37,8 @@ static int ms_stop(pomme_ms_t *ms);
 
 int pomme_ms_init(pomme_ms_t *ms,
 	pomme_log_level_t log_level,
+	int env_o_flags,
+	int env_o_mode,
 	int hash_size,
 	int max_thread,
 	int max_waiting)
@@ -62,6 +64,14 @@ int pomme_ms_init(pomme_ms_t *ms,
     {
 	POMME_LOG_ERROR("Meta Server create env error",ms->ms_logger);
 	debug("create env error:%s",db_strerror(ret));
+	goto env_err;
+    }
+    /*  open env */
+    
+    if( ( ret = ms->env->open(ms->env, POMME_META_ENV_HOME,env_o_flags,
+		    env_o_mode) ) != 0 )
+    {
+	debug("open db env error:%s",db_strerror(ret));
 	goto env_err;
     }
 
@@ -108,12 +118,12 @@ int pomme_ms_init(pomme_ms_t *ms,
 //	int cur_num,
 //	short port);
 
-    ms->create_file = &create_file;
+    ms->POMME_META_CREATE_FILE = &POMME_META_CREATE_FILE;
     ms->start = &ms_start;
 
 
     if( (ret = pomme_rpcs_init( &ms->rpcs,ms, max_thread,max_waiting,
-	    2,POMME_META_PORT) ) != 0)
+	    2,POMME_META_RPC_PORT) ) != 0)
     {
 	debug("init thread fail");
 	goto rpcs_err;
@@ -138,11 +148,11 @@ static int ms_register_funcs(pomme_ms_t *ms)
     memset(arg,0,sizeof(pomme_data_t)*create_file_arg_num);
     arg[0].size = -1;
     arg[1].size = sizeof(int);
-    ms->rpcs.func_register(&ms->rpcs,"create_file",ms->create_file,1,arg);
+    ms->rpcs.func_register(&ms->rpcs,POMME_META_CREATE_FILE_S,ms->create_file,1,arg);
     return 0;
 }
 
-DEF_POMME_RPC_FUNC(create_file)
+DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE)
 {
     assert( n == 2 );
     assert( extra != NULL);
@@ -180,4 +190,8 @@ static int ms_stop(pomme_ms_t *ms)
 {
     ms->rpcs.stop(&ms->rpcs);
     stop_logger();
+}
+int object_dup_cmp(DB *db,const DBT*dbt1, const DBT* dbt2)
+{
+    return 1;
 }

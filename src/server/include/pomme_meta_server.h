@@ -62,10 +62,10 @@ typedef struct pomme_ms
     int (*start)(pomme_ms_t *ms);
     int (*stop)(pomme_ms_t *ms);
     /* file management */
-    pomme_data_t * (*create_file)(void *ms, int n , pomme_data_t *arg);
-    pomme_data_t * (*pomme_stat)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_CREATE_FILE)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_STAT)(void *ms, int n , pomme_data_t *arg);
     // get all the object of the file
-    pomme_data_t * (*read_file)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_READ_FILE)(void *ms, int n , pomme_data_t *arg);
     /* data server group management */
     pomme_data_t * (*join_dsgroup)(void *ms,int n , pomme_data_t *arg);
     pomme_data_t * (*leave_dsgroup)(void *ms, int n , pomme_data_t *arg);
@@ -79,6 +79,8 @@ typedef struct pomme_ms
 
 int pomme_ms_init(pomme_ms_t *ms,
 	pomme_log_level_t log_level,
+	int env_o_flags,
+	int env_o_mode,
 	int hash_size,
 	int max_thread,
 	int max_wating);
