@@ -36,7 +36,7 @@ int read_data(pomme_data_t *wt, int handle)
     debug("tl:%d",tl);
     pomme_data_init(&wt, tl);
     unsigned char *pb = wt->data;
-    while( st < tl && ( st = read(handle, pb+readed, tl) ) >= 0 )
+    while( (readed < tl) && (( st = read(handle, pb+readed, tl) ) >= 0) )
     {
 	readed += st;
     } 
@@ -58,6 +58,7 @@ int write_data(pomme_data_t *wt, int handle)
     }
 
     wl = write(handle, wt->data, wt->size);
+    debug("length writed:%d",wl);
 
     assert(wl == wt->size);
     return ret;

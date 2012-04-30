@@ -61,12 +61,13 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
    {
         read_data(*re+i, fd);
    }
-   debug("size:%d %p",(*re)->size,*re);
+   debug("?????//size:%d %p",(*re)->size,*re);
    if(n != rn )
    {
        ret = POMME_UNMATCH_ARGU_NUM;
        goto unmatch;
    }
+   debug("Hehe 1");
    for( i = 0; i < n ; i++ )
    {
        if(expect[i].size != -1 && expect[i].size != (*re)[i].size)
@@ -75,13 +76,16 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
 	   goto unmatch;
        } 
    }
+   debug("What wrong");
    goto ex;
 unmatch:
+   debug("unmatch arg");
    for(i = 0 ; i < rn ; i++)
    {
        pomme_data_distroy(*re+i);
    } 
    free(*re);
 ex:
+   debug("read over");
    return ret;
 }

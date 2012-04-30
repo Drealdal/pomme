@@ -120,15 +120,17 @@ int pomme_ms_init(pomme_ms_t *ms,
 
     ms->POMME_META_CREATE_FILE = &POMME_META_CREATE_FILE;
     ms->start = &ms_start;
+    debug("Before rpcs_init");
 
 
     if( (ret = pomme_rpcs_init( &ms->rpcs,ms, max_thread,max_waiting,
-	    2,POMME_META_RPC_PORT) ) != 0)
+	    1,POMME_META_RPC_PORT) ) != 0)
     {
 	debug("init thread fail");
 	goto rpcs_err;
     }
     ms_register_funcs(ms);
+    return ret;
 
 rpcs_err:
 sdb_err:
@@ -148,7 +150,7 @@ static int ms_register_funcs(pomme_ms_t *ms)
     memset(arg,0,sizeof(pomme_data_t)*create_file_arg_num);
     arg[0].size = -1;
     arg[1].size = sizeof(int);
-    ms->rpcs.func_register(&ms->rpcs,POMME_META_CREATE_FILE_S,ms->create_file,1,arg);
+    ms->rpcs.func_register(&ms->rpcs,POMME_META_CREATE_FILE_S,ms->create_file,2,arg);
     return 0;
 }
 
@@ -167,9 +169,11 @@ static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const in
 {
     debug("Create file:%s\n",path);
     debug("Mode:%d\n",mode);
-    pomme_data_t *re ; 
+    pomme_data_t *re = NULL ; 
+    debug("Here");
     pomme_data_init(&re,sizeof(10));
     snprintf((char *)re->data,10,"created");
+    debug("Create over");
     return re;
 }
 

@@ -191,7 +191,9 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	write_data(&rat, conn);
 	return ret;
     }
+    debug("***************************");
     debug("%p %d",argus,argus->size);
+    debug("%p",pfunc->fp);
 
     pomme_data_t *ra = pfunc->fp(rpcs->extra,pfunc->n,argus);
     if( ra == NULL )
@@ -203,8 +205,11 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	ret = POMME_ERROR_EXE;
 	goto clean_ret;
     }
-    pomme_data_distroy(&ra);
+    debug("Call over,response");
     ret = write_data(ra, conn);
+    debug("Call over,response");
+    pomme_data_distroy(&ra);
+    debug("Call over,response");
     pomme_data_t *pa = NULL;
 clean_ret:
     for( i = 0; i < pfunc->n; i++)
@@ -319,6 +324,7 @@ static int start(pomme_rpcs_t *rpcs)
 	debug("create server error");
 	exit(-1);
     }
+    debug("rpcs started");
 
     for(;;)
     {
@@ -338,7 +344,7 @@ static int start(pomme_rpcs_t *rpcs)
 		    debug("accept error");
 		    continue;
 		}
-		setnonblocking(conn_sock);
+//		setnonblocking(conn_sock);
 
 		ev.events = EPOLLIN | EPOLLET| EPOLLONESHOT;
 		ev.data.fd = conn_sock;

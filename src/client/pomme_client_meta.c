@@ -40,7 +40,7 @@ int pomme_create_file(rpcc_t *rct, char *path,int mode)
     pomme_data_t res;
     memset(&res, 0, sizeof(pomme_data_t));
 
-    if( (ret = rct->sync_call(rct,2,arg,&res,0) ) < 0) 
+    if( (ret = rct->sync_call(rct,3,arg,&res,0) ) < 0) 
     {
 	debug("Error call");
     }else{
