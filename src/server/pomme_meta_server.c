@@ -168,12 +168,16 @@ DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE)
 static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
 {
     debug("Create file:%s\n",path);
-    debug("Mode:%d\n",mode);
     pomme_data_t *re = NULL ; 
-    debug("Here");
-    pomme_data_init(&re,sizeof(10));
-    snprintf((char *)re->data,10,"created");
-    debug("Create over");
+
+    DBT key, val;
+    memset(&key, 0, sizeof(DBT));
+    memset(&var, 0, sizeof(DBT));
+
+    DBC *dbc = NULL;
+
+
+
     return re;
 }
 
