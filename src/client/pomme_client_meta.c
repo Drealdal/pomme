@@ -50,9 +50,11 @@ int pomme_create_file(rpcc_t *rct, char *path,int mode)
     return ret;
 }
 
-int pomme_write_file(rpcc_t *rct, char *path, u_int64, int mode)
+int pomme_write_file(rpcc_t *rct, char *path, u_int64 off, u_int64 len)
 {
+    int ret = 0;
 
+    return ret;
 }
 int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t *file)
 {
@@ -76,7 +78,7 @@ int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t *file)
 	debug("Stat error");
 	goto err;	
     }
-    if(res.size == sizeof(pomme_file_t)&& (*(int *)res.data) == 0 );
+    if(res.size == sizeof(pomme_file_t)&& (*(int *)res.data) == 0 )
     {
 	memcpy(file, res.data+1, sizeof(pomme_file_t));
     }else{

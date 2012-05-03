@@ -39,6 +39,7 @@ clean: $(all_clean)
 	rm -f .object/*
 	rm -f *~
 	rm -f include/*~
+	rm -f bin/*
 install:
 	mkdir -p $(INSTALL_DIR)
 	mkdir -p $(INSTALL_DIR)/bin

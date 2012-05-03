@@ -62,26 +62,36 @@ struct pomme_ms
     int (*start)(pomme_ms_t *ms);
     int (*stop)(pomme_ms_t *ms);
     /* file management */
-    pomme_data_t * (*POMME_META_CREATE_FILE)(void *ms, int n , pomme_data_t *arg);
-    pomme_data_t * (*POMME_META_STAT_FILE)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_CREATE_FILE)(void *ms,const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_STAT_FILE)(void *ms, const int n , const pomme_data_t *arg);
     // get all the object of the file
-    pomme_data_t * (*POMME_META_READ_FILE)(void *ms, int n , pomme_data_t *arg);
-    pomme_data_t * (*POMME_META_WRITE_FILE)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_READ_FILE)(void *ms, const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_WRITE_FILE)(void *ms, const int n , const pomme_data_t *arg);
     /* data server group management */
+    pomme_data_t * (*POMME_META_HEART_BEAT)(void *ms, const int n, const pomme_data_t *arg);
+
+
+
     pomme_data_t * (*join_dsgroup)(void *ms,int n , pomme_data_t *arg);
     pomme_data_t * (*leave_dsgroup)(void *ms, int n , pomme_data_t *arg);
-    pomme_data_t * (*heart_beat)(void *ms, int n , pomme_data_t *arg);
 
     /*
      * local 
      */
-    int (*get_ds_group)(char *path);
+    int (*get_ds_group)(const char *path);
     /**
      * @brief rpc funtion which will be called by the data
      * server to report infomation 
      */
 
 };
+typedef struct heart_beat
+{
+    u_int32 myId;
+    u_int32 myGroup;
+    u_int64 objectCount;
+    u_int64 requestCount;
+}pomme_hb_t;
 
 int pomme_ms_init(pomme_ms_t *ms,
 	pomme_log_level_t log_level,

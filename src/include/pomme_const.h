@@ -58,6 +58,8 @@
 #define POMME_WRITE_ARGU_ERROR (-606)
 /* read response data error */
 #define POMME_READ_RES_ERROR (-607)
+                                                /** Error to client */
+#define POMME_META_FILE_EXIST (-700) 
 
 
 /*
@@ -116,6 +118,9 @@
 
 #define POMME_META_WRITE_FILE write_file
 #define POMME_META_WRITE_FILE_S "write_file"
+
+#define POMME_META_HEART_BEAT heart_beat
+#define POMME_META_HEART_BEAT_S "heart_beat"
 
 
 #endif

@@ -18,6 +18,8 @@
 #include "utils.h"
 #include "pomme_log.h"
 #include "pomme_meta_server.h"
+#include "pomme_meta.h"
+#include "pomme_ms_impl.h"
 
 int object_dup_cmp(DB *db,const DBT*dbt1, const DBT* dbt2);
 
@@ -25,24 +27,14 @@ static const int create_file_arg_num = 2;
 static const int read_file_arg_num = 3; 
 static const int write_file_arg_num = 3;
 static const int stat_file_arg_num = 1;
+static const int heart_beat_arg_num = 1;
 DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_READ_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE);
-DEF_POMME_RPC_FUNC(POMME_MEATA_STAT);
-
-
-static pomme_map_ds_group(char *path);
-
-static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode);
-static pomme_data_t * pomme_read_file(pomme_ms_t *ms, const char *path, u_int64 offset,int len);
-static pomme_data_t * pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 offset, int len);
-static pomme_data_t * pomme_stat(pomme_ms_t *ms, const char *path);
-
+DEF_POMME_RPC_FUNC(POMME_META_STAT_FILE);
+DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT);
 
 static int ms_register_funcs(pomme_ms_t *ms);
-static int ms_start(pomme_ms_t *ms);
-static int ms_stop(pomme_ms_t *ms);
-
 
 
 int pomme_ms_init(pomme_ms_t *ms,
@@ -53,30 +45,35 @@ int pomme_ms_init(pomme_ms_t *ms,
 	int max_thread,
 	int max_waiting)
 {
+    debug("Meta Server init");
     int ret = 0;
     /* flags to open metadb*/
     unsigned int o_mdb_flags = 0, db_flags=0;
     assert( ms != NULL );
+    memset(ms, 0, sizeof(pomme_ms_t));
     if( ( ret = init_log() ) != 0 )
     {
 	debug("Init log error");
     }
     ms->ms_logger = create_logger(log_level, "Meta_Server");
+    debug("Hehe");
 
     if( (ret = pomme_hash_int_longlong(hash_size,&ms->ds) ) < 0 )
     {
-	POMME_LOG_ERROR("Meta server hash init failure",ms->ms_logger);
 	debug("init hash error");
+	POMME_LOG_ERROR("Meta server hash init failure",ms->ms_logger);
 	goto hash_err;
     }
+    debug("Hehe");
 
     if( ( ret = db_env_create(&ms->env, 0) ) != 0 )
     {
-	POMME_LOG_ERROR("Meta Server create env error",ms->ms_logger);
 	debug("create env error:%s",db_strerror(ret));
+	POMME_LOG_ERROR("Meta Server create env error",ms->ms_logger);
 	goto env_err;
     }
     /*  open env */
+    debug("Hehe");
     
     if( ( ret = ms->env->open(ms->env, POMME_META_ENV_HOME,env_o_flags,
 		    env_o_mode) ) != 0 )
@@ -84,14 +81,16 @@ int pomme_ms_init(pomme_ms_t *ms,
 	debug("open db env error:%s",db_strerror(ret));
 	goto env_err;
     }
+    debug("Hehe");
 
     if( ( ret = db_create(&ms->meta_db, ms->env, 0) ) != 0 )
     {
+	debug("ms->meta_db create error");
 	POMME_LOG_ERROR("Meta Server Create meta db hanle fail",
 		ms->ms_logger);
-	debug("ms->meta_db create error");
 	goto meta_db_err;
     }
+    debug("Hehe");
     /* open metadb*/
 
     o_mdb_flags |= DB_CREATE;
@@ -120,15 +119,15 @@ int pomme_ms_init(pomme_ms_t *ms,
 	goto meta_db_err;
     } 
 
-
-//int pomme_rpcs_init( pomme_rpcs_t *rpcs,
-//	void *extra,
-//	int max_thread,
-//	int max_waiting,
-//	int cur_num,
-//	short port);
-
     ms->start = &ms_start;
+    ms->POMME_META_CREATE_FILE = &POMME_META_CREATE_FILE;
+    ms->POMME_META_READ_FILE = &POMME_META_READ_FILE;
+    ms->POMME_META_WRITE_FILE = &POMME_META_WRITE_FILE;
+    ms->POMME_META_STAT_FILE = &POMME_META_STAT_FILE;
+    ms->POMME_META_HEART_BEAT = &POMME_META_HEART_BEAT;
+
+    ms->get_ds_group = &pomme_map_ds_group;
+    
     debug("Before rpcs_init");
 
 
@@ -186,8 +185,14 @@ static int ms_register_funcs(pomme_ms_t *ms)
 
     ms->rpcs.func_register(&ms->rpcs, POMME_META_WRITE_FILE_S, ms->POMME_META_WRITE_FILE,
 	    write_file_arg_num, arg);
+    //heart beat
+    arg = malloc( sizeof(pomme_data_t)*heart_beat_arg_num);
+    memset(arg, 0, sizeof(pomme_data_t)*heart_beat_arg_num);
+    arg[0].size = sizeof(pomme_hb_t);
 
-    
+    ms->rpcs.func_register(&ms->rpcs, POMME_META_HEART_BEAT_S, ms->POMME_META_HEART_BEAT,
+	    heart_beat_arg_num, arg);
+
     return 0;
 }
 
@@ -215,7 +220,7 @@ DEF_POMME_RPC_FUNC(POMME_META_READ_FILE)
     return pomme_read_file(ms,path, off, len);
 
 }
-DEF_POMME_RPC_FUNC(POMME_META_STAT)
+DEF_POMME_RPC_FUNC(POMME_META_STAT_FILE)
 {
     assert( n == 1 );
     assert( extra != NULL );
@@ -231,7 +236,7 @@ DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
     assert ( extra != NULL );
 
     pomme_ms_t *ms = (pomme_ms_t *) extra;
-    char *path = (pomme_ms_t *) arg[0].data;
+    char *path = ( char *) arg[0].data;
     u_int64 off= *(u_int64 *)arg[1].data;
     u_int64 len = *(u_int64 *)arg[2].data; 
 
@@ -239,3 +244,12 @@ DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
 
 }
 
+DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT)
+{
+    assert( n == 1 );
+    assert( extra != NULL );
+    pomme_ms_t *ms = (pomme_ms_t *) extra;
+    pomme_hb_t *hb = (pomme_hb_t *) arg[1].data;
+
+    return pomme_heart_beat(ms,hb);
+}

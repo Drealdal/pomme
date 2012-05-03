@@ -42,4 +42,5 @@ int main()
     debug("started");
     ms.start(&ms);
     //will not be here
+    return 0;
 }
