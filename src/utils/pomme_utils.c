@@ -230,3 +230,8 @@ int setnonblocking(int sock)
     }
     return 0;
 }
+int pomme_strlen(const char *path)
+{
+    assert(path != NULL );
+    return strlen(path)+1;
+}

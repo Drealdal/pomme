@@ -28,18 +28,6 @@ pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
     memset(&val, 0, sizeof(DBT));
 
     DBC *dbc = NULL;
-//    int cursor_flags = 0;
-//    cursor_flags |= DB_WRITECURSOR;
-//
-//    if( ( ret = db->cursor(ms->meta_db, NULL, 
-//		    &dbc, cursor_flags)) != 0 )
-//    {
-//	debug("Get cursor error%s",db_strerror(ret));
-//	pomme_data_init(&re);
-//	re->size = POMME_DB_ERROR;
-//	goto ret;
-//    }
-    
 
     key.size = strlen(path);
     key.data = (void *)path;
@@ -84,7 +72,32 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
 
 pomme_data_t *pomme_stat_file(pomme_ms_t *ms, const char *path)
 {
+    int ret = 0;
     pomme_data_t *re = NULL;
+    debug("Stat file %s",path);
+    DBT key, val;
+    
+    pomme_init_data(&re, sizeof(pomme_file_t));
+
+    memset(&key, 0, sizeof(DBT));
+    memset(&val, 0, sizeof(DBT));
+
+    key.size = pomme_strlen(path);
+    key.data = (void *)path; 
+
+    val.size = sizeof(pomme_file_t);
+    val.data = re.data; 
+    val.flags |= DB_DBT_USERMEM; 
+
+    DB *pdb = ms->meta_db;
+
+    if( ( ret = pdb->get(pdb,NULL, &key,&val,0)) != 0 )
+    {
+	debug("Read Db Error");
+	pomme_data_distroy(&re);
+	pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
+	goto re;
+    }
     return re;
 }
 pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)

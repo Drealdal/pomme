@@ -31,6 +31,7 @@
 
 int pomme_data_init(pomme_data_t **data, int size);
 int pomme_data_distroy(pomme_data_t **data);
+int pomme_strlen(const char *path);
 char *pomme_time(char *buf);
 struct tm *pomme_time_all();
 

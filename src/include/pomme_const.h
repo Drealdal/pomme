@@ -60,6 +60,7 @@
 #define POMME_READ_RES_ERROR (-607)
                                                 /** Error to client */
 #define POMME_META_FILE_EXIST (-700) 
+#define POMME_META_INTERNAL_ERROR (-701)
 
 
 /*
