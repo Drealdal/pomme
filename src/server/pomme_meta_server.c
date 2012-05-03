@@ -22,14 +22,24 @@
 int object_dup_cmp(DB *db,const DBT*dbt1, const DBT* dbt2);
 
 static const int create_file_arg_num = 2; 
+static const int read_file_arg_num = 3; 
+static const int write_file_arg_num = 3;
+static const int stat_file_arg_num = 1;
 DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_READ_FILE);
+DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE);
 DEF_POMME_RPC_FUNC(POMME_MEATA_STAT);
 
 
-static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode);
-static int ms_register_funcs(pomme_ms_t *ms);
+static pomme_map_ds_group(char *path);
 
+static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode);
+static pomme_data_t * pomme_read_file(pomme_ms_t *ms, const char *path, u_int64 offset,int len);
+static pomme_data_t * pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 offset, int len);
+static pomme_data_t * pomme_stat(pomme_ms_t *ms, const char *path);
+
+
+static int ms_register_funcs(pomme_ms_t *ms);
 static int ms_start(pomme_ms_t *ms);
 static int ms_stop(pomme_ms_t *ms);
 
@@ -118,13 +128,12 @@ int pomme_ms_init(pomme_ms_t *ms,
 //	int cur_num,
 //	short port);
 
-    ms->POMME_META_CREATE_FILE = &POMME_META_CREATE_FILE;
     ms->start = &ms_start;
     debug("Before rpcs_init");
 
 
     if( (ret = pomme_rpcs_init( &ms->rpcs,ms, max_thread,max_waiting,
-	    1,POMME_META_RPC_PORT) ) != 0)
+		    1,POMME_META_RPC_PORT) ) != 0)
     {
 	debug("init thread fail");
 	goto rpcs_err;
@@ -145,12 +154,40 @@ hash_err:
 
 static int ms_register_funcs(pomme_ms_t *ms)
 {
-// create file
+    // create file
     pomme_data_t *arg = malloc(sizeof(pomme_data_t)*create_file_arg_num);
     memset(arg,0,sizeof(pomme_data_t)*create_file_arg_num);
     arg[0].size = -1;
     arg[1].size = sizeof(int);
-    ms->rpcs.func_register(&ms->rpcs,POMME_META_CREATE_FILE_S,ms->create_file,2,arg);
+    ms->rpcs.func_register(&ms->rpcs,POMME_META_CREATE_FILE_S,ms->POMME_META_CREATE_FILE,
+	    create_file_arg_num,arg);
+    // read file
+
+    arg = malloc( sizeof(pomme_data_t)*read_file_arg_num);
+    memset(arg,0,sizeof(pomme_data_t)*read_file_arg_num);
+    arg[0].size = -1;
+    arg[1].size = sizeof(u_int64);
+    arg[2].size = sizeof(u_int64);
+    ms->rpcs.func_register(&ms->rpcs,POMME_META_READ_FILE_S,ms->POMME_META_READ_FILE,
+	    read_file_arg_num,arg);
+    // stat file
+    arg = malloc( sizeof(pomme_data_t)*stat_file_arg_num);
+    memset(arg,0,sizeof(pomme_data_t)*stat_file_arg_num);
+    arg[0].size = -1;
+    ms->rpcs.func_register(&ms->rpcs,POMME_META_STAT_FILE_S,ms->POMME_META_STAT_FILE,
+	    stat_file_arg_num,arg);
+    // write file
+    arg = malloc( sizeof(pomme_data_t)*write_file_arg_num); 
+    memset(arg, 0, sizeof(pomme_data_t)*write_file_arg_num);
+
+    arg[0].size = -1;
+    arg[0].size = sizeof(u_int64);
+    arg[0].size = sizeof(u_int64);
+
+    ms->rpcs.func_register(&ms->rpcs, POMME_META_WRITE_FILE_S, ms->POMME_META_WRITE_FILE,
+	    write_file_arg_num, arg);
+
+    
     return 0;
 }
 
@@ -161,45 +198,44 @@ DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE)
     pomme_ms_t *ms = (pomme_ms_t *)extra;
 
     char *path = (char *)arg[0].data;
-    int mode = (int *)arg[1].data;
+    int mode = *(int *)arg[1].data;
     return pomme_create_file(ms, path, mode);
 }
 
-static pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
+DEF_POMME_RPC_FUNC(POMME_META_READ_FILE)
 {
-    debug("Create file:%s\n",path);
-    pomme_data_t *re = NULL ; 
+    assert( n== 3 );
+    assert( extra != NULL );
+    pomme_ms_t *ms = (pomme_ms_t *)extra;
 
-    DBT key, val;
-    memset(&key, 0, sizeof(DBT));
-    memset(&var, 0, sizeof(DBT));
+    char *path = (char *)arg[0].data;
+    u_int64 off= *(u_int64 *)arg[1].data;
+    u_int64 len = *(u_int64 *)arg[2].data; 
 
-    DBC *dbc = NULL;
+    return pomme_read_file(ms,path, off, len);
 
+}
+DEF_POMME_RPC_FUNC(POMME_META_STAT)
+{
+    assert( n == 1 );
+    assert( extra != NULL );
 
+    pomme_ms_t *ms = (pomme_ms_t *)extra;
+    char *path = (char *)arg[0].data;
 
-    return re;
+    return pomme_stat_file(ms, path);
+}
+DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
+{
+    assert( n == 3 );
+    assert ( extra != NULL );
+
+    pomme_ms_t *ms = (pomme_ms_t *) extra;
+    char *path = (pomme_ms_t *) arg[0].data;
+    u_int64 off= *(u_int64 *)arg[1].data;
+    u_int64 len = *(u_int64 *)arg[2].data; 
+
+    return pomme_write_file( ms, path, off, len );
+
 }
 
-
-static int ms_start(pomme_ms_t *ms)
-{
-    assert( ms != NULL);
-    int ret  = 0;
-    if( (ret = ms->rpcs.start(&ms->rpcs) ) != 0 )
-    {
-	POMME_LOG_ERROR("RPC SERVER start error",ms->ms_logger);
-	goto err;
-    }
-err:
-    return ret;
-}
-static int ms_stop(pomme_ms_t *ms)
-{
-    ms->rpcs.stop(&ms->rpcs);
-    stop_logger();
-}
-int object_dup_cmp(DB *db,const DBT*dbt1, const DBT* dbt2)
-{
-    return 1;
-}

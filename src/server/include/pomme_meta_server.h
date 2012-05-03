@@ -28,7 +28,7 @@
 #include "pomme_meta.h"
 
 typedef struct pomme_ms pomme_ms_t;
-typedef struct pomme_ms
+struct pomme_ms
 {
     logger_t *ms_logger;
     /*
@@ -63,13 +63,19 @@ typedef struct pomme_ms
     int (*stop)(pomme_ms_t *ms);
     /* file management */
     pomme_data_t * (*POMME_META_CREATE_FILE)(void *ms, int n , pomme_data_t *arg);
-    pomme_data_t * (*POMME_META_STAT)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_STAT_FILE)(void *ms, int n , pomme_data_t *arg);
     // get all the object of the file
     pomme_data_t * (*POMME_META_READ_FILE)(void *ms, int n , pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_WRITE_FILE)(void *ms, int n , pomme_data_t *arg);
     /* data server group management */
     pomme_data_t * (*join_dsgroup)(void *ms,int n , pomme_data_t *arg);
     pomme_data_t * (*leave_dsgroup)(void *ms, int n , pomme_data_t *arg);
     pomme_data_t * (*heart_beat)(void *ms, int n , pomme_data_t *arg);
+
+    /*
+     * local 
+     */
+    int (*get_ds_group)(char *path);
     /**
      * @brief rpc funtion which will be called by the data
      * server to report infomation 

@@ -29,7 +29,7 @@
 #endif
 
 
-int pomme_data_init(pomme_data_t **data, u_int32 size);
+int pomme_data_init(pomme_data_t **data, int size);
 int pomme_data_distroy(pomme_data_t **data);
 char *pomme_time(char *buf);
 struct tm *pomme_time_all();

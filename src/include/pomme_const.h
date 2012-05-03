@@ -44,6 +44,7 @@
                                          /* db errors */
 #define POMME_WRITE_DB_ERROR (-401)
 #define POMME_READ_DB_ERROR (-402)
+#define POMME_DB_ERROR (-403)
                                                 /** thread pool */
 #define POMME_THREAD_POOL_NOTINIT (-501)
 #define POMME_THREAD_POOL_FULL (-502)
@@ -108,6 +109,13 @@
 #define POMME_META_CREATE_FILE_S "create_file"
 
 #define POMME_META_READ_FILE read_file
-#define POMME_META_READ_FILE_S "create_file"
+#define POMME_META_READ_FILE_S "read_file"
+
+#define POMME_META_STAT_FILE stat_file
+#define POMME_META_STAT_FILE_S "stat_file"
+
+#define POMME_META_WRITE_FILE write_file
+#define POMME_META_WRITE_FILE_S "write_file"
+
 
 #endif

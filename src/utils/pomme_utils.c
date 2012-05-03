@@ -22,7 +22,7 @@
 /*-----------------------------------------------------------------------------
  *  init pomme_data_t
  *-----------------------------------------------------------------------------*/
-int pomme_data_init(pomme_data_t **pdata, u_int32 size)
+int pomme_data_init(pomme_data_t **pdata, int size)
 {
     int ret = POMME_SUCCESS;
 
@@ -55,15 +55,18 @@ int pomme_data_init(pomme_data_t **pdata, u_int32 size)
 	}
     }
     data->size = size;
-    data->data = malloc(size);
-    if(data->data == NULL)
+    if( size > 0 )
     {
-	debug("malloc data for data init failure");
-	ret = POMME_MEM_ERROR;
-	goto err;
+	data->data = malloc(size);
+	if(data->data == NULL)
+	{
+	    debug("malloc data for data init failure");
+	    ret = POMME_MEM_ERROR;
+	    goto err;
+	}
+	memset(data->data,0,size);
+	data->flags |= POMME_DATA_NEED_FREE; 
     }
-    memset(data->data,0,size);
-    data->flags |= POMME_DATA_NEED_FREE; 
 err:
     return ret;
 }
