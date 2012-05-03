@@ -59,14 +59,12 @@ typedef struct pomme_file
 	* if any server in a dsgroup fails, we just modify infomation of the 
 	 * dsgroup */
 	u_int32 dsgroup;
-	/*
-	 * the create time of the file
-	 */
+	/* the create time of the file*/
 	time_t c_time;
-	/*
-	 * the modify time
-	 */
+	/** the modify time*/
 	time_t m_time;
+	/*  last access time */
+	time_t a_time;
 	/*
 	 * the delete time,
 	 * if the d_time < cur_time , the file is treated
@@ -80,7 +78,7 @@ typedef struct pomme_file
 	/*
 	 *access
 	 */
-	int access;
+	int acl;
 	/* storage server */
 }pomme_file_t;
 

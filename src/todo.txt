@@ -16,3 +16,4 @@
 3. reduce the connection to be used using rpc
 4. nonblocking and blocking? resource unavailabe?
 5. code generator for rpcs and rpcc
+6. copy when receiving data? should be reduced, very ugly now!
