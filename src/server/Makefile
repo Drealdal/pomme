@@ -11,6 +11,7 @@ mata_server_depends=$(addprefix $(OBJECT_DIR)/, pomme_msg.o pomme_protocol.o pom
 clean_server:
 	rm -f $(SERVER_DIR)/*~
 	rm -f $(SERVER_INCLUDE)/*~
+	rm -f $(SERVER_TEST)/*~
 
 
 $(OBJECT_DIR)/pomme_storage.o: $(SERVER_DIR)/pomme_storage.c $(SERVER_INCLUDE)/pomme_storage.h
