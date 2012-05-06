@@ -81,7 +81,13 @@ typedef struct pomme_file
 	int acl;
 	/* storage server */
 }pomme_file_t;
-
+typedef struct ms_object ms_object_t;
+struct ms_object
+{
+    uuid_t id;
+    u_int64 offset;
+    u_int64 len;
+};
 
 #endif
 

@@ -70,6 +70,30 @@ int pomme_data_init(pomme_data_t **pdata, int size)
 err:
     return ret;
 }
+int pomme_data_extend(pomme_data_t *data, int size)
+{
+    assert(data != NULL);
+    data->size += size;
+    void * f = data->data;
+    if( (data->flags & POMME_DATA_NEED_FREE) == 0 )
+    {
+	data->flags |= POMME_DATA_NEED_FREE;
+	if((data->data = malloc(data->size) ) == NULL )
+	{
+	    debug("Malloc error");
+	    return POMME_MEM_ERROR;
+	}
+	memcpy(data->data, f, data->size - size );
+    }else{
+	data->data = realloc(data->size);
+	if( f == data->data )
+	{
+	    debug("realloc error");
+	    return POMME_MEM_ERROR;
+	}
+    }
+    return 0;
+}
 
 /*-----------------------------------------------------------------------------
  *  distroy a pomme_data_t

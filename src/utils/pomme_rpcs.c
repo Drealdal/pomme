@@ -205,11 +205,8 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	ret = POMME_ERROR_EXE;
 	goto clean_ret;
     }
-    debug("Call over,response");
     ret = write_data(ra, conn);
-    debug("Call over,response");
     pomme_data_distroy(&ra);
-    debug("Call over,response");
     pomme_data_t *pa = NULL;
 clean_ret:
     for( i = 0; i < pfunc->n; i++)

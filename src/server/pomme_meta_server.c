@@ -96,28 +96,47 @@ int pomme_ms_init(pomme_ms_t *ms,
     o_mdb_flags |= DB_CREATE;
     o_mdb_flags |= DB_THREAD;
 
-    db_flags |= DB_DUPSORT;
+//    db_flags |= DB_DUPSORT;
+      db_flags |= DB_DUP;
     
     if( ( ret = ms->meta_db->set_flags(ms->meta_db,db_flags))!= 0)
     {
 	debug("Set metadb flags failure:%s",db_strerror(ret));
 	goto meta_db_err;
     }
-
+/*  
     if( ( ret = ms->meta_db->set_dup_compare(
 		    ms->meta_db,&object_dup_cmp)) != 0)
     {
 	debug("Set object_dup_cmp failure:%s",db_strerror(ret));
 	goto meta_db_err;
     }
-
+*/
     /* not using txn */
     if( ( ret = ms->meta_db->open(ms->meta_db,
 		    NULL, POMME_META_FILE,POMME_META_NAME,DB_BTREE,o_mdb_flags,0664)) != 0)
     {
+	POMME_LOG_ERROR("Sever Open data base fail",ms->ms_logger);
 	debug("Open file failure:%s",db_strerror(ret));
 	goto meta_db_err;
     } 
+
+    /*  data node manage */
+    if( ( ret = db_create(&ms->data_nodes, ms->env, 0 )) != 0 )
+    {
+	debug("ms->data_nodes create error");
+	POMME_LOG_ERROR("Server create db data_nodes fail");
+	goto data_nodes_err;
+    }
+
+    if( ( ret = ms->data_nodes->open(
+		    ms->data_nodes, NULL, POMME_META_NODES_FILE, POMME_META_NODES_NAME,
+		    DB_BTREE, DB_CREATE | DB_THREAD,0664)) != 0 )
+    {
+	POMME_LOG_ERROR("Server open data_nodes database fail",ms->ms_logger);
+	goto data_nodes_err;
+    }
+
 
     ms->start = &ms_start;
     ms->POMME_META_CREATE_FILE = &POMME_META_CREATE_FILE;
@@ -139,7 +158,8 @@ int pomme_ms_init(pomme_ms_t *ms,
     }
     ms_register_funcs(ms);
     return ret;
-
+data_nodes_err:
+    ms->meta_db->close(ms->meta_db, 0);
 rpcs_err:
 sdb_err:
 meta_db_err:
@@ -243,7 +263,6 @@ DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
     return pomme_write_file( ms, path, off, len );
 
 }
-
 DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT)
 {
     assert( n == 1 );
