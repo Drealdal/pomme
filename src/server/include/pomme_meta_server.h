@@ -87,8 +87,12 @@ struct pomme_ms
 };
 typedef struct heart_beat
 {
-    u_int32 myId;
-    u_int32 myGroup;
+    /*  basic info */
+    u_int32 myid;
+    u_int32 mygroup;
+    u_int32 ip;
+    u_int16 port;
+    /*  statistic info */
     u_int64 objectCount;
     u_int64 requestCount;
 }pomme_hb_t;

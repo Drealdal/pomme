@@ -125,7 +125,7 @@ int pomme_ms_init(pomme_ms_t *ms,
     if( ( ret = db_create(&ms->data_nodes, ms->env, 0 )) != 0 )
     {
 	debug("ms->data_nodes create error");
-	POMME_LOG_ERROR("Server create db data_nodes fail");
+	POMME_LOG_ERROR("Server create db data_nodes fail",ms->ms_logger);
 	goto data_nodes_err;
     }
 

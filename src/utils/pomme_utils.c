@@ -85,7 +85,7 @@ int pomme_data_extend(pomme_data_t *data, int size)
 	}
 	memcpy(data->data, f, data->size - size );
     }else{
-	data->data = realloc(data->size);
+	data->data = realloc(data->data,data->size);
 	if( f == data->data )
 	{
 	    debug("realloc error");

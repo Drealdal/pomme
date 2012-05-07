@@ -60,6 +60,7 @@ ret:
 
 pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path, u_int64 off,u_int64 len)
 {
+    int  ret = 0;
     pomme_data_t * re = NULL;
 
     DB *pdb = ms->meta_db;
@@ -84,7 +85,7 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
     int ret = 0;
     pomme_data_t * re = NULL;
     ms_object_t ob;
-    if ( (ret = ms_create_object(&ob.id) ) !=0 )
+    if ( (ret = ms_create_object(ms,&ob.id) ) !=0 )
     {
 	debug("Get object id failure");
 	pomme_data_init(&re,POMME_META_INTERNAL_ERROR);
@@ -104,11 +105,11 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
 
     DBC *dbc = NULL;
     if ( (ret = ms->meta_db->cursor(ms->meta_db , NULL ,
-		    &dbc , cursor_flags )) != 0 )
+		    &dbc , 0 )) != 0 )
     {
 	debug("Get cursor fail:%s",db_strerror(ret));
 	pomme_data_init(&re,POMME_META_INTERNAL_ERROR);
-	POMME_LOG_ERROR(ms->ms_logger, "Create cursor Error");
+	POMME_LOG_ERROR("Create cursor Error",ms->ms_logger );
 	goto err;
     }	
 
@@ -120,7 +121,7 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
        debug("Put to Db fail");
        pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
 
-       POMME_LOG_ERROR(ms->ms_logger,"Write DB Error")
+       POMME_LOG_ERROR("Write DB Error",ms->ms_logger);
        goto err;
    }
    pomme_data_init(&re,sizeof(u_int64));
@@ -148,7 +149,7 @@ pomme_data_t *pomme_stat_file(pomme_ms_t *ms, const char *path)
     key.data = (void *)path; 
 
     val.size = sizeof(pomme_file_t);
-    val.data = re.data; 
+    val.data = re->data; 
     val.flags |= DB_DBT_USERMEM; 
 
     DB *pdb = ms->meta_db;
@@ -158,12 +159,14 @@ pomme_data_t *pomme_stat_file(pomme_ms_t *ms, const char *path)
 	debug("Read Db Error");
 	pomme_data_distroy(&re);
 	pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
-	goto re;
+	goto e_exit;
     }
+e_exit:
     return re;
 }
 pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
 {
+    int ret = 0;
     pomme_data_t *re = NULL;
     // if hb->myid == -1 and hb->mygroup == -1
     if( hb->mygroup == -1 )
@@ -179,13 +182,13 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
     memset( &key, 0, sizeof(DBT));
 
     key.size = sizeof(u_int32); 
-    key.data = hb->id;
+    key.data = hb->myid;
 
     val.size = sizeof(pomme_hb_t) - sizeof(u_int32);
     val.data = (u_int32 *)hb + 1;
 
    if ( (ret = ms->data_nodes->put(ms->data_nodes, 
-		   &key, &val, 0 )) != 0 )
+		   NULL,&key, &val, 0 )) != 0 )
    {
        debug("Put to data_nodes fail:%s",db_strerror(ret));
        POMME_LOG_ERROR("Put to data_nodes fail",ms->ms_logger);
@@ -193,7 +196,7 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
        {
 	   pomme_data_distroy(&re);
        }
-       pomme_data_init(&re, POMME_META_INTENAL_ERROR);
+       pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
    }
 
 e_xit:
@@ -227,7 +230,7 @@ int pomme_map_ds_group(const char *path)
 {
     return 0;
 }
-int ms_create_object(pomme_ms_t *ms, u_int64 *id)
+int ms_create_object(pomme_ms_t *ms, uuid_t *id)
 {
     uuid_generate_time(id);
     return 0;

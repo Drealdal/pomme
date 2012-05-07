@@ -85,7 +85,7 @@ typedef struct ms_object ms_object_t;
 struct ms_object
 {
     uuid_t id;
-    u_int64 offset;
+    u_int64 off;
     u_int64 len;
 };
 
