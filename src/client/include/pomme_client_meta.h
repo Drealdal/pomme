@@ -18,7 +18,7 @@
 #ifndef _POMME_CLIENT_META_H
 #define _POMME_CLIENT_META_H
 #include "pomme_rpcc.h"
-int pomme_create_file(rpcc_t *rct, char *path,int mode);
+int pomme_sync_create_file(rpcc_t *rct, char *path,int mode);
 
 
 #endif

@@ -21,7 +21,7 @@
 #include "pomme_utils.h"
 #include "pomme_rpcc.h"
 
-int pomme_create_file(rpcc_t *rct, char *path,int mode)
+int pomme_sync_create_file(rpcc_t *rct, char *path,int mode)
 {
     int ret = 0;
     assert( rct != NULL );
@@ -47,6 +47,32 @@ int pomme_create_file(rpcc_t *rct, char *path,int mode)
     }else{
 	debug("created");
     }
+    return ret;
+}
+int pomme_sync_read_file_meta(rpcc_t *rct,char *path,pomme_file_t *file, ms_object_t *object)
+{
+    int ret = 0; 
+    assert(rct != NULL);
+    assert(path != NULL);
+
+    pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
+    char *name = POMME_META_READ_FILE_S;
+    arg[0].size = pomme_strlen(name);
+    arg[0].data = name;
+
+    pomme_data_t res;
+    memset(&res,0,sizeof(pomme_data_t));
+
+    if( ( ret = rct->sync_call(rct, 2, arg, &res, 0 )) != 0 )
+    {
+	debug("Call read file failure:%d",ret);
+	goto e_exit;
+    }else{
+	debug("Read file meta ok");
+    }
+    file = res.data;
+    object = res.data + sizeof(pomme_file_t);
+e_exit:
     return ret;
 }
 
