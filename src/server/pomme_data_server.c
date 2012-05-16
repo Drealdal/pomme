@@ -28,9 +28,7 @@ extern int stop_log;
 
 int pomme_env_init(pomme_env_t *env,
 	unsigned int c_flags,
-	unsigned int o_flags,
-	char *home,
-	char *meta_file,
+	unsigned int o_flags, char *home, char *meta_file,
 	char *sfile_file,
 	int mode)
 {

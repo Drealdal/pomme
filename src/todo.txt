@@ -11,6 +11,7 @@
 4:check sum of the data
 5:dedum, we only need to copy meta, inheritly copy on write, inheritly log structure
 //
+1. use thread_poll to recontruct the data server
 1. The logger sysetm should be reconsiderd
 2. learn cgi(common gateway interface)
 3. reduce the connection to be used using rpc
