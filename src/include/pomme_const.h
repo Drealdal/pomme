@@ -61,6 +61,8 @@
                                                 /** Error to client */
 #define POMME_META_FILE_EXIST (-700) 
 #define POMME_META_INTERNAL_ERROR (-701)
+#define POMME_META_FILE_NOT_FOUND (-702)
+#define POMME_META_OFFSET_TOO_LARGE (-703)
 
 
 /*

@@ -15,7 +15,7 @@ CLIENT_TEST=./client/test
 
 TEST_DIR=./test
 INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_HOME)/include -I$(SERVER_DIR)/include -I$(CLIENT_DIR)/include
-LIB_FLAG=-L$(BDB_HOME)/lib -ldb -pthread
+LIB_FLAG=-L$(BDB_HOME)/lib -ldb -pthread -luuid
 CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall -DDEBUG=1
 INSTALL_DIR=$(POMME_HOME)
 

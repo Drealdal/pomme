@@ -30,7 +30,7 @@
 typedef struct pomme_ms pomme_ms_t;
 struct pomme_ms
 {
-    logger_t *ms_logger;
+    logger_t *logger;
     /*
      * the ds < id <--> ip>
      */

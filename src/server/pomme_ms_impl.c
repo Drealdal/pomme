@@ -58,9 +58,9 @@ ret:
     return re;
 }
 
-pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path, u_int64 off,u_int64 len)
+pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path)
 {
-    int  ret = 0;
+    int  ret = 0, i;
     pomme_data_t * re = NULL;
 
     DB *pdb = ms->meta_db;
@@ -69,11 +69,59 @@ pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path, u_int64 off,u_in
 		    0) ) != 0 )
     {
 	debug("Create cursor fail:%s",db_strerror(ret));
-	POMME_LOG_ERROR("Create cursor fail",ms->ms_logger);
+	POMME_LOG_ERROR("Create cursor fail",ms->logger);
 	pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
 	goto e_exit;
     }
-    pomme_data_init(&re, 0 );
+    pomme_data_init(&re, sizeof(pomme_file_t) );// the length of the return object will re extrend
+    DBT key, val;
+    pomme_file_t file;
+    memset(&key, 0, sizeof(DBT));
+    memset(&val, 0, sizeof(DBT));
+
+    key.data = path;
+    key.size = pomme_strlen(path);
+    key.flags |= DB_DBT_READONLY;
+
+    val.ulen = sizeof(pomme_file_t); 
+    val.flags |= DB_DBT_USERMEM;
+    val.data = re->data;
+
+
+
+    if( ( ret = dbc->get(dbc, &key, &val, DB_SET)) != 0 )
+    {
+	re->size = POMME_META_FILE_NOT_FOUND;
+	goto e_exit;
+    }
+    db_recno_t count;
+    if ( (ret = dbc->count(dbc, &count, 0) ) != 0 )
+    {
+	POMME_LOG_INFO("Count failure",ms->logger);
+	debug("count dbc error:%s",db_strerror(ret));
+	re->size = POMME_META_INTERNAL_ERROR;
+	goto e_exit;
+    }
+    int tSize = sizeof(ms_object_t)*(count-1);
+    if ( (ret = pomme_data_extend(re, tSize) ) != 0 )
+    {
+	POMME_LOG_INFO("Extend data Error",ms->logger);
+	re->size = POMME_META_INTERNAL_ERROR;
+	goto e_exit;
+    }
+    ms_object_t *pObject = re->data + sizeof(pomme_file_t);
+    for( i = 1 ; i < count ; i++ )
+    {
+	val.ulen = sizeof(ms_object_t);
+	val.data = pObject;
+	if ( (ret = dbc->get(dbc, &key,&val, DB_NEXT)) != 0 )
+	{
+	    debug("Get db error:%s",db_strerror(ret));
+	    POMME_LOG_ERROR("Read DB ERROR",ms->logger);
+	    re->size = POMME_META_INTERNAL_ERROR;
+	    goto e_exit;
+	}
+    }
 
    //TODO 
 e_exit:
@@ -109,7 +157,7 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
     {
 	debug("Get cursor fail:%s",db_strerror(ret));
 	pomme_data_init(&re,POMME_META_INTERNAL_ERROR);
-	POMME_LOG_ERROR("Create cursor Error",ms->ms_logger );
+	POMME_LOG_ERROR("Create cursor Error",ms->logger );
 	goto err;
     }	
 
@@ -121,7 +169,7 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
        debug("Put to Db fail");
        pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
 
-       POMME_LOG_ERROR("Write DB Error",ms->ms_logger);
+       POMME_LOG_ERROR("Write DB Error",ms->logger);
        goto err;
    }
    pomme_data_init(&re,sizeof(u_int64));
@@ -140,7 +188,7 @@ pomme_data_t *pomme_stat_file(pomme_ms_t *ms, const char *path)
     debug("Stat file %s",path);
     DBT key, val;
     
-    pomme_init_data(&re, sizeof(pomme_file_t));
+    pomme_data_init(&re, sizeof(pomme_file_t));
 
     memset(&key, 0, sizeof(DBT));
     memset(&val, 0, sizeof(DBT));
@@ -191,7 +239,7 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
 		   NULL,&key, &val, 0 )) != 0 )
    {
        debug("Put to data_nodes fail:%s",db_strerror(ret));
-       POMME_LOG_ERROR("Put to data_nodes fail",ms->ms_logger);
+       POMME_LOG_ERROR("Put to data_nodes fail",ms->logger);
        if( re != NULL )
        {
 	   pomme_data_distroy(&re);
@@ -210,7 +258,7 @@ int ms_start(pomme_ms_t *ms)
     int ret  = 0;
     if( (ret = ms->rpcs.start(&ms->rpcs) ) != 0 )
     {
-	POMME_LOG_ERROR("RPC SERVER start error",ms->ms_logger);
+	POMME_LOG_ERROR("RPC SERVER start error",ms->logger);
 	goto err;
     }
 err:
@@ -230,7 +278,7 @@ int pomme_map_ds_group(const char *path)
 {
     return 0;
 }
-int ms_create_object(pomme_ms_t *ms, uuid_t *id)
+int ms_create_object(pomme_ms_t *ms, uuid_t id)
 {
     uuid_generate_time(id);
     return 0;
