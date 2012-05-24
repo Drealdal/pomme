@@ -61,6 +61,9 @@ ret:
 pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path, u_int64 off,u_int64 len)
 {
     pomme_data_t * re = NULL;
+
+
+
     return re; 
 } 
 
