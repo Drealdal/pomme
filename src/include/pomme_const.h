@@ -61,6 +61,8 @@
                                                 /** Error to client */
 #define POMME_META_FILE_EXIST (-700) 
 #define POMME_META_INTERNAL_ERROR (-701)
+#define POMME_META_FILE_NOT_FOUND (-702)
+#define POMME_META_OFFSET_TOO_LARGE (-703)
 
 
 /*
@@ -100,6 +102,10 @@
 
 #define POMME_META_FILE "/home/zhumeiqi/work/pomme/data/pomme_meta.db"
 #define POMME_META_NAME "pomme_meta"
+
+#define POMME_META_NODES_FILE "/home/zhumeiqi/work/data/pomme_meta_nodes.db"
+#define POMME_META_NODES_NAME "meta_nodes"
+
 #define POMME_META_ENV_HOME "/home/zhumeiqi/work/pomme/datam/"
 
 

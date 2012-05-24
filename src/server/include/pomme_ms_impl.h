@@ -23,7 +23,7 @@
 
 
 pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode);
-pomme_data_t * pomme_read_file(pomme_ms_t *ms, const char *path, u_int64 offset,u_int64 len);
+pomme_data_t * pomme_read_file(pomme_ms_t *ms, const char *path);
 pomme_data_t * pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 offset, u_int64 len);
 pomme_data_t * pomme_stat_file(pomme_ms_t *ms, const char *path);
 
@@ -32,5 +32,14 @@ pomme_data_t * pomme_heart_beat(pomme_ms_t *ms,pomme_hb_t *hb);
 int pomme_map_ds_group(const char *path);
 int ms_start(pomme_ms_t *ms);
 int ms_stop(pomme_ms_t *ms);
+/**/
+/**
+ * @return new object id
+ * 10bit for metaserver, rest 54 will be used to identify the object
+ * on a single node
+ */
+int  ms_create_object(pomme_ms_t *ms, uuid_t id);
+
+int  ms_create_ds(pomme_ms_t *ms, u_int32 *id, u_int32 *group); 
 
 #endif

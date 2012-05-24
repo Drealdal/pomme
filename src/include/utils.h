@@ -40,6 +40,7 @@
 #include<netdb.h>
 #include <errno.h>
 #include <semaphore.h>
+#include <uuid/uuid.h>
 
 
 #include"pomme_type.h"

@@ -33,7 +33,7 @@ int main()
 	exit(-1);
     }
     
-    if( ( ret = pomme_create_file(&rpcc,"/zhumeiqi/test/",544)) != 0 )
+    if( ( ret = pomme_sync_create_file(&rpcc,"/zhumeiqi/test/",544)) != 0 )
     {
 	debug("create error");
 	exit(-1);

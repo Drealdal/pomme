@@ -38,7 +38,7 @@ int main()
 	    10000,
 	    10,
 	    10000);
-    POMME_LOG_INFO("META Sever Inited",ms.ms_logger);
+    POMME_LOG_INFO("META Sever Inited",ms.logger);
     debug("started");
     ms.start(&ms);
     //will not be here
