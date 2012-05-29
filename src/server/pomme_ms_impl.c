@@ -52,8 +52,8 @@ pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
 	pomme_data_init(&re,POMME_META_FILE_EXIST);
 	goto ret;
     }
-    pomme_data_init(&re,0);
-
+    pomme_data_init(&re,sizeof(pomme_file));
+    memcpy(re->data, &file, sizeof(pomme_file));
 ret:
     return re;
 }
@@ -86,8 +86,6 @@ pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path)
     val.ulen = sizeof(pomme_file_t); 
     val.flags |= DB_DBT_USERMEM;
     val.data = re->data;
-
-
 
     if( ( ret = dbc->get(dbc, &key, &val, DB_SET)) != 0 )
     {
@@ -177,7 +175,6 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
 
     return re;
 err:
-
     return re;
 }
 
