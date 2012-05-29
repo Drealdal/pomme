@@ -21,7 +21,10 @@
 #include "pomme_utils.h"
 #include "pomme_rpcc.h"
 
-int pomme_sync_create_file(rpcc_t *rct, char *path,int mode)
+int pomme_sync_create_file(rpcc_t *rct, 
+	char *path,
+	int mode,
+	pomme_file_t *file)
 {
     int ret = 0;
     assert( rct != NULL );
@@ -47,6 +50,8 @@ int pomme_sync_create_file(rpcc_t *rct, char *path,int mode)
     }else{
 	debug("created");
     }
+    pomme_file *file = res->data;
+err:
     return ret;
 }
 int pomme_sync_read_file_meta(rpcc_t *rct,char *path,pomme_file_t *file, ms_object_t *object)
