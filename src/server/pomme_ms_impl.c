@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "pomme_ms_impl.h"
+#include "pomme_meta.h"
 
 pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
 {
@@ -272,8 +273,8 @@ pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id)
 	if( ret == DB_NOTFOUND )
 	{
 	    debug("Data node with id %u not found", id);
-	    pomme_data_init(&re, POMME_META_DATA_NODE_NOT_FOUND);
-	    goto e_exit;
+	    pomme_data_init(&re, POMME_META_DATA_NODE_NOTFOUND);
+	    goto e_xit;
 	}
 	debug("GET data nodes info failure:%s",db_strerror(ret));
 	POMME_LOG_ERROR("get data nodes info failure",ms->logger);
@@ -281,8 +282,8 @@ pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id)
     }
     pomme_data_init(&re, sizeof(ds_node));
     ds_node *p = re->data;
-    p->ip = hb->ip;
-    p->port = hb->port;
+    p->ip = hb.ip;
+    p->port = hb.port;
 
 e_xit:
     return re; 

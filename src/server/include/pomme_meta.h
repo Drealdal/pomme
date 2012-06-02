@@ -88,7 +88,7 @@ typedef struct nodes
 {
     u_int32 ip;
     u_int16 port;
-}nodes;
+}nodes,ds_node,ms_node;
 
 #endif
 

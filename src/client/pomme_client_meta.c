@@ -129,7 +129,7 @@ int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t *file)
 	debug("response info:%d",*(int *)res.data);
     }
 
-    pomme_data_t *pre = res;
+    pomme_data_t *pre = &res;
     pomme_data_distroy(&pre);
     return ret;
 err:
@@ -153,7 +153,7 @@ int pomme_client_get_ds(rpcc_t *rct, u_int32 id, ds_node *ds)
     assert( ds != NULL );
 
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
-    char *name = POMME_META_GET_DS;
+    char *name = POMME_META_GET_DS_S;
     arg[0].size = pomme_strlen(name);
     arg[0].data = name;
 
@@ -175,7 +175,7 @@ int pomme_client_get_ds(rpcc_t *rct, u_int32 id, ds_node *ds)
 	debug("return code:%d",res.size);
 	ret = res.size;
     }
-    pomme_data_t *pre = res;
+    pomme_data_t *pre = &res;
     pomme_data_distroy(&pre);
 err:
     return ret;

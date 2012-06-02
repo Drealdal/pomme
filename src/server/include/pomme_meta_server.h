@@ -69,6 +69,7 @@ struct pomme_ms
     pomme_data_t * (*POMME_META_WRITE_FILE)(void *ms, const int n , const pomme_data_t *arg);
     /* data server group management */
     pomme_data_t * (*POMME_META_HEART_BEAT)(void *ms, const int n, const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_GET_DS)(void *ms, const int n, const pomme_data_t *arg);
 
 
 
