@@ -24,7 +24,7 @@ typedef struct pomme_rpc_handle rpcc_t;
 
 struct pomme_rpc_handle
 {
-    char *ip; 
+    u_int32 ip;
     int conn;
     int closed ;
     u_int16 port;

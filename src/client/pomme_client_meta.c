@@ -128,10 +128,57 @@ int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t *file)
 	ret = *(int *)res.data;
 	debug("response info:%d",*(int *)res.data);
     }
+
+    pomme_data_t *pre = res;
+    pomme_data_distroy(&pre);
     return ret;
 err:
     return ret;
 
+}
+
+/**
+ * @brief pomme_get_ds 
+ *
+ * @param rct
+ * @param id
+ * @param ds: should be free by the caller
+ *
+ * @return 
+ */
+int pomme_client_get_ds(rpcc_t *rct, u_int32 id, ds_node *ds)
+{
+    int ret = 0;
+    assert( rct != NULL );
+    assert( ds != NULL );
+
+    pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
+    char *name = POMME_META_GET_DS;
+    arg[0].size = pomme_strlen(name);
+    arg[0].data = name;
+
+    arg[1].size = sizeof(u_int32);
+    arg[1].data = &id;
+
+    pomme_data_t res;
+    memset(&res, 0, sizeof(pomme_data_t));
+
+    if( ret = rct->sync_call(rct, 2 , arg, &res, 0 ) < 0 )
+    {
+	debug("Get Ds info error");
+	goto err;
+    }
+    if( res.size == sizeof(ds_node) )
+    {
+	memcpy(ds, res.data, sizeof(ds_node));
+    }else{
+	debug("return code:%d",res.size);
+	ret = res.size;
+    }
+    pomme_data_t *pre = res;
+    pomme_data_distroy(&pre);
+err:
+    return ret;
 }
 
 int pomme_uuid_create(uuid_t id)

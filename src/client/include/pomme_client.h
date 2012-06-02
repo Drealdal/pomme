@@ -22,6 +22,7 @@
 typedef struct node ds_node;
 typedef struct node ms_node;
 
+typedef struct pomme_client pomme_client_t;
 struct pomme_client
 {
     /*  the ip of the master node */
@@ -33,9 +34,9 @@ struct pomme_client
     /*  buffer of the data storage nodes info */
     pomme_hash_t *ds_nodes;
 
-    int ( *get_ds)(u_int32 id, u_int32 *ip, u_int16 *port); 
-    int ( *get_ms)(u_int32 id, u_int32 *ip, u_int16 *port);
-}pomme_client_t;
+    int ( *get_ds)(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port); 
+    int ( *get_ms)(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port);
+};
 int cmp_dsnode(void *node1, void *node2);
 int cmp_msnode(void *node1, void *node2);
 int pomme_clinet_init(pomme_client_t *client, u_int32 mip, u_int32 mport);

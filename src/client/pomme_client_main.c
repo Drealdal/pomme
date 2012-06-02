@@ -25,10 +25,11 @@ int main()
 {
     int ret , sock_fd;
     char * host_name = "127.0.0.1";   
+    u_int32 ip = inet_addr(host_name);
     rpcc_t rpcc;
     pomme_file_t file;
 
-    if( ( ret = pomme_rpcc_init(&rpcc, host_name,POMME_META_RPC_PORT,0))
+    if( ( ret = pomme_rpcc_init(&rpcc, ip,POMME_META_RPC_PORT,0))
 	    != 0 )
     {
 	debug("init rpc client error");

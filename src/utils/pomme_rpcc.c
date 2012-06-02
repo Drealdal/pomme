@@ -80,7 +80,7 @@ int pomme_rpcc_init(rpcc_t *rh,
     int ret = 0;
     assert( rh != NULL );
     memset( rh , 0 , sizeof(rpcc_t));
-
+/*  
     int nl = strlen(ip);
     rh->ip = malloc(nl+1);
     if(rh->ip == NULL)
@@ -88,7 +88,8 @@ int pomme_rpcc_init(rpcc_t *rh,
 	exit(-1);
     }
     strcpy(rh->ip, ip);
-    
+   */ 
+    rh->ip = ip;
     rh->port = port;
     rh->default_timeout = time_out;
 
@@ -100,6 +101,6 @@ int pomme_rpcc_init(rpcc_t *rh,
 
 int pomme_rpcc_distroy(rpcc_t *rh)
 {
-    free(rh->ip);
+  //  free(rh->ip);
     return 0;
 }

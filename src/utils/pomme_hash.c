@@ -17,6 +17,7 @@
  */
 #include "utils.h"
 #include "pomme_hash.h"
+#include "pomme_utils.h"
 #include <assert.h>
 static inline int init_hash_node(pomme_hash_node_t **node); 
 static inline int distroy_hash_node(pomme_hash_node_t **node);
@@ -270,8 +271,7 @@ int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 	if(p_link == NULL)
 	{
 		/* not found ,the size is set to 0, return value is success */
-		data->size = 0;
-		return 0;
+		return POMME_HASH_NOT_FOUND;
 	}
 	pomme_hash_node_t *pos = NULL;
 	list_for_each_entry(pos,p_link,link)
@@ -279,7 +279,6 @@ int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 		if( (pos->key_len == key->size) &&
 				( 0 == hash->cmp_func(key->data,pos->key)))
 		{
-			printf("find\n");
 			if( data->size < pos->value_len )
 			{
 				/*
@@ -287,8 +286,9 @@ int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 				 * copy the data into the mem but return value is
 				 * set to -1 to indicate any error
 				 */
-				memcpy(data->data,pos->value,data->size);
-				return -1;
+				//memcpy(data->data,pos->value,data->size);
+				debug("Value len not match");
+				return POMME_HASH_NOT_FOUND;
 			}else{
 				memcpy(data->data,pos->value,pos->value_len);
 				return 0;
@@ -301,8 +301,7 @@ int pomme_hash_get(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 
 	}
 	/* not found ,the size is set to 0, return value is success */
-	data->size = 0;
-	return 0;
+	return POMME_HASH_NOT_FOUND;
 }
 
 /*-----------------------------------------------------------------------------

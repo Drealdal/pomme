@@ -35,6 +35,7 @@
 #define POMME_TOO_LARGE_PACKAGE (-203)
 #define POMME_NOT_ENOUGH_UNPACK (-204)
 #define POMME_WRONG_ARG (-204)
+#define POMME_HASH_NOT_FOUND (-205)
                                                 /* transport errors */
 #define POMME_SEND_MSG_ERROR (-301)	
 #define POMME_RECV_MSG_ERROR (-302)
@@ -63,6 +64,7 @@
 #define POMME_META_INTERNAL_ERROR (-701)
 #define POMME_META_FILE_NOT_FOUND (-702)
 #define POMME_META_OFFSET_TOO_LARGE (-703)
+#define POMME_META_DATA_NODE_NOTFOUND (-704) 
 
 
 /*
@@ -106,8 +108,8 @@
 #define POMME_META_FILE "/home/zhumeiqi/work/pomme/data/pomme_meta.db"
 #define POMME_META_NAME "pomme_meta"
 
-#define POMME_META_NODES_FILE "/home/zhumeiqi/work/data/pomme_meta_nodes.db"
-#define POMME_META_NODES_NAME "meta_nodes"
+#define POMME_DATA_NODES_FILE "/home/zhumeiqi/work/pomme/data/pomme_data_nodes.db"
+#define POMME_DATA_NODES_NAME "data_nodes"
 
 #define POMME_META_ENV_HOME "/home/zhumeiqi/work/pomme/datam/"
 
@@ -131,6 +133,9 @@
 
 #define POMME_META_HEART_BEAT heart_beat
 #define POMME_META_HEART_BEAT_S "heart_beat"
+
+#define POMME_META_GET_DS get_ds
+#define POMME_META_GET_DS_S "get_ds"
 
 
 #endif

@@ -173,7 +173,7 @@ int create_server(short port,
     return 0;
 }
 
-int create_client(char *ip,
+int create_client(u_int32 ip,
 	short port,
 	int *sock_fd)
 {
@@ -182,7 +182,7 @@ int create_client(char *ip,
     int  times = 1;
     pin.sin_family = AF_INET;   
 
-    pin.sin_addr.s_addr = inet_addr(ip);
+    pin.sin_addr.s_addr = ip;
     pin.sin_port = htons(port);   
       
     *sock_fd = socket(AF_INET, SOCK_STREAM, 0);   

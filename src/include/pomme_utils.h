@@ -61,7 +61,7 @@ int create_server(short port,
  * @param sock_fd: the client handle created
  * @return: < 0 failure, ==0 for success 
  */
-int create_client(char *ip,
+int create_client(u_int32 ip,
 	short port,
 	int *sock_fd);
 

@@ -15,6 +15,12 @@
  *
  * =====================================================================================
  */
+
+static int get_ds(pomme_client_t *client, u_int32 id,
+       	u_int32 *ip, u_int16 *port); 
+static int get_ms(pomme_client_t *client, u_int32 id,
+       	u_int32 *ip, u_int16 *port);
+
 int cmp_dsnode(void *node1, void *node2)
 {
     ds_node *n1 = node1;
@@ -50,10 +56,82 @@ int pomme_client_init(pomme_client_t *client,
     client->mip = mip;
     client->mport = mport;
 
-    ret = pomme_hash_init(POMME_CLIENT_BUFFER_DS,
-	    
+    if (ret = pomme_hash_init(POMME_CLIENT_BUFFER_DS,
+	    &hash_int, &cmp_ds_node,&client->ds_nodes))
+    {
+	debug("Hash init failure");
+	goto err;
+    }
 
-  
+    if (ret = pomme_hash_init(POMME_CLIENT_BUFFER_MS,
+	    &hash_int, &cmp_ms_node,&client->ms_nodes))
+    {
+	debug("Hash init failure");
+	goto m_err;
+    }	    
+    return ret;
+m_err:
+    pomme_hash_distroy(&client->ds_nodes);
+err:
+    return ret;
 
+}
 
+static int get_ds(pomme_client_t *client, 
+        u_int32 msid,	
+	u_int32 id,
+       	u_int32 *ip, u_int16 *port)
+{
+    int ret;
+    pomme_data_t key,*value;
+    memset(&key, 0, sizeof(key));
+    key.len = sizeof(u_int32);
+    key.data = &id;
+
+    pomme_data_init(&value, sizeof(ds_node));
+
+    if( 0 == pomme_hash_get(client->ds_nodes, &key, value) )
+    {
+	ds_node *p = value->data;
+	*ip = p->ip;
+	*port = p->port;
+	pomme_data_distory(&value);
+	goto exit;
+    }
+    u_int32 mip, mport;
+    if ( 0 != ( ret = get_ms(client, msid, &mip, &mport) ))
+    {
+	goto exit;
+    }
+    rpcc_t rpcc;
+
+    if ( ( ret = pomme_rpcc_init(&rpcc, mip, mport,0) ) 
+	    != 0 )
+    {
+	debug("init rpc client error");
+	goto exit;
+    }
+
+    ds_node ds;
+
+    if( ( ret = pomme_client_get_ds(rpcc,
+		    id,&ds) ) != 0 )
+    {
+	debug("Get Data Node info failure");
+	goto exit;
+    }
+    *ip = ds->ip;
+    *port = ds->port;
+
+exit:
+    return ret;
+}
+
+static int get_ms(pomme_client_t *client, u_int32 id,
+       	u_int32 *ip, u_int16 *port)
+{
+    int ret = 0;
+    *ip = inet_addr("127.0.0.1");
+    *port = POMME_META_RPC_PORT;
+    return ret;
 }

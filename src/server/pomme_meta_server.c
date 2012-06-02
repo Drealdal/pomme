@@ -28,11 +28,14 @@ static const int read_file_arg_num = 1;
 static const int write_file_arg_num = 4;
 static const int stat_file_arg_num = 1;
 static const int heart_beat_arg_num = 1;
+static const int get_ds_arg_num = 1;
 DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_READ_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_STAT_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT);
+
+DEF_POMME_RPC_FUNC(POMME_META_GET_DS);
 
 static int ms_register_funcs(pomme_ms_t *ms);
 
@@ -126,9 +129,10 @@ int pomme_ms_init(pomme_ms_t *ms,
     }
 
     if( ( ret = ms->data_nodes->open(
-		    ms->data_nodes, NULL, POMME_META_NODES_FILE, POMME_META_NODES_NAME,
+		    ms->data_nodes, NULL, POMME_DATA_NODES_FILE, POMME_DATA_NODES_NAME,
 		    DB_BTREE, DB_CREATE | DB_THREAD,0664)) != 0 )
     {
+	debug("open data nodes db failure:%s",db_strerror(ret));
 	POMME_LOG_ERROR("Server open data_nodes database fail",ms->logger);
 	goto data_nodes_err;
     }
@@ -140,6 +144,7 @@ int pomme_ms_init(pomme_ms_t *ms,
     ms->POMME_META_WRITE_FILE = &POMME_META_WRITE_FILE;
     ms->POMME_META_STAT_FILE = &POMME_META_STAT_FILE;
     ms->POMME_META_HEART_BEAT = &POMME_META_HEART_BEAT;
+    ms->POMME_META_GET_DS = &POMME_META_GET_DS;
 
     ms->get_ds_group = &pomme_map_ds_group;
     
@@ -181,8 +186,6 @@ static int ms_register_funcs(pomme_ms_t *ms)
     arg = malloc( sizeof(pomme_data_t)*read_file_arg_num);
     memset(arg,0,sizeof(pomme_data_t)*read_file_arg_num);
     arg[0].size = -1;
-    arg[1].size = sizeof(u_int64);
-    arg[2].size = sizeof(u_int64);
     ms->rpcs.func_register(&ms->rpcs,POMME_META_READ_FILE_S,ms->POMME_META_READ_FILE,
 	    read_file_arg_num,arg);
     // stat file
@@ -196,8 +199,9 @@ static int ms_register_funcs(pomme_ms_t *ms)
     memset(arg, 0, sizeof(pomme_data_t)*write_file_arg_num);
 
     arg[0].size = -1;
-    arg[0].size = sizeof(u_int64);
-    arg[0].size = sizeof(u_int64);
+    arg[1].size = sizeof(uuid_t);
+    arg[2].size = sizeof(u_int64);
+    arg[3].size = sizeof(u_int64);
 
     ms->rpcs.func_register(&ms->rpcs, POMME_META_WRITE_FILE_S, ms->POMME_META_WRITE_FILE,
 	    write_file_arg_num, arg);
@@ -206,9 +210,17 @@ static int ms_register_funcs(pomme_ms_t *ms)
     memset(arg, 0, sizeof(pomme_data_t)*heart_beat_arg_num);
     arg[0].size = sizeof(pomme_hb_t);
 
+
     ms->rpcs.func_register(&ms->rpcs, POMME_META_HEART_BEAT_S, ms->POMME_META_HEART_BEAT,
 	    heart_beat_arg_num, arg);
 
+    // get ds
+    arg = malloc( sizeof(pomme_data_t)*get_ds_arg_num);
+    memset(arg, 0, sizeof(pomme_data_t)*heart_beat_arg_num);
+    arg[0].size = sizeof(u_int32);
+    
+    ms->rpcs.func_register(&ms->rpcs, POMME_META_GET_DS_S,ms->POMME_META_GET_DS,
+	    get_ds_arg_num,arg);
     return 0;
 }
 
@@ -267,4 +279,14 @@ DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT)
     pomme_hb_t *hb = (pomme_hb_t *) arg[1].data;
 
     return pomme_heart_beat(ms,hb);
+}
+
+DEF_POMME_RPC_FUNC(POMME_META_GET_DS)
+{
+    assert( n == heart_beat_arg_num );
+    assert( extra != NULL );
+    pomme_ms_t *ms = (pomme_ms_t *) extra;
+    u_int32 id = *(u_int32 *)arg[1].data;
+
+    return pomme_get_ds(ms,id);
 }
