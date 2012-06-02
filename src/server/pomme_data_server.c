@@ -35,12 +35,12 @@ int pomme_env_init(pomme_env_t *env,
     int ret = 0;
     assert( env != NULL );
     assert( home != NULL );
-    
-/*
- * cp ? or something
- * it may not be safe doing like this,
- * if the sfile is auto
- */
+
+    /*
+     * cp ? or something
+     * it may not be safe doing like this,
+     * if the sfile is auto
+     */
     env->sfile_file = sfile_file;
     env->meta_file = meta_file;
 
@@ -60,71 +60,71 @@ int pomme_env_init(pomme_env_t *env,
 	goto env_err;
     }
 
-   ret =  env->db_env->open(env->db_env, home, o_flags, mode);
-   if( ret != 0 )
-   {
-       debug("open db env error: %s",db_strerror(ret));
-       goto open_err;
-   }
+    ret =  env->db_env->open(env->db_env, home, o_flags, mode);
+    if( ret != 0 )
+    {
+	debug("open db env error: %s",db_strerror(ret));
+	goto open_err;
+    }
 
-   ret = db_create( &env->db_meta, env->db_env, 0);
+    ret = db_create( &env->db_meta, env->db_env, 0);
 
-   if( ret != 0 )
-   {
-       debug("Create Db meta fail: %s",db_strerror(ret));
-       goto create_db_err;
-   }
+    if( ret != 0 )
+    {
+	debug("Create Db meta fail: %s",db_strerror(ret));
+	goto create_db_err;
+    }
 
-   DB_ENV * pEnv = env->db_env;
-   DB_TXN *tid;
+    DB_ENV * pEnv = env->db_env;
+    DB_TXN *tid;
 
-   /*
-    * No to thread will do the write operation
-    * on the same record
-    *
-    */
-   //TODO consider the flags
-   ret = pEnv->txn_begin(pEnv, NULL, &tid,
-	   DB_READ_COMMITTED);
-   if( ret != 0 )
-   {
-       debug("txn_begin error");
-       goto create_db_err;
-   }
+    /*
+     * No to thread will do the write operation
+     * on the same record
+     *
+     */
+    //TODO consider the flags
+    ret = pEnv->txn_begin(pEnv, NULL, &tid,
+	    DB_READ_COMMITTED);
+    if( ret != 0 )
+    {
+	debug("txn_begin error");
+	goto create_db_err;
+    }
 
-   DB *dbp = env->db_meta;
+    DB *dbp = env->db_meta;
 
-   if(( ret = dbp->open(dbp,tid,env->meta_file,NULL,DB_BTREE,DB_CREATE,0664))!=0)
-   {
-       dbp->err(dbp,ret,"open failed%s",env->meta_file);
-       goto create_db_err;
-   }
-   
-   ret = db_create( &env->sfile, env->db_env, 0 );
-   if( ret != 0 )
-   {
-       debug("Create Db sfile fail: %s",db_strerror(ret));
-       goto create_sfile_fail;
-   }
-   dbp = env->sfile;
-   dbp->set_re_len(dbp, POMME_PATH_MAX);
-   dbp->set_re_pad(dbp,0x0);
-   if((ret = dbp->open(dbp, tid, env->sfile_file, NULL,DB_QUEUE,DB_CREATE,0664))!=0)
-   {
-       debug("open db env->sfile_file %s fail:%s",env->sfile_file,db_strerror(ret));
-       goto create_sfile_fail;
-   }
-   return ret;
- create_sfile_fail:
-	
+    if(( ret = dbp->open(dbp,tid,env->meta_file,NULL,DB_BTREE,DB_CREATE,0664))!=0)
+    {
+	dbp->err(dbp,ret,"open failed%s",env->meta_file);
+	goto create_db_err;
+    }
+
+    ret = db_create( &env->sfile, env->db_env, 0 );
+    if( ret != 0 )
+    {
+	debug("Create Db sfile fail: %s",db_strerror(ret));
+	goto create_sfile_fail;
+    }
+    dbp = env->sfile;
+    dbp->set_re_len(dbp, POMME_PATH_MAX);
+    dbp->set_re_pad(dbp,0x0);
+    if((ret = dbp->open(dbp, tid, env->sfile_file, NULL,DB_QUEUE,DB_CREATE,0664))!=0)
+    {
+	debug("open db env->sfile_file %s fail:%s",env->sfile_file,db_strerror(ret));
+	goto create_sfile_fail;
+    }
+    return ret;
+create_sfile_fail:
+
 create_db_err:
 
 open_err:
-	//TODO FLAGS
-	env->db_env->close(env->db_env, 0);
+    //TODO FLAGS
+    env->db_env->close(env->db_env, 0);
 env_err:
 mutex_err:
-	return ret;
+    return ret;
 
 
 }
@@ -160,7 +160,7 @@ int pomme_ds_init( pomme_ds_t *ds,
 	debug("data server env init failure");
 	goto err;
     }
-	
+
     ret  = pomme_hash_int_int( 100,&ds->storage_file);
     if( ret < 0 )
     {
@@ -225,113 +225,113 @@ int get_storage_files(char *path, pomme_hash_t *storage,
 	int *cur_id,
 	int *cur_fd)
 {
-   int ret= 0, len ;
-   struct stat statbuf;
-   struct dirent *dirp = NULL;
-   DIR *dp;
-   int fd;
-   char tpath[POMME_PATH_MAX];
-   debug("before: %d",*cur_id);
+    int ret= 0, len ;
+    struct stat statbuf;
+    struct dirent *dirp = NULL;
+    DIR *dp;
+    int fd;
+    char tpath[POMME_PATH_MAX];
+    debug("before: %d",*cur_id);
 
-   if( (ret = lstat( path ,&statbuf))<0 )
-   {
-       debug("lstat %s failure: %s", path,strerror(ret));
-       ret = POMME_LOCAL_DIR_ERROR;
-       goto err;
-   }
-   
-   if( S_ISDIR( statbuf.st_mode) == 0 )
-   {
-       debug("%s is not a dir",path);
-       ret = POMME_LOCAL_DIR_ERROR;
-       goto err;
-   }
-   
-   if( (dp = opendir( path))== NULL )
-   {
-       debug("opendir %s fail",path);
-       ret = POMME_LOCAL_DIR_ERROR;
-       goto err;
-   }
-   strcpy(tpath, path);
-   len = strlen(path);
-   while( len>0 &&tpath[len-1] == '/' )
-   {
-       tpath[len-1]='0';
-       len--;
-   }
-   pomme_ds_head_t head;
-   while( (dirp = readdir( dp)) != NULL )
-   {
-       if(( strcmp( dirp->d_name, ".") == 0 )||
-		 (  strcmp(dirp->d_name,"..") ==0 )
+    if( (ret = lstat( path ,&statbuf))<0 )
+    {
+	debug("lstat %s failure: %s", path,strerror(ret));
+	ret = POMME_LOCAL_DIR_ERROR;
+	goto err;
+    }
+
+    if( S_ISDIR( statbuf.st_mode) == 0 )
+    {
+	debug("%s is not a dir",path);
+	ret = POMME_LOCAL_DIR_ERROR;
+	goto err;
+    }
+
+    if( (dp = opendir( path))== NULL )
+    {
+	debug("opendir %s fail",path);
+	ret = POMME_LOCAL_DIR_ERROR;
+	goto err;
+    }
+    strcpy(tpath, path);
+    len = strlen(path);
+    while( len>0 &&tpath[len-1] == '/' )
+    {
+	tpath[len-1]='0';
+	len--;
+    }
+    pomme_ds_head_t head;
+    while( (dirp = readdir( dp)) != NULL )
+    {
+	if(( strcmp( dirp->d_name, ".") == 0 )||
+		(  strcmp(dirp->d_name,"..") ==0 )
 	  )
-	       {
-		   continue;
-	       }
-       snprintf(tpath+len,POMME_PATH_MAX-len,"/%s",dirp->d_name);
-
-       if( (ret = lstat( tpath ,&statbuf))<0 )
-       {
-	   debug("lstat %s failure: %s", tpath,strerror(ret));
-	   ret = 0;
-	   continue;
-       }
-
-       if( S_ISDIR( statbuf.st_mode) == 0 )
-       {
-	   // not dir
-	   //printf("%s\n",tpath);
-	   fd = open(tpath,O_RDWR);
-	   if( fd < 0 )
-	   {
-	       debug("open file %s failure: %d %s",tpath,fd,strerror(fd));
-	       continue;
-	   }
-	  ret = is_file_valid(fd,&head); 
-
-	  if( ret < 0 )
-	  {
-	      close(fd);
-	      ret = 0;
-	      debug("%s not valid",tpath);
-	      continue;
-	  }
-	  if( head.status == CUR )
-	  {
-	      debug("cur %s %d %d\n",tpath, *cur_id,head.id);
-	      if( *cur_id == -1 )
-	      {
-		  *cur_id = head.id;
-		  *cur_fd = fd;
-	      }else{
-		  debug("more than 1 cur storage");
-		  ret = POMME_FILE_MULTI_CUR;
-		  break;
-	      } 
-	  }
-	  ret = pomme_hash_put_2(storage,&head.id,sizeof(int),&fd,sizeof(int));
-	  if( ret < 0 )
-	  {
-	      debug("put to hash table failure");
-	      break;
-	  }
-	  printf("pair<%d,%d>\n",head.id,fd);
-
-       }else{
-	ret =  get_storage_files(tpath,storage,cur_id, cur_fd);
-	if( ret < 0 )
 	{
-	    break;
+	    continue;
 	}
-	   
-       }
-       
-   }
+	snprintf(tpath+len,POMME_PATH_MAX-len,"/%s",dirp->d_name);
+
+	if( (ret = lstat( tpath ,&statbuf))<0 )
+	{
+	    debug("lstat %s failure: %s", tpath,strerror(ret));
+	    ret = 0;
+	    continue;
+	}
+
+	if( S_ISDIR( statbuf.st_mode) == 0 )
+	{
+	    // not dir
+	    //printf("%s\n",tpath);
+	    fd = open(tpath,O_RDWR);
+	    if( fd < 0 )
+	    {
+		debug("open file %s failure: %d %s",tpath,fd,strerror(fd));
+		continue;
+	    }
+	    ret = is_file_valid(fd,&head); 
+
+	    if( ret < 0 )
+	    {
+		close(fd);
+		ret = 0;
+		debug("%s not valid",tpath);
+		continue;
+	    }
+	    if( head.status == CUR )
+	    {
+		debug("cur %s %d %d\n",tpath, *cur_id,head.id);
+		if( *cur_id == -1 )
+		{
+		    *cur_id = head.id;
+		    *cur_fd = fd;
+		}else{
+		    debug("more than 1 cur storage");
+		    ret = POMME_FILE_MULTI_CUR;
+		    break;
+		} 
+	    }
+	    ret = pomme_hash_put_2(storage,&head.id,sizeof(int),&fd,sizeof(int));
+	    if( ret < 0 )
+	    {
+		debug("put to hash table failure");
+		break;
+	    }
+	    printf("pair<%d,%d>\n",head.id,fd);
+
+	}else{
+	    ret =  get_storage_files(tpath,storage,cur_id, cur_fd);
+	    if( ret < 0 )
+	    {
+		break;
+	    }
+
+	}
+
+    }
 
 
 err:
-   return ret;
+    return ret;
 
 }
 int setnonblocking(int sock);
@@ -403,7 +403,7 @@ int pomme_put_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	goto put_err;
     }
     return ret;
-    
+
 put_err:
     ftruncate(ds->cur_storage_fd, object.start);
 
@@ -431,7 +431,7 @@ int pomme_get_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 
     val.data = &object;
     val.ulen = sizeof(pomme_object_t);
-    
+
     val.flags |= DB_DBT_USERMEM; 
     DB *pdb = ds->env.db_meta;
 
@@ -455,7 +455,7 @@ int pomme_get_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     v.data = &fd;
 
     if( (ret = pomme_hash_get(ds->storage_file, 
-	    &k,&v)) < 0 )
+		    &k,&v)) < 0 )
     {
 	debug("get storage failure");
 	goto err;
@@ -524,7 +524,7 @@ int pomme_get_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	    debug("send error");
 	    goto err;
 	}else{
-	sent += re;
+	    sent += re;
 	}
     }
     debug("over: %d",sent);
@@ -543,43 +543,43 @@ static int handle_request(pomme_ds_t *ds,int handle)
 	debug("recev fail");
 	goto err;
     }
-   
-   pomme_protocol_t pro;
-   memset( &pro, 0, sizeof(pomme_protocol_t));
 
-   pomme_pack_t *p_buffer = NULL;
-   ret = pomme_pack_create( &p_buffer,
-       &buffer,r_len);
-   if( ret < 0 )
-   {
-       debug("create pack fail");
-       goto err;
-   }
+    pomme_protocol_t pro;
+    memset( &pro, 0, sizeof(pomme_protocol_t));
 
-   ret = unpack_msg( &pro, p_buffer);
-   if( ret < 0 )
-   {
-       debug("unpack msg failure");
-       goto err;
-   }
+    pomme_pack_t *p_buffer = NULL;
+    ret = pomme_pack_create( &p_buffer,
+	    &buffer,r_len);
+    if( ret < 0 )
+    {
+	debug("create pack fail");
+	goto err;
+    }
+
+    ret = unpack_msg( &pro, p_buffer);
+    if( ret < 0 )
+    {
+	debug("unpack msg failure");
+	goto err;
+    }
 
     pomme_print_proto(&pro,NULL);
 
-   switch( pro.op )
-   {
-       case put_data:
-	   pomme_put_object(ds,handle,&pro);
-	   break;
-       case get_data:
-	   debug("get_data");
-	  pomme_get_object(ds,handle,&pro);
-	   break;
-       default:
-	   debug("unknown protocol msg");
-	   ret = POMME_UNKNOWN_MSG;
-	   break;
-   }
-   pomme_pack_distroy(&p_buffer);
+    switch( pro.op )
+    {
+	case put_data:
+	    pomme_put_object(ds,handle,&pro);
+	    break;
+	case get_data:
+	    debug("get_data");
+	    pomme_get_object(ds,handle,&pro);
+	    break;
+	default:
+	    debug("unknown protocol msg");
+	    ret = POMME_UNKNOWN_MSG;
+	    break;
+    }
+    pomme_pack_distroy(&p_buffer);
 err:
     return ret;
 }

@@ -85,17 +85,6 @@ struct pomme_ms
      */
 
 };
-typedef struct heart_beat
-{
-    /*  basic info */
-    u_int32 myid;
-    u_int32 mygroup;
-    u_int32 ip;
-    u_int16 port;
-    /*  statistic info */
-    u_int64 objectCount;
-    u_int64 requestCount;
-}pomme_hb_t;
 
 int pomme_ms_init(pomme_ms_t *ms,
 	pomme_log_level_t log_level,

@@ -37,4 +37,15 @@ typedef struct pomme_data{
 	void *data;
 }pomme_data_t;
 
+typedef struct heart_beat
+{
+    /*  basic info */
+    u_int32 myid;
+    u_int32 mygroup;
+    u_int32 ip;
+    u_int16 port;
+    /*  statistic info */
+    u_int64 objectCount;
+    u_int64 requestCount;
+}pomme_hb_t;
 #endif

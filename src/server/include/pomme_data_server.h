@@ -82,10 +82,11 @@ typedef struct pomme_ds
 	 */
 	int cur_storage_id;
 	int cur_storage_fd;
+	/*  statistics */
+	u_int32 ip;
+	u_int16 port;
+
 }pomme_ds_t;
-
-
-
 /*
  *@param: init an pomme_env_t structure
  *@param: c_flags, the create flags for db_env
