@@ -259,3 +259,23 @@ int pomme_strlen(const char *path)
     assert(path != NULL );
     return strlen(path)+1;
 }
+int pomme_set_timer(int sec, int usec)
+{
+    struct itimerval val;
+    val.it_value.tv_sec = sec;
+    val.it_value.tv_usec = usec;
+
+    val.it_interval = val.it_value;
+    setitimer(ITIMER_REAL, &val, NULL);
+    return 0;
+}
+int pomme_set_sigaction(int signo, void (*handle)(int))
+{
+    struct sigaction tact;
+    tact.sa_handler = handle;
+    tact.sa_flags = 0;
+
+    sigemptyset(&tact.sa_mask);
+    sigaction(signo,&tact, NULL);
+    return 0;
+}

@@ -76,18 +76,22 @@ typedef struct pomme_ds
 	unsigned int env_c_flags;
 	unsigned int env_o_flags;
 	int env_mode;
-
 	/*
 	 * the id of the current used storage_file
 	 */
 	int cur_storage_id;
 	int cur_storage_fd;
+	/*  master */
+	u_int32 mip;
+	u_int32 mport;
+	/*  meta  */
+	u_int32 metaip;
+	u_int32 metaport;
 	/*  statistics */
 	u_int32 ip;
 	u_int16 port;
 
-}pomme_ds_t;
-/*
+}pomme_ds_t; /*
  *@param: init an pomme_env_t structure
  *@param: c_flags, the create flags for db_env
  *@param: o_flags, the open flags for db_env
@@ -171,10 +175,16 @@ int pomme_get_object(pomme_ds_t *ds,
 int get_storage_files(char *path, pomme_hash_t *storage,
 	int *cur_id,
 	int *cur_fd);
+
+/**
+ * @brief pomme_data_heart_beat: heart beat
+ *
+ * @return 
+ */
+int pomme_data_heart_beat();
 /*****
  * the first version of the data server
  */
-int heartbeat();
 int server(pomme_ds_t *);
 
 #endif

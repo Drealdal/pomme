@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "pomme_msg.h"
+#include "pomme_rpcc.h"
 #include "pomme_storage.h"
 #include "pomme_protocol.h"
 #include "pomme_data_server.h"
@@ -25,6 +26,7 @@
 #define PACKAGE_LENGTH 1024
 
 extern int stop_log;
+pomme_ds_t GLOBAL_DS;
 
 int pomme_env_init(pomme_env_t *env,
 	unsigned int c_flags,
@@ -629,6 +631,11 @@ int server(pomme_ds_t *ds)
 	debug("epoll_ctl sockid fail");
 	goto err_exit;
     }
+    /* first heart beat*/
+    pomme_ds_heart_beat(0);
+    /*  init hear beat */
+    pomme_set_sigaction(SIGALRM,&pomme_ds_heart_beat);
+    pomme_set_timer(30,0);
 
     int nfds = 0, i, conn_sock;
     while(1)
@@ -665,10 +672,51 @@ int server(pomme_ds_t *ds)
 	    }
 	}
     }
-
-
 err_exit:
     return -1;
 }
+/**
+ * @brief pomme_ds_heart_beat 
+ *
+ * @param signo: used to match  the defination
+ * 	         of sigaction handle
+ *
+ * @return 
+ */
+int pomme_ds_heart_beat(int signo)
+{
+    int ret = 0;
+    pomme_ds_t *pds = &GLOBAL_DS; 
+    pomme_hb_t hb;
+    memset(&hb, 0, sizeof(pomme_hb_t));
 
+    hb.ip = pds->ip;
+    hb.port = pds->port;
 
+    rpcc_t rpcc;
+
+    if( ( ret = pomme_rpcc_init(&rpcc, pds->metaip, 
+		    pds->metaport,0)) != 0 )
+    {
+	debug("init rpc client error");
+	return 0;
+    }
+    pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
+    char *name = POMME_META_HEART_BEAT_S;
+    arg[0].size = pomme_strlen(name);
+    arg[0].data = name;
+
+    arg[1].size = sizeof(pomme_hb_t);
+    arg[1].data = &hb;
+    
+    pomme_data_t res;
+    memset(&res, 0, sizeof(pomme_data_t));
+    if( ( ret =rpcc.sync_call(&rpcc, 2, 
+		    arg, &res,0)) < 0 )
+    {
+	debug("Heart beat call error");
+    }
+    pomme_data_t *pre = &res;
+    pomme_data_distroy(&pre);
+    return 0;
+}

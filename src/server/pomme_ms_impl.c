@@ -288,6 +288,12 @@ pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id)
 e_xit:
     return re; 
 }
+pomme_data_t *pomme_all_ds(pomme_ms_t *ms)
+{
+    pomme_data_t *re = NULL;
+    pomme_data_init(&re, POMME_RPC_NOT_IMPL);
+    return re;
+}
 
 int ms_start(pomme_ms_t *ms) {
     assert( ms != NULL);

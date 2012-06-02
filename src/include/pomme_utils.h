@@ -35,6 +35,16 @@ int pomme_strlen(const char *path);
 char *pomme_time(char *buf);
 struct tm *pomme_time_all();
 
+
+/**
+ * @brief pomme_init_timmer set a timer
+ *
+ * @param msec: 1s = 100000ms
+ *
+ * @return null 
+ */
+int pomme_init_timmer(int msec);
+
 /**
  * @brief create_server : create an server at localhost
  *

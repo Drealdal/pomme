@@ -16,11 +16,12 @@
  * =====================================================================================
  */
 #include "pomme_data_server.h"
+extern pomme_ds_t GLOBAL_DS;
 int main()
 {
+    pomme_ds_t *ds = &GLOBAL_DS;
     int ret = 0;
-    pomme_ds_t ds;
-    memset(&ds, 0 , sizeof(pomme_ds_t));
+    memset(ds, 0 , sizeof(pomme_ds_t));
     char *home=NULL, *m_file=NULL, *s_file=NULL;
     int e_c_flags = 0 ,e_o_flags= 0 ,e_o_mode = 0;
 
@@ -46,7 +47,7 @@ int main()
 
    m_file = POMME_MFILE_NAME;
    s_file = POMME_SFILE_NAME;
-   ret = pomme_ds_init( &ds,
+   ret = pomme_ds_init( ds,
 	   home,  m_file,
 	   s_file, e_c_flags,
 	   e_o_flags,  e_o_mode);
@@ -57,7 +58,7 @@ int main()
 	debug("data server memory init failure");
 	goto err;
     }
-    server(&ds);
+    server(ds);
 err:
     return ret;
 }

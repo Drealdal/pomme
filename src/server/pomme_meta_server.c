@@ -29,6 +29,7 @@ static const int write_file_arg_num = 4;
 static const int stat_file_arg_num = 1;
 static const int heart_beat_arg_num = 1;
 static const int get_ds_arg_num = 1;
+static const int all_ds_arg_num = 0;
 DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_READ_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE);
@@ -36,6 +37,7 @@ DEF_POMME_RPC_FUNC(POMME_META_STAT_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT);
 
 DEF_POMME_RPC_FUNC(POMME_META_GET_DS);
+DEF_POMME_RPC_FUNC(POMME_META_ALL_DS);
 
 static int ms_register_funcs(pomme_ms_t *ms);
 
@@ -145,6 +147,7 @@ int pomme_ms_init(pomme_ms_t *ms,
     ms->POMME_META_STAT_FILE = &POMME_META_STAT_FILE;
     ms->POMME_META_HEART_BEAT = &POMME_META_HEART_BEAT;
     ms->POMME_META_GET_DS = &POMME_META_GET_DS;
+    ms->POMME_META_ALL_DS = &POMME_META_ALL_DS;
 
     ms->get_ds_group = &pomme_map_ds_group;
     
@@ -221,6 +224,11 @@ static int ms_register_funcs(pomme_ms_t *ms)
     
     ms->rpcs.func_register(&ms->rpcs, POMME_META_GET_DS_S,ms->POMME_META_GET_DS,
 	    get_ds_arg_num,arg);
+    // all ds 
+    arg = NULL;
+    ms->rpcs.func_register(&ms->rpcs, POMME_META_ALL_DS_S,ms->POMME_META_ALL_DS,
+	    all_ds_arg_num,arg);
+    
     return 0;
 }
 
@@ -289,4 +297,12 @@ DEF_POMME_RPC_FUNC(POMME_META_GET_DS)
     u_int32 id = *(u_int32 *)arg[1].data;
 
     return pomme_get_ds(ms,id);
+}
+DEF_POMME_RPC_FUNC(POMME_META_ALL_DS)
+{
+    assert( n == all_ds_arg_num ); 
+    assert( extra != NULL );
+    pomme_ms_t *ms = (pomme_ms_t *) extra;
+
+    return pomme_all_ds(ms);
 }

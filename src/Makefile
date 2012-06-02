@@ -19,16 +19,18 @@ LIB_FLAG=-L$(BDB_HOME)/lib -ldb -pthread -luuid
 CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall -DDEBUG=1
 INSTALL_DIR=$(POMME_HOME)
 
+all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils all_client)
+rpc_depends=$(addprefix $(OBJECT_DIR)/,pomme_rpc.o pomme_rpcc.o pomme_rpcs.o pomme_serilize.o pomme_thread.o)
+all_clean= $(addprefix clean_, test log server utils client)
+
 include $(SERVER_DIR)/Makefile
 include $(LOG_DIR)/Makefile
 include $(UTIL_DIR)/Makefile
 include $(TEST_DIR)/Makefile
 include $(CLIENT_DIR)/Makefile
 
-all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils all_client)
-all_clean= $(addprefix clean_, test log server utils client)
 
-.PHONY: all $(all_depends) all_clean init
+.PHONY: all $(all_depends) all_clean init clear
 
 all: init $(all_depends)
 	mkdir -p .object
@@ -40,6 +42,7 @@ clean: $(all_clean)
 	rm -f *~
 	rm -f include/*~
 	rm -f bin/*
+clear: clean
 install:
 	mkdir -p $(INSTALL_DIR)
 	mkdir -p $(INSTALL_DIR)/bin

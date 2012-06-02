@@ -57,6 +57,7 @@
 #define POMME_UNFIND_FUNC (-604)
 #define POMME_CONNECT_ERROR (-605)
 #define POMME_WRITE_ARGU_ERROR (-606)
+#define POMME_RPC_NOT_IMPL (-607)
 /* read response data error */
 #define POMME_READ_RES_ERROR (-607)
                                                 /** Error to client */
@@ -136,6 +137,9 @@
 
 #define POMME_META_GET_DS get_ds
 #define POMME_META_GET_DS_S "get_ds"
+
+#define POMME_META_ALL_DS all_ds
+#define POMME_META_ALL_DS_S "all_ds"
 
 
 #endif

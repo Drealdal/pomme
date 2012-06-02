@@ -40,6 +40,7 @@
 #include<netdb.h>
 #include <errno.h>
 #include <semaphore.h>
+#include <signal.h>
 #include <uuid/uuid.h>
 
 
