@@ -24,7 +24,17 @@
 
 pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode);
 pomme_data_t * pomme_read_file(pomme_ms_t *ms, const char *path);
-pomme_data_t * pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 offset, u_int64 len);
+
+/**
+ * @brief pomme_write_file 
+ * @param id: can be generate by metaserver or client?
+ */
+pomme_data_t * pomme_write_file(pomme_ms_t *ms, 
+	const char *path, 
+	uuid_t id,
+	u_int64 offset,
+       	u_int64 len);
+
 pomme_data_t * pomme_stat_file(pomme_ms_t *ms, const char *path);
 
 pomme_data_t * pomme_heart_beat(pomme_ms_t *ms,pomme_hb_t *hb);

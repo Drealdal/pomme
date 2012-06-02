@@ -21,6 +21,7 @@
 #include "pomme_utils.h"
 #include "pomme_rpcc.h"
 
+
 int pomme_sync_create_file(rpcc_t *rct, 
 	char *path,
 	int mode,
@@ -50,11 +51,15 @@ int pomme_sync_create_file(rpcc_t *rct,
     }else{
 	debug("created");
     }
-    pomme_file *file = res->data;
+    file = (pomme_file_t *)res.data;
 err:
     return ret;
 }
-int pomme_sync_read_file_meta(rpcc_t *rct,char *path,pomme_file_t *file, ms_object_t *object)
+int pomme_sync_read_file_meta(
+	rpcc_t *rct,
+	char *path,
+	pomme_file_t *file,
+       	ms_object_t *object)
 {
     int ret = 0; 
     assert(rct != NULL);
@@ -81,9 +86,16 @@ e_exit:
     return ret;
 }
 
-int pomme_write_file(rpcc_t *rct, char *path, u_int64 off, u_int64 len)
+int pomme_write_file(rpcc_t *rct, 
+	pomme_file_t *file,
+       	u_int64 off,
+       	u_int64 len,
+       	void *data)
 {
     int ret = 0;
+    assert( NULL != file );
+
+    
 
     return ret;
 }
@@ -120,4 +132,10 @@ int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t *file)
 err:
     return ret;
 
+}
+
+int pomme_uuid_create(uuid_t id)
+{
+    uuid_generate_time(id);
+    return 0;
 }

@@ -93,4 +93,8 @@ int pomme_hash_int_int(int size, pomme_hash_t **hash);
 
 int pomme_hash_int_longlong(int szie, pomme_hash_t **hash);
 
+int cmp_int(void *a, void *b);
+int hash_int(void *a,u_int32 len);
+int cmp_longlong(void *a, void *b);
+
 #endif

@@ -25,7 +25,7 @@ int object_dup_cmp(DB *db,const DBT*dbt1, const DBT* dbt2);
 
 static const int create_file_arg_num = 2; 
 static const int read_file_arg_num = 1; 
-static const int write_file_arg_num = 3;
+static const int write_file_arg_num = 4;
 static const int stat_file_arg_num = 1;
 static const int heart_beat_arg_num = 1;
 DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE);
@@ -64,7 +64,6 @@ int pomme_ms_init(pomme_ms_t *ms,
 	POMME_LOG_ERROR("Meta server hash init failure",ms->logger);
 	goto hash_err;
     }
-    debug("Hehe");
 
     if( ( ret = db_env_create(&ms->env, 0) ) != 0 )
     {
@@ -73,7 +72,6 @@ int pomme_ms_init(pomme_ms_t *ms,
 	goto env_err;
     }
     /*  open env */
-    debug("Hehe");
     
     if( ( ret = ms->env->open(ms->env, POMME_META_ENV_HOME,env_o_flags,
 		    env_o_mode) ) != 0 )
@@ -81,7 +79,6 @@ int pomme_ms_init(pomme_ms_t *ms,
 	debug("open db env error:%s",db_strerror(ret));
 	goto env_err;
     }
-    debug("Hehe");
 
     if( ( ret = db_create(&ms->meta_db, ms->env, 0) ) != 0 )
     {
@@ -90,7 +87,6 @@ int pomme_ms_init(pomme_ms_t *ms,
 		ms->logger);
 	goto meta_db_err;
     }
-    debug("Hehe");
     /* open metadb*/
 
     o_mdb_flags |= DB_CREATE;
@@ -255,10 +251,12 @@ DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
 
     pomme_ms_t *ms = (pomme_ms_t *) extra;
     char *path = ( char *) arg[0].data;
+    uuid_t id;
+    memcpy(id, arg[1].data, sizeof(uuid_t));
     u_int64 off= *(u_int64 *)arg[1].data;
     u_int64 len = *(u_int64 *)arg[2].data; 
 
-    return pomme_write_file( ms, path, off, len );
+    return pomme_write_file( ms, path, id, off, len );
 
 }
 DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT)

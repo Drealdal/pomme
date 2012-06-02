@@ -52,8 +52,8 @@ pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
 	pomme_data_init(&re,POMME_META_FILE_EXIST);
 	goto ret;
     }
-    pomme_data_init(&re,sizeof(pomme_file));
-    memcpy(re->data, &file, sizeof(pomme_file));
+    pomme_data_init(&re,sizeof(pomme_file_t));
+    memcpy(re->data, &file, sizeof(pomme_file_t));
 ret:
     return re;
 }
@@ -126,17 +126,16 @@ e_exit:
     return re; 
 } 
 
-pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u_int64 len)
+pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path,
+	uuid_t id, 
+	u_int64 off, 
+	u_int64 len)
 {
     int ret = 0;
     pomme_data_t * re = NULL;
     ms_object_t ob;
-    if ( (ret = ms_create_object(ms,&ob.id) ) !=0 )
-    {
-	debug("Get object id failure");
-	pomme_data_init(&re,POMME_META_INTERNAL_ERROR);
-	goto err;
-    }
+    
+    uuid_copy(ob.id, id);
     ob.off = off;
     ob.len = len;
 
@@ -161,6 +160,7 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
 
     int put_flag = 0;
     put_flag |= DB_KEYLAST;
+
    if ( ( ret =  dbc->put(dbc, &key, &val,
 		   put_flag) ) != 0 )
    {
@@ -170,10 +170,9 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path, u_int64 off, u
        POMME_LOG_ERROR("Write DB Error",ms->logger);
        goto err;
    }
-   pomme_data_init(&re,sizeof(u_int64));
-   *(u_int64 *)re->data =  ob.off;
 
-    return re;
+   pomme_data_init(&re,0);
+   return re;
 err:
     return re;
 }

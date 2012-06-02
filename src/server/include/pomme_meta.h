@@ -22,12 +22,7 @@
 #include "pomme_type.h"
 
 #define MAX_STORE_FILE_NAME_LENGTH 256
-
-typedef struct pomme_object
-{
-
-	/*
-	 * This structure contains the basic information of an
+typedef struct pomme_object { /* * This structure contains the basic information of an
 	 * object, an object is part of an file.
 	 */
 	size_t	sfid;// the id of the storage file
@@ -88,6 +83,12 @@ struct ms_object
     u_int64 off;
     u_int64 len;
 };
+
+typedef struct nodes
+{
+    u_int32 ip;
+    u_int16 port;
+}nodes;
 
 #endif
 

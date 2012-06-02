@@ -93,6 +93,9 @@
 
 #define POMME_PATH_MAX 1024
 #define POMME_MAX_REPLICA 5
+
+#define POMME_CLIENT_BUFFER_DS 100
+#define POMME_CLIENT_BUFFER_MS 100
 /*
  * configure change to configure file???
  */

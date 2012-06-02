@@ -385,7 +385,7 @@ int pomme_hash_del(pomme_hash_t *hash,pomme_data_t *key)
 	return 0;
 
 }
-static int cmp_int(void *a, void *b)
+int cmp_int(void *a, void *b)
 {
     int ia = *(int *)a;
     int ib = *(int *) b;
@@ -393,11 +393,11 @@ static int cmp_int(void *a, void *b)
     if( ia < ib ) return -1;
     return 1;
 }
-static int hash_int(void *a,u_int32 len)
+int hash_int(void *a,u_int32 len)
 {
     return *(int *)a;
 }
-static int cmp_longlong(void *a, void *b)
+int cmp_longlong(void *a, void *b)
 {
     long long la = *(long long *)a;
     long long lb = *(long long *)b;

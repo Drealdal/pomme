@@ -17,6 +17,7 @@
  */
 #include "pomme_client_data.h"
 #include "pomme_client_meta.h"
+#include "pomme_meta.h"
 #include "utils.h"
 #include "pomme_rpcc.h"
 extern int errno;
@@ -25,6 +26,7 @@ int main()
     int ret , sock_fd;
     char * host_name = "127.0.0.1";   
     rpcc_t rpcc;
+    pomme_file_t file;
 
     if( ( ret = pomme_rpcc_init(&rpcc, host_name,POMME_META_RPC_PORT,0))
 	    != 0 )
@@ -33,13 +35,11 @@ int main()
 	exit(-1);
     }
     
-    if( ( ret = pomme_sync_create_file(&rpcc,"/zhumeiqi/test/",544)) != 0 )
+    if( ( ret = pomme_sync_create_file(&rpcc,"/zhumeiqi/test/",544,&file)) != 0 )
     {
 	debug("create error");
 	exit(-1);
     }
-
-
 
     return 0;
 
