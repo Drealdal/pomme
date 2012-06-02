@@ -86,7 +86,7 @@ typedef struct pomme_ds
 	u_int32 mport;
 	/*  meta  */
 	u_int32 metaip;
-	u_int32 metaport;
+	u_int16 metaport;
 	/*  statistics */
 	u_int32 ip;
 	u_int16 port;

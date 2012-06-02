@@ -186,6 +186,7 @@ int create_client(u_int32 ip,
     pin.sin_port = htons(port);   
       
     *sock_fd = socket(AF_INET, SOCK_STREAM, 0);   
+    debug("ip:%u port:%d",ip, port);
     if( *sock_fd < 0 )
     {
 	debug("create socket failure:%s",strerror(errno));

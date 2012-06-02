@@ -73,7 +73,7 @@ static int asyn_call(rpcc_t *rh, int n,
 }
 
 int pomme_rpcc_init(rpcc_t *rh,
-	char *ip,
+	u_int32 ip,
 	u_int16 port,
 	u_int32 time_out)
 {

@@ -150,6 +150,9 @@ int pomme_ds_init( pomme_ds_t *ds,
     int ret = 0;
     assert( ds != NULL); 
     memset( ds , 0, sizeof(ds));
+    /*init meta server info*/
+    ds->metaip = inet_addr("127.0.0.1");
+    ds->metaport = POMME_META_RPC_PORT;
 
     ret = pomme_env_init(&ds->env, 
 	    env_c_flags,env_o_flags,
@@ -635,7 +638,7 @@ int server(pomme_ds_t *ds)
     pomme_ds_heart_beat(0);
     /*  init hear beat */
     pomme_set_sigaction(SIGALRM,&pomme_ds_heart_beat);
-    pomme_set_timer(30,0);
+    pomme_set_timer(POMME_DATA_HEART_BEAT_INTERVAL,0);
 
     int nfds = 0, i, conn_sock;
     while(1)

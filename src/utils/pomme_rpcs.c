@@ -88,7 +88,6 @@ static int fregister(pomme_rpcs_t *rpcs,
     int ret = 0;
     assert( funcn != NULL );
     assert( funcp != NULL );
-    assert( args != NULL);
 
     pomme_func_t *pf = malloc(sizeof(pomme_func_t));
     if( pf == NULL )
@@ -98,6 +97,7 @@ static int fregister(pomme_rpcs_t *rpcs,
     }
     memset(pf, 0, sizeof(pomme_func_t));
 
+    /*  
     pomme_arg_t *arg = malloc(sizeof(pomme_arg_t));
     if( arg == NULL )
     {
@@ -105,6 +105,7 @@ static int fregister(pomme_rpcs_t *rpcs,
 	goto malloc_err;
     }
     memset(arg, 0, sizeof(pomme_arg_t));
+    */
     pf->n = n;
     pf->arg = args;
 

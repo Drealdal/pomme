@@ -284,7 +284,7 @@ DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT)
     assert( n == heart_beat_arg_num );
     assert( extra != NULL );
     pomme_ms_t *ms = (pomme_ms_t *) extra;
-    pomme_hb_t *hb = (pomme_hb_t *) arg[1].data;
+    pomme_hb_t *hb = (pomme_hb_t *) arg[0].data;
 
     return pomme_heart_beat(ms,hb);
 }

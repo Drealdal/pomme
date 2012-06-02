@@ -60,7 +60,7 @@ struct pomme_rpc_handle
 };
 
 int pomme_rpcc_init(rpcc_t *rh,
-	char *ip, 
+	u_int32 ip, 
 	u_int16 port, 
 	u_int32 time_out);
 int pomme_rpcc_distroy(rpcc_t *rh);

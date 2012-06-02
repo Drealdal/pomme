@@ -211,16 +211,23 @@ e_exit:
 }
 pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
 {
+    assert( NULL != hb);
+    assert( NULL != ms);
+    debug("Get Heart Beat");
     int ret = 0;
+
+    debug("Get Heart Beat");
     pomme_data_t *re = NULL;
     // if hb->myid == -1 and hb->mygroup == -1
     if( hb->mygroup == -1 )
     {
+	debug("OK");
 	pomme_data_init(&re, 2*sizeof(u_int32));
 	ms_create_ds(ms, re->data, (u_int32 *)re->data + 1);
 	hb->mygroup = *((u_int32 *)re->data + 1 );
 	hb->myid = *((u_int32 *)re->data );
     }
+   debug("OK");
 
     DBT key, val;
     memset( &val, 0, sizeof(DBT));
@@ -231,6 +238,8 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
 
     val.size = sizeof(pomme_hb_t) - sizeof(u_int32);
     val.data = (u_int32 *)hb + 1;
+   debug("OK:%p",ms->data_nodes);
+   assert(ms->data_nodes != NULL);
 
    if ( (ret = ms->data_nodes->put(ms->data_nodes, 
 		   NULL,&key, &val, 0 )) != 0 )
@@ -243,6 +252,7 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
        }
        pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
    }
+   debug("OK");
 
 e_xit:
     return re;
@@ -329,5 +339,7 @@ int ms_create_object(pomme_ms_t *ms, uuid_t id)
 }
 int  ms_create_ds(pomme_ms_t *ms, u_int32 *id, u_int32 *group)
 {
+    *id = 1;
+    *group = 1;
     return 0;
 }
