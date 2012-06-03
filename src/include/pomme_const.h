@@ -100,7 +100,7 @@
 #define POMME_CLIENT_BUFFER_DS 100
 #define POMME_CLIENT_BUFFER_MS 100
 
-#define POMME_DATA_HEART_BEAT_INTERVAL 3
+#define POMME_DATA_HEART_BEAT_INTERVAL 10
 /*
  * configure change to configure file???
  */

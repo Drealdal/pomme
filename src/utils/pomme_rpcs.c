@@ -180,7 +180,6 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	return ret;
     }
     pomme_data_t *argus = NULL;
-    debug("Before read");
     if((ret = pomme_rpc_read(conn,pfunc->n, 
 		    pfunc->arg,&argus) ) < 0)
     {
@@ -192,9 +191,6 @@ static int call(pomme_rpcs_t *rpcs, char *name, int conn)
 	write_data(&rat, conn);
 	return ret;
     }
-    debug("***************************");
-    debug("%p %d",argus,argus->size);
-    debug("%p",pfunc->fp);
 
     pomme_data_t *ra = pfunc->fp(rpcs->extra,pfunc->n,argus);
     if( ra == NULL )
@@ -216,7 +212,6 @@ clean_ret:
 	pomme_data_distroy(&pa);
     }
     free(argus);
-    
     return ret ;
 
 }
@@ -230,6 +225,7 @@ static void thread_call(void *argu)
     rpcs->call(rpcs,param->fname->data, param->conn);
 /* clear and free */
     close(param->conn);
+    debug("close:%d",param->fname);
     pomme_data_distroy(&param->fname);
 }
 static int handle_request(pomme_rpcs_t *rpcs,

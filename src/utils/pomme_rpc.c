@@ -56,6 +56,7 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
     }else{
 	*re = NULL;
     }
+    memset(*re, 0, rn*sizeof(pomme_data_t));
 
    for( i = 0; i < rn ; i++)
    {
