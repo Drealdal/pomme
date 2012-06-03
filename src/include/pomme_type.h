@@ -17,6 +17,7 @@
  */
 #ifndef POMME_TYPE_H
 #define POMME_TYPE_H
+#include <sys/time.h>
 
 typedef unsigned char u_int8;
 typedef char int8;
@@ -48,4 +49,10 @@ typedef struct heart_beat
     u_int64 objectCount;
     u_int64 requestCount;
 }pomme_hb_t;
+
+typedef struct pomme_lock
+{
+    time_t wt;
+    int interval;
+}pomme_lock_t;
 #endif

@@ -30,6 +30,15 @@
 typedef struct pomme_ms pomme_ms_t;
 struct pomme_ms
 {
+
+    /*  config */
+    // the time between the required time and other thread can take lock if the 
+    // owner not willing to giveup
+    int lock_time;
+    u_int32 mip;
+    u_int16 mport;
+
+
     logger_t *logger;
     /*
      * the ds < id <--> ip>
@@ -58,6 +67,12 @@ struct pomme_ms
      */
     DB *data_nodes;
 
+    /**
+     * @brief lock manager of the node
+     */
+    DB *lock_manager;
+    pthread_mutex_t lmutex;
+
     pomme_rpcs_t rpcs;
     int (*start)(pomme_ms_t *ms);
     int (*stop)(pomme_ms_t *ms);
@@ -73,10 +88,9 @@ struct pomme_ms
     /*  for the web  */
     pomme_data_t * (*POMME_META_ALL_DS)(void *ms, const int n , const pomme_data_t *arg);
 
-
-
     pomme_data_t * (*join_dsgroup)(void *ms,int n , pomme_data_t *arg);
     pomme_data_t * (*leave_dsgroup)(void *ms, int n , pomme_data_t *arg);
+
 
     /*
      * local 

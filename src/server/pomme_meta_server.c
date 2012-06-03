@@ -50,12 +50,19 @@ int pomme_ms_init(pomme_ms_t *ms,
 	int max_thread,
 	int max_waiting)
 {
+
     debug("Meta Server init");
     int ret = 0;
     /* flags to open metadb*/
     unsigned int o_mdb_flags = 0, db_flags=0;
     assert( ms != NULL );
     memset(ms, 0, sizeof(pomme_ms_t));
+
+
+    /*  config init */
+
+    ms->lock_time = POMME_META_FILE_LOCK_TIME;
+
     if( ( ret = init_log() ) != 0 )
     {
 	debug("Init log error");
@@ -138,7 +145,29 @@ int pomme_ms_init(pomme_ms_t *ms,
 	POMME_LOG_ERROR("Server open data_nodes database fail",ms->logger);
 	goto data_nodes_err;
     }
+    /*  lock manager */
+    if( ( ret = db_create(&ms->lock_manager, ms->env,0)) != 0 )
+    {
+	debug("ms->lock_manager create error");
+	POMME_LOG_ERROR("Server Create db lock_manager failure",ms->logger);
+	goto data_lock_err;
+    }
 
+    if( ( ret = ms->lock_manager->open(
+		    ms->lock_manager, NULL, POMME_LOCK_MANAGER_FILE,
+		    POMME_LOCK_MANAGER_NAME,DB_BTREE,DB_CREATE | DB_THREAD,0664)) != 0)
+    {
+	debug("open lock_manager db failure:%s",db_strerror(ret));
+	POMME_LOG_ERROR("Server open lock manager failure",ms->logger);
+	goto data_lock_err;
+    }
+
+
+    if( pthread_mutex_init(&ms->lmutex,NULL) != 0 )
+    {
+	debug("Meta server  init Mutex Error\n");
+	goto data_lock_err;
+    }
 
     ms->start = &ms_start;
     ms->POMME_META_CREATE_FILE = &POMME_META_CREATE_FILE;
@@ -162,6 +191,8 @@ int pomme_ms_init(pomme_ms_t *ms,
     }
     ms_register_funcs(ms);
     return ret;
+data_lock_err:
+    ms->lock_manager->close(ms->lock_manager, 0 );
 data_nodes_err:
     ms->meta_db->close(ms->meta_db, 0);
 rpcs_err:

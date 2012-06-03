@@ -301,6 +301,122 @@ pomme_data_t *pomme_all_ds(pomme_ms_t *ms)
     pomme_data_init(&re, POMME_RPC_NOT_IMPL);
     return re;
 }
+/*  local method */
+int pomme_lock(pomme_ms_t *ms, const char *path,int interval, time_t *expire)
+{
+    int ret = 0;
+    DBT key,val;
+    memset(&key, 0, sizeof(DBT));
+    memset(&val, 0, sizeof(DBT));
+    pomme_lock_t lock;
+    key.size = pomme_strlen(path);
+    key.data = path;
+    
+    val.size = sizeof(pomme_lock_t);
+    val.data = &lock;
+    val.flags |= DB_DBT_USERMEM;
+
+    DB *db = ms->lock_manager;
+
+    pthread_mutex_lock(&ms->lmutex); 
+    if( ( ret =db->get(db, NULL, &key, &val,0) ) == 0)
+    {
+	if( time(NULL) > lock.wt + ms->lock_time)
+	{
+	    lock.wt = time(NULL);
+	    db->put(db, NULL, &key,&val,0);
+	}
+    }
+    pthread_mutex_unlock(&ms->lmutex);
+    u_int32 flags = DB_NOOVERWRITE;
+    lock.wt = time(NULL) + interval;
+    *expire = lock.wt;
+
+    if( ( ret = db->put(db, NULL, &key, &val, flags) ) != 0 )
+    {
+	    return -1;
+    }
+    return 0;
+}
+int pomme_extend_lock(pomme_ms_t *ms, const char *path, time_t previous, time_t interval)
+{
+   int ret = 0;
+
+   DBT key,val;
+   memset(&key, 0, sizeof(DBT));
+   memset(&val, 0, sizeof(DBT));
+
+   pomme_lock_t lock;
+   lock.wt = previous;
+
+   key.size = pomme_strlen(path);
+   key.data = path;
+   val.size = sizeof(pomme_lock_t);
+
+   val.data = &lock;
+   val.flags |= DB_DBT_USERMEM;
+   
+   u_int32 flags = DB_GET_BOTH;
+
+   time_t cur = time(NULL);
+   if( cur > previous )
+   {
+       return -1;
+   }
+   DB *db = ms->lock_manager;
+   if( ( ret = db->get(db, NULL, &key, &val, flags) ) != 0 )
+   {
+       debug("Read Lock info failure");
+       POMME_LOG_ERROR("Read Lock info fail",ms->logger);
+       return -1;
+   } 
+   lock.wt = time(NULL) + interval;
+   if( ( ret = db->put(db, NULL, &key, &val, 0) ) != 0 )
+   {
+       debug("Put lock info failure");
+       POMME_LOG_ERROR("write Lock info fail",ms->logger);
+       return -1;
+   }
+   return 0;
+}
+
+int pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previous)
+{
+    int ret = 0;
+   DBT key,val;
+   memset(&key, 0, sizeof(DBT));
+   memset(&val, 0, sizeof(DBT));
+
+   pomme_lock_t lock;
+   lock.wt = previous;
+
+   key.size = pomme_strlen(path);
+   key.data = path;
+   val.size = sizeof(pomme_lock_t);
+
+   val.data = &lock;
+   val.flags |= DB_DBT_USERMEM;
+   
+   u_int32 flags = DB_GET_BOTH;
+
+   DB *db = ms->lock_manager;
+   if( ( ret = db->get(db, NULL, &key, &val, flags) ) != 0 )
+   {
+       debug("Read Lock info failure");
+       POMME_LOG_ERROR("Read Lock info fail",ms->logger);
+       return -1;
+   }
+   if( time(NULL) > previous ){
+       return -1;
+   }
+   if( ( ret = db->del(db, NULL, &key, 0) ) != 0 )
+   {
+       debug("Del Lock info failure");
+       POMME_LOG_ERROR("Del Lock info fail",ms->logger);
+       return -1;
+   }
+   return 0;
+}
 
 int ms_start(pomme_ms_t *ms) {
     assert( ms != NULL);

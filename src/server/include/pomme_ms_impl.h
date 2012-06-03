@@ -39,6 +39,17 @@ pomme_data_t * pomme_stat_file(pomme_ms_t *ms, const char *path);
 
 pomme_data_t * pomme_heart_beat(pomme_ms_t *ms,pomme_hb_t *hb);
 
+/**
+ * @brief pomme_lock: lock a file, only the 
+ * 		      client with the lock can write the file 
+ * @return: 0 for success, < 0 for failure 
+ */
+int pomme_lock(pomme_ms_t *ms, const char *path,
+	int interval, time_t *expire);
+int pomme_extend_lock(pomme_ms_t *ms, const char *path,
+       	time_t previous, time_t interval);
+int pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previous);
+
 int pomme_map_ds_group(const char *path);
 int ms_start(pomme_ms_t *ms);
 int ms_stop(pomme_ms_t *ms);

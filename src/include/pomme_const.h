@@ -101,6 +101,7 @@
 #define POMME_CLIENT_BUFFER_MS 100
 
 #define POMME_DATA_HEART_BEAT_INTERVAL 10
+#define POMME_META_FILE_LOCK_TIME 30
 /*
  * configure change to configure file???
  */
@@ -113,6 +114,9 @@
 
 #define POMME_DATA_NODES_FILE "/home/zhumeiqi/work/pomme/data/pomme_data_nodes.db"
 #define POMME_DATA_NODES_NAME "data_nodes"
+
+#define POMME_LOCK_MANAGER_FILE  "/home/zhumeiqi/work/pomme/data/pomme_lock_manager.db"
+#define POMME_LOCK_MANAGER_NAME  "lock_manager"
 
 #define POMME_META_ENV_HOME "/home/zhumeiqi/work/pomme/datam/"
 
