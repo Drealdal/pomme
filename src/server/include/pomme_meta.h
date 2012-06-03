@@ -48,34 +48,6 @@ typedef struct pomme_object { /* * This structure contains the basic information
 	off_t start;
 }pomme_object_t;
 
-typedef struct pomme_file
-{
-	/* where the objects stored,will not be changed utils some server is down
-	* if any server in a dsgroup fails, we just modify infomation of the 
-	 * dsgroup */
-	u_int32 dsgroup;
-	/* the create time of the file*/
-	time_t c_time;
-	/** the modify time*/
-	time_t m_time;
-	/*  last access time */
-	time_t a_time;
-	/*
-	 * the delete time,
-	 * if the d_time < cur_time , the file is treated
-	 * deleted
-	 */
-	time_t d_time;
-	/*
-	 * The length of the file
-	 */
-	u_int64 len;
-	/*
-	 *access
-	 */
-	int acl;
-	/* storage server */
-}pomme_file_t;
 typedef struct ms_object ms_object_t;
 struct ms_object
 {

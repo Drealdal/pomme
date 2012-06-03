@@ -206,7 +206,6 @@ int create_client(u_int32 ip,
 	}
     }
     return 0;
-
 }
 
 char *pomme_time(char *buf)
