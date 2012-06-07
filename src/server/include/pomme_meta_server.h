@@ -87,6 +87,10 @@ struct pomme_ms
     pomme_data_t * (*POMME_META_GET_DS)(void *ms, const int n, const pomme_data_t *arg);
     /*  for the web  */
     pomme_data_t * (*POMME_META_ALL_DS)(void *ms, const int n , const pomme_data_t *arg);
+    /*  lock */
+    pomme_data_t * (*POMME_LOCK)(void *ms, const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_EXTEND_LOCK)(void *ms, const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_RELEASE_LOCK)(void *ms, const int n , const pomme_data_t *arg);
 
     pomme_data_t * (*join_dsgroup)(void *ms,int n , pomme_data_t *arg);
     pomme_data_t * (*leave_dsgroup)(void *ms, int n , pomme_data_t *arg);

@@ -73,6 +73,7 @@ err:
 int pomme_data_extend(pomme_data_t *data, int size)
 {
     assert(data != NULL);
+    if(size == 0) return 0;
     data->size += size;
     void * f = data->data;
     if( (data->flags & POMME_DATA_NEED_FREE) == 0 )
@@ -208,9 +209,9 @@ int create_client(u_int32 ip,
     return 0;
 }
 
-char *pomme_time(char *buf)
+
+char *pomme_time(time_t t,char *buf)
 {
-    time_t t = time(NULL);
     char *re = NULL;
     if( buf != NULL )
     {

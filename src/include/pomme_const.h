@@ -59,13 +59,15 @@
 #define POMME_WRITE_ARGU_ERROR (-606)
 #define POMME_RPC_NOT_IMPL (-607)
 /* read response data error */
-#define POMME_READ_RES_ERROR (-607)
+#define POMME_READ_RES_ERROR (-608)
                                                 /** Error to client */
 #define POMME_META_FILE_EXIST (-700) 
 #define POMME_META_INTERNAL_ERROR (-701)
 #define POMME_META_FILE_NOT_FOUND (-702)
 #define POMME_META_OFFSET_TOO_LARGE (-703)
 #define POMME_META_DATA_NODE_NOTFOUND (-704) 
+                                                /** lock */
+#define POMME_LOCK_EXPIRE (-801)
 
 
 /*
@@ -146,6 +148,15 @@
 
 #define POMME_META_ALL_DS all_ds
 #define POMME_META_ALL_DS_S "all_ds"
+                                                /** lock */
+#define POMME_LOCK lock
+#define POMME_LOCK_S "lock" 
 
+#define POMME_EXTEND_LOCK extend_lock
+#define POMME_EXTEND_LOCK_S "extend_lock"
+
+#define POMME_RELEASE_LOCK release_lock
+#define POMME_RELEASE_LOCK_S "release_lock"
 
 #endif
+

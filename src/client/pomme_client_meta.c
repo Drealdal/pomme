@@ -25,7 +25,7 @@
 int pomme_sync_create_file(rpcc_t *rct, 
 	char *path,
 	int mode,
-	pomme_file_t *file)
+	pomme_file_t **file)
 {
     int ret = 0;
     assert( rct != NULL );
@@ -33,10 +33,10 @@ int pomme_sync_create_file(rpcc_t *rct,
 
     pomme_data_t *arg = malloc(3*sizeof(pomme_data_t));
     char *name = POMME_META_CREATE_FILE_S;
-    arg[0].size = strlen(name)+1;
+    arg[0].size = pomme_strlen(name);
     arg[0].data = name;
 
-    arg[1].size = strlen(path)+1;
+    arg[1].size = pomme_strlen(path);
     arg[1].data = path;
 
     arg[2].size = sizeof(int);
@@ -48,18 +48,20 @@ int pomme_sync_create_file(rpcc_t *rct,
     if( (ret = rct->sync_call(rct,3,arg,&res,0) ) < 0) 
     {
 	debug("Error call");
+	goto err;
     }else{
 	debug("created");
     }
-    file = (pomme_file_t *)res.data;
+    *file = (pomme_file_t *)res.data;
 err:
     return ret;
 }
 int pomme_sync_read_file_meta(
 	rpcc_t *rct,
 	char *path,
-	pomme_file_t *file,
-       	ms_object_t *object)
+	pomme_file_t **file,
+	int *obj_num,
+       	ms_object_t **object)
 {
     int ret = 0; 
     assert(rct != NULL);
@@ -69,6 +71,9 @@ int pomme_sync_read_file_meta(
     char *name = POMME_META_READ_FILE_S;
     arg[0].size = pomme_strlen(name);
     arg[0].data = name;
+
+    arg[1].size = pomme_strlen(path);
+    arg[1].data = path;
 
     pomme_data_t res;
     memset(&res,0,sizeof(pomme_data_t));
@@ -80,8 +85,18 @@ int pomme_sync_read_file_meta(
     }else{
 	debug("Read file meta ok");
     }
-    file = res.data;
-    object = res.data + sizeof(pomme_file_t);
+    *file = res.data;
+    debug("ret:%d",ret);
+    debug("%d",res.size);
+    debug("%d",sizeof(pomme_file_t));
+    debug("%d",sizeof(ms_object_t));
+    *obj_num = (res.size - sizeof(pomme_file_t))/sizeof(ms_object_t);
+    if( *object > 0 )
+    {
+	*object = res.data + sizeof(pomme_file_t);
+    }else{
+	*object = NULL;
+    }
 e_exit:
     return ret;
 }
@@ -99,7 +114,7 @@ int pomme_write_file(rpcc_t *rct,
 
     return ret;
 }
-int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t *file)
+int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t **file)
 {
     int ret = 0 ;
     assert( rct != NULL );
@@ -121,16 +136,14 @@ int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t *file)
 	debug("Stat error");
 	goto err;	
     }
-    if(res.size == sizeof(pomme_file_t)&& (*(int *)res.data) == 0 )
+    if(res.size == sizeof(pomme_file_t) )
     {
-	memcpy(file, res.data+1, sizeof(pomme_file_t));
+	*file = res.data;
     }else{
 	ret = *(int *)res.data;
 	debug("response info:%d",*(int *)res.data);
+	goto err;
     }
-
-    pomme_data_t *pre = &res;
-    pomme_data_distroy(&pre);
     return ret;
 err:
     return ret;

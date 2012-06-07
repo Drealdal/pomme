@@ -19,6 +19,7 @@
 #define _POMME_CLIENT_META_H
 #include "pomme_rpcc.h"
 #include "pomme_meta.h"
+#include "pomme_file.h"
 /**
  * @brief pomme_sync_create_file 
  *
@@ -32,13 +33,14 @@
 int pomme_sync_create_file(rpcc_t *rct, 
 	char *path,
 	int mode,
-	pomme_file_t *file);
+	pomme_file_t **file);
 
 int pomme_sync_read_file_meta(
 	rpcc_t *rct,
 	char *path,
-	pomme_file_t *file,
-       	ms_object_t *object);
+	pomme_file_t **file,
+	int *obj_num,
+       	ms_object_t **object);
 
 /**
  * @brief pomme_write_file 

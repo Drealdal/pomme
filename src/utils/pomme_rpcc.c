@@ -56,7 +56,6 @@ static int sync_call(rpcc_t *rh, int n,
     if( ( ret = read_data(res, conn)) < 0 )
     {
 	debug("read response error");
-	return POMME_READ_RES_ERROR;
     }	
 
     return ret;

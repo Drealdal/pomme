@@ -42,13 +42,26 @@ pomme_data_t * pomme_heart_beat(pomme_ms_t *ms,pomme_hb_t *hb);
 /**
  * @brief pomme_lock: lock a file, only the 
  * 		      client with the lock can write the file 
- * @return: 0 for success, < 0 for failure 
+ * @return: if the lock is successed, the time of expire will be returned
  */
-int pomme_lock(pomme_ms_t *ms, const char *path,
-	int interval, time_t *expire);
-int pomme_extend_lock(pomme_ms_t *ms, const char *path,
+pomme_data_t * pomme_lock(pomme_ms_t *ms, const char *path,
+	int interval);
+/**
+ * @brief pomme_extend_lock: the holder of the file is trying to extend lock time 
+ *
+ * @param previous: the last end time of the lock, only who hold the lock can know this infomation
+ * @param interval: time to hold,
+ *
+ * @return: return time(NULL)+interval 
+ */
+pomme_data_t * pomme_extend_lock(pomme_ms_t *ms, const char *path,
        	time_t previous, time_t interval);
-int pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previous);
+/**
+ * @brief pomme_release_lock 
+ * @param previous: the expire time of the lock to indicate the ownership
+ * @return:  
+ */
+pomme_data_t * pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previous);
 
 int pomme_map_ds_group(const char *path);
 int ms_start(pomme_ms_t *ms);

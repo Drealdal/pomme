@@ -30,6 +30,11 @@ static const int stat_file_arg_num = 1;
 static const int heart_beat_arg_num = 1;
 static const int get_ds_arg_num = 1;
 static const int all_ds_arg_num = 0;
+
+static const int lock_arg_num = 2;
+static const int extend_lock_arg_num = 3;
+static const int release_lock_arg_num = 2; 
+
 DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_READ_FILE);
 DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE);
@@ -38,6 +43,10 @@ DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT);
 
 DEF_POMME_RPC_FUNC(POMME_META_GET_DS);
 DEF_POMME_RPC_FUNC(POMME_META_ALL_DS);
+
+DEF_POMME_RPC_FUNC(POMME_LOCK);
+DEF_POMME_RPC_FUNC(POMME_EXTEND_LOCK);
+DEF_POMME_RPC_FUNC(POMME_RELEASE_LOCK);
 
 static int ms_register_funcs(pomme_ms_t *ms);
 
@@ -177,6 +186,10 @@ int pomme_ms_init(pomme_ms_t *ms,
     ms->POMME_META_HEART_BEAT = &POMME_META_HEART_BEAT;
     ms->POMME_META_GET_DS = &POMME_META_GET_DS;
     ms->POMME_META_ALL_DS = &POMME_META_ALL_DS;
+    
+    ms->POMME_LOCK = &POMME_LOCK;
+    ms->POMME_EXTEND_LOCK = &POMME_EXTEND_LOCK;
+    ms->POMME_RELEASE_LOCK = &POMME_RELEASE_LOCK;
 
     ms->get_ds_group = &pomme_map_ds_group;
     
@@ -259,6 +272,30 @@ static int ms_register_funcs(pomme_ms_t *ms)
     arg = NULL;
     ms->rpcs.func_register(&ms->rpcs, POMME_META_ALL_DS_S,ms->POMME_META_ALL_DS,
 	    all_ds_arg_num,arg);
+    // lock
+    arg = malloc( sizeof(pomme_data_t)*lock_arg_num);
+    arg[0].size = -1;
+    arg[1].size = sizeof(int);
+
+    ms->rpcs.func_register(&ms->rpcs, POMME_LOCK_S, ms->POMME_LOCK,
+	    lock_arg_num,arg);
+
+    // extend lock
+    arg = malloc( sizeof(pomme_data_t)*extend_lock_arg_num);
+
+    arg[0].size = -1;
+    arg[1].size = sizeof(int);
+    arg[2].size = sizeof(int); 
+    ms->rpcs.func_register(&ms->rpcs,  POMME_EXTEND_LOCK_S,
+	    ms->POMME_EXTEND_LOCK,extend_lock_arg_num, arg);
+    // release lock
+    arg = malloc( sizeof(pomme_data_t)*release_lock_arg_num);
+
+    arg[0].size = -1;
+    arg[1].size = sizeof(int);
+    ms->rpcs.func_register(&ms->rpcs,  POMME_RELEASE_LOCK_S,
+	    ms->POMME_RELEASE_LOCK,release_lock_arg_num, arg);
+
     
     return 0;
 }
@@ -336,4 +373,36 @@ DEF_POMME_RPC_FUNC(POMME_META_ALL_DS)
     pomme_ms_t *ms = (pomme_ms_t *) extra;
 
     return pomme_all_ds(ms);
+}
+DEF_POMME_RPC_FUNC(POMME_LOCK)
+{
+    assert( n == lock_arg_num);
+    assert( extra != NULL );
+    pomme_ms_t *ms = (pomme_ms_t *)extra;
+    char *path = (char *)arg[0].data;
+    int  inteval = *(int *)arg[0].data;
+
+    return pomme_lock(ms, path, inteval);
+}
+DEF_POMME_RPC_FUNC(POMME_EXTEND_LOCK)
+{
+    assert( n == extend_lock_arg_num );
+    assert( extra != NULL );
+    pomme_ms_t *ms = (pomme_ms_t *)extra;
+
+    char *path = (char *)arg[0].data;
+    int previous = *(int *) arg[1].data;
+    int inteval = *(int *) arg[2].data;
+    return pomme_extend_lock(ms, path, previous, inteval);
+
+}
+DEF_POMME_RPC_FUNC(POMME_RELEASE_LOCK)
+{
+    assert( n == release_lock_arg_num );
+    assert( extra != NULL );
+
+    pomme_ms_t *ms = (pomme_ms_t *)extra;
+    char *path = (char *)arg[0].data;
+    int previous = *(int *)arg[1].data;
+    return pomme_release_lock(ms, path, previous);
 }

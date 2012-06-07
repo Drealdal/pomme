@@ -133,7 +133,7 @@ static int printf_arg(int n,pomme_data_t *arg)
 
     for( i = 0 ; i < n ; i ++)
     {
-	printf("\t%u",arg[i].size);
+	printf("\t%d",arg[i].size);
     }
     printf("\n");
     return 0;
