@@ -32,6 +32,7 @@ int pomme_sync_create_file(rpcc_t *rct,
     assert( path != NULL );
 
     pomme_data_t *arg = malloc(3*sizeof(pomme_data_t));
+    assert( arg != NULL );
     char *name = POMME_META_CREATE_FILE_S;
     arg[0].size = pomme_strlen(name);
     arg[0].data = name;
@@ -54,6 +55,7 @@ int pomme_sync_create_file(rpcc_t *rct,
     }
     *file = (pomme_file_t *)res.data;
 err:
+    free(arg);
     return ret;
 }
 int pomme_sync_read_file_meta(
@@ -68,6 +70,7 @@ int pomme_sync_read_file_meta(
     assert(path != NULL);
 
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
+    assert( arg != NULL );
     char *name = POMME_META_READ_FILE_S;
     arg[0].size = pomme_strlen(name);
     arg[0].data = name;
@@ -98,6 +101,7 @@ int pomme_sync_read_file_meta(
 	*object = NULL;
     }
 e_exit:
+    free(arg);
     return ret;
 }
 
@@ -120,6 +124,7 @@ int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t **file)
     assert( rct != NULL );
     assert( path != NULL );
     pomme_data_t * arg = malloc(2*sizeof(pomme_data_t));
+    assert( arg != NULL );
     char *name = POMME_META_STAT_FILE_S;
     arg[0].size = strlen(name)+1;
     arg[0].data = name;
@@ -146,6 +151,7 @@ int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t **file)
     }
     return ret;
 err:
+    free(arg);
     return ret;
 
 }
@@ -166,6 +172,7 @@ int pomme_client_get_ds(rpcc_t *rct, u_int32 id, ds_node *ds)
     assert( ds != NULL );
 
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
+    assert( arg != NULL );
     char *name = POMME_META_GET_DS_S;
     arg[0].size = pomme_strlen(name);
     arg[0].data = name;
@@ -191,11 +198,64 @@ int pomme_client_get_ds(rpcc_t *rct, u_int32 id, ds_node *ds)
     pomme_data_t *pre = &res;
     pomme_data_distroy(&pre);
 err:
+    free(arg);
     return ret;
 }
 
 int pomme_uuid_create(uuid_t id)
 {
     uuid_generate_time(id);
+    return 0;
+}
+
+int pomme_client_lock_file(rpcc_t *rct, char *path,
+	int interval)
+{
+    int ret = 0;
+    assert( rct != NULL );
+    assert( ds != NULL );
+
+    pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
+    assert( arg != NULL );
+    char *name = POMME_LOCK_S;
+    arg[0].size = pomme_strlen(name);
+    arg[0].data = name;
+
+    arg[1].size = pomme_strlen(path);
+    arg[1].data = path;
+
+    arg[2].size = sizeof(data);
+    arg[2].data = &interval;
+
+    pomme_data_t res;
+    memset(&res, 0, sizeof(pomme_data_t));
+
+    if( ret = rct->sync_call(rct, 2 , arg, &res, 0 ) < 0 )
+    {
+	debug("Get Ds info error");
+	goto err;
+    }
+    if( res.size == sizeof(ds_node) )
+    {
+	memcpy(ds, res.data, sizeof(ds_node));
+    }else{
+	debug("return code:%d",res.size);
+	ret = res.size;
+    }
+    pomme_data_t *pre = &res;
+    pomme_data_distroy(&pre);
+err:
+    free(arg);
+    return ret;
+}
+
+int pomme_client_extend_lock(rpcc_t *tct, char *path,
+       	int previous, int inteval)
+{
+    return 0;
+}
+int pomme_client_release_lock(rpcc_t *rct, char *path,
+	int previous)
+{
     return 0;
 }
