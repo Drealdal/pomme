@@ -22,8 +22,6 @@
 extern int file_count_strict;
 
 
-
-
 int create_storage(DB *db_handle,
 	DB_TXN *txnid,
 	char *storage_path,
