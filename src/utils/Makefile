@@ -23,11 +23,6 @@ $(OBJECT_DIR)/pomme_pack.o:	$(UTIL_DIR)/pomme_pack.c $(INCLUDE_DIR)/pomme_pack.h
 $(OBJECT_DIR)/pomme_conf.o:	$(UTIL_DIR)/pomme_conf.c $(INCLUDE_DIR)/pomme_conf.h
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
-$(OBJECT_DIR)/pomme_rpcs.o:	$(UTIL_DIR)/pomme_rpcs.c $(INCLUDE_DIR)/pomme_rpcs.h $(INCLUDE_DIR)/pomme_rpc.h
-	$(CC) -c $(CFLAGS) $< -o $@ 
-
-$(OBJECT_DIR)/pomme_rpcc.o:	$(UTIL_DIR)/pomme_rpcc.c $(INCLUDE_DIR)/pomme_rpcc.h $(INCLUDE_DIR)/pomme_rpc.h
-	$(CC) -c $(CFLAGS) $< -o $@ 
 
 $(OBJECT_DIR)/pomme_thread.o:	$(UTIL_DIR)/pomme_thread.c $(INCLUDE_DIR)/pomme_thread.h
 	$(CC) -c $(CFLAGS) $< -o $@ 

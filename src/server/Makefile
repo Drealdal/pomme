@@ -5,8 +5,8 @@ $(OBJECT_DIR)/all_server:$(addprefix $(OBJECT_DIR)/, pomme_storage.o pomme_meta_
 
 pomme_protocol_depends=$(addprefix $(OBJECT_DIR)/,pomme_pack.o)
 
-data_server_depends=$(addprefix $(OBJECT_DIR)/, pomme_storage.o pomme_msg.o pomme_protocol.o pomme_rpcc.o pomme_pack.o pomme_utils.o pomme_data_server.o pomme_log.o pomme_queue.o pomme_hash.o pomme_blist.o) $(rpc_depends)
-mata_server_depends=$(addprefix $(OBJECT_DIR)/, pomme_msg.o pomme_protocol.o pomme_pack.o pomme_utils.o pomme_meta_server.o pomme_log.o pomme_queue.o pomme_hash.o pomme_blist.o pomme_rpcs.o pomme_rpc.o pomme_serilize.o pomme_thread.o pomme_ms_impl.o) $(rpc_depends)
+data_server_depends=$(addprefix $(OBJECT_DIR)/, pomme_storage.o pomme_msg.o pomme_protocol.o pomme_pack.o pomme_utils.o pomme_data_server.o pomme_log.o pomme_queue.o pomme_hash.o pomme_blist.o ) $(rpc_depends)
+mata_server_depends=$(addprefix $(OBJECT_DIR)/, pomme_msg.o pomme_protocol.o pomme_pack.o pomme_utils.o pomme_meta_server.o pomme_log.o pomme_queue.o pomme_hash.o pomme_blist.o pomme_rpcs.o pomme_rpc.o pomme_serilize.o pomme_thread.o pomme_ms_impl.o)
 
 clean_server:
 	rm -f $(SERVER_DIR)/*~
@@ -30,7 +30,7 @@ $(OBJECT_DIR)/pomme_ms_impl.o:$(SERVER_DIR)/pomme_ms_impl.c $(SERVER_INCLUDE)/po
 
 
 $(BIN_DIR)/data_server: $(data_server_depends) $(SERVER_DIR)/pomme_data_main.c
-	$(CC) -o $@ -O2 $(CFLAGS) $^
+	$(CC) -o $@ -O2 $(CFLAGS) $^ $(LIB_FLAG)
 
 $(BIN_DIR)/meta_server: $(mata_server_depends) $(SERVER_DIR)/pomme_meta_main.c
-	$(CC) -o $@ -O2 $(CFLAGS) $^
+	$(CC) -o $@ -O2 $(CFLAGS) $^ $(LIB_FLAG)

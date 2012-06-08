@@ -5,7 +5,7 @@ server_test_depends=$(addprefix $(BIN_DIR)/,create_storage)
 
 
 $(BIN_DIR)/create_storage: $(test_create_storage) $(SERVER_TEST)/create_storage.c $(SERVER_INCLUDE)/pomme_storage.h	
-	$(CC) -o $@ $(CFLAGS) $^
+	$(CC) -o $@ $(CFLAGS) $^ $(LIB_FLAG)
 
 
 $(OBJECT_DIR)/all_server_test: $(server_test_depends)

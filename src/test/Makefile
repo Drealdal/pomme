@@ -12,22 +12,22 @@ all_test_depends=$(addprefix $(BIN_DIR)/,test_log test_queue test_hash test_buff
 
 
 $(BIN_DIR)/test_log: $(test_log_depends) $(TEST_DIR)/test_log.c 	
-	$(CC) -o $@ $(CFLAGS) $^
+	$(CC) -o $@ $(CFLAGS) $^ $(LIB_FLAG)
 
 $(BIN_DIR)/test_queue: $(test_queue_depends) $(TEST_DIR)/test_queue.c 	
-	$(CC) -o $@ $(CFLAGS) $^
+	$(CC) -o $@ $(CFLAGS) $^ $(LIB_FLAG)
 
 $(BIN_DIR)/test_hash: $(test_hash_depends) $(TEST_DIR)/test_hash.c 	
-	$(CC) -o $@ $(CFLAGS) $^
+	$(CC) -o $@ $(CFLAGS) $^ $(LIB_FLAG)
 
 $(BIN_DIR)/test_buffer: $(test_buffer_depends) $(TEST_DIR)/test_buffer.c 	
-	$(CC) -o $@ $(CFLAGS) $^
+	$(CC) -o $@ $(CFLAGS) $^ $(LIB_FLAG)
 
 $(BIN_DIR)/test_rpcs: $(test_rpcs_depends) $(TEST_DIR)/test_rpcs.c 	
-	$(CC) -o $@ $(CFLAGS) $^
+	$(CC) -o $@ $(CFLAGS) $^ $(LIB_FLAG)
 
 $(BIN_DIR)/test_rpcc: $(test_rpcc_depends) $(TEST_DIR)/test_rpcc.c 	
-	$(CC) -o $@ $(CFLAGS) $^
+	$(CC) -o $@ $(CFLAGS) $^ $(LIB_FLAG) 
 
 
 $(OBJECT_DIR)/all_test: $(all_test_depends)

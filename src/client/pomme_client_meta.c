@@ -209,11 +209,11 @@ int pomme_uuid_create(uuid_t id)
 }
 
 int pomme_client_lock_file(rpcc_t *rct, char *path,
-	int interval)
+	int interval,int *lock)
 {
     int ret = 0;
     assert( rct != NULL );
-    assert( ds != NULL );
+    assert( path != NULL );
 
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
     assert( arg != NULL );
@@ -224,7 +224,7 @@ int pomme_client_lock_file(rpcc_t *rct, char *path,
     arg[1].size = pomme_strlen(path);
     arg[1].data = path;
 
-    arg[2].size = sizeof(data);
+    arg[2].size = sizeof(int);
     arg[2].data = &interval;
 
     pomme_data_t res;
@@ -237,7 +237,7 @@ int pomme_client_lock_file(rpcc_t *rct, char *path,
     }
     if( res.size == sizeof(ds_node) )
     {
-	memcpy(ds, res.data, sizeof(ds_node));
+	memcpy(lock, res.data, sizeof(ds_node));
     }else{
 	debug("return code:%d",res.size);
 	ret = res.size;

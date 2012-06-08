@@ -2,7 +2,6 @@ CC=gcc
 INCLUDE_DIR=./include
 OBJECT_DIR=./.object
 BIN_DIR=../bin
-LOG_DIR=./log
 UTIL_DIR=./utils
 
 RPC_DIR=./rpc
@@ -20,23 +19,23 @@ CLIENT_TEST=./client/test
 TEST_DIR=./test
 INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_HOME)/include -I$(SERVER_INCLUDE) -I$(CLIENT_INCLUDE) -I$(RPC_INCLUDE)
 LIB_FLAG=-L$(BDB_HOME)/lib -ldb -pthread -luuid -lxml2
-CFLAGS=$(INCLUDE_FLAG) $(LIB_FLAG) -Wall -DDEBUG=1
+CFLAGS=$(INCLUDE_FLAG)  -Wall -DDEBUG=1
 INSTALL_DIR=$(POMME_HOME)
 
 all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils all_client)
 rpc_depends=$(addprefix $(OBJECT_DIR)/,pomme_rpc.o pomme_rpcc.o pomme_rpcs.o pomme_serilize.o pomme_thread.o)
-all_clean= $(addprefix clean_, test log server utils client rpc)
+all_clean= $(addprefix clean_, test server utils client rpc)
 
 include $(SERVER_DIR)/Makefile
 include $(RPC_DIR)/Makefile
-include $(LOG_DIR)/Makefile
 include $(UTIL_DIR)/Makefile
 include $(TEST_DIR)/Makefile
 include $(CLIENT_DIR)/Makefile
 
 
-.PHONY: all $(all_depends) all_clean init clear
+.PHONY: all $(all_depends) all_clean init clear rpc
 
+rpc: $(rpc_depends)
 all: init $(all_depends)
 	mkdir -p .object
 

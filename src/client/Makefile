@@ -15,8 +15,8 @@ $(OBJECT_DIR)/pomme_client_data.o: $(CLIENT_DIR)/pomme_client_data.c $(CLIENT_IN
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(OBJECT_DIR)/pomme_client_meta.o: $(CLIENT_DIR)/pomme_client_meta.c $(CLIENT_INCLUDE)/pomme_client_meta.h
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@ 
 
 	
 $(BIN_DIR)/pomme_client:  $(pomme_client_depends) $(CLIENT_DIR)/pomme_client_main.c
-	$(CC) -o $@ -O2 $(CFLAGS) $^
+	$(CC) -o $@ -O2 $(CFLAGS) $^ $(LIB_FLAG)
