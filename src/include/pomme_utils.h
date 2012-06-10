@@ -23,10 +23,13 @@
 #define FFL __FILE__,__func__,__LINE__
 
 #ifdef DEBUG
-#define debug(msg,argc...) fprintf(stderr,"%s %s %d: "msg"\n",FFL,##argc)
+#define debug(msg,argc...) fprintf(stdout,"%s %s %d: "msg"\n",FFL,##argc)
 #else
 #define debug(msg,argc...) 0
 #endif
+
+#define warning(msg,argc...) fprintf(stdout,"WARNING:%s %s %d: "msg"\n",FFL,##argc)
+#define error(msg,argc...) fprintf(stderr,"ERROR:%s %s %d: "msg"\n",FFL,##argc)
 
 
 int pomme_data_init(pomme_data_t **data, int size);
@@ -80,6 +83,7 @@ int setnonblocking(int sock);
  * @brief pomme_get_endian : test the endian of the server
  */
 int pomme_get_endian();
+int print_uper(FILE *fd,char *str);
 
 
 #endif

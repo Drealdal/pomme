@@ -185,8 +185,14 @@ int pomme_parse_function(xmlNodePtr node, funcgen_t *func)
 	}
 	curNode = curNode->next;
     }
-    if( (pomme_parse_params(params, &func->params) < 0 ) ||
-	    (pomme_parse_return(rparam, &func->rparam) < 0 ) )
+    ret = pomme_parse_params(params, &func->params);
+    if( ret < 0 )
+    {
+	debug("parse params for function(%s) failure",func->name);
+    }else{
+	func->argnum = ret;
+    }
+    if(pomme_parse_return(rparam, &func->rparam) < 0  )
     {
 	ret = -1;
     }	
@@ -238,7 +244,7 @@ int pomme_parse_functions(xmlNodePtr node, funcgen_t **funcs)
 	curNode = curNode->next;
     }
 
-    return ret;
+    return count;
 }
 /*
  * <server name="meta_server">
@@ -251,6 +257,7 @@ int pomme_parse_functions(xmlNodePtr node, funcgen_t **funcs)
  *                pomme_meta_server_imp.c
  *                pomme_meta_server_client.h
  *                pomme_meta_server_client.c
+ *                pomme_meta_server_const.h
  * 
  */
 int pomme_pasrse_server(xmlNodePtr node, rpcgen_t *server)
@@ -294,6 +301,9 @@ int pomme_pasrse_server(xmlNodePtr node, rpcgen_t *server)
 			 &server->funcs)) < 0 )
 	 {
 	     debug("Parse functions fail for server(%s)",node->name);
+	 }else{
+	     server->funcnum = ret;
+	     ret = 0;
 	 }
      }
      return ret ;

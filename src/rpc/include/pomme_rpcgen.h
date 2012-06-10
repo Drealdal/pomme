@@ -41,7 +41,7 @@ typedef struct param
 typedef struct funcgen
 {
     char *name;
-    int argNum;
+    int argnum;
     pomme_param_t *params;
     pomme_param_t rparam; // return type
 
@@ -49,6 +49,7 @@ typedef struct funcgen
 typedef struct rpcgen
 {
     char *name;
+    int funcnum;
     funcgen_t *funcs;
 }rpcgen_t;
 #endif
