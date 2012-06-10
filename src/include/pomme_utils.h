@@ -83,7 +83,22 @@ int setnonblocking(int sock);
  * @brief pomme_get_endian : test the endian of the server
  */
 int pomme_get_endian();
-int print_uper(FILE *fd,char *str);
+int print_uper(FILE *fd,const char *str);
 
-
+/**
+ * @brief to_uper: change a string in to uper case 
+ *
+ * @param str: the origin string 
+ *
+ * @return: the newly create string , need freed by the caller
+ */
+char * to_uper(const char *str);
+/**
+ * @brief print_uper:print the string in uper case
+ *
+ * @param fd: the handle of file to write
+ * @param str: the origin string
+ * @return:  
+ */
+int print_uper(FILE *fd,const char *str);
 #endif

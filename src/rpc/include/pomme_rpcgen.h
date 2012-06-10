@@ -52,4 +52,7 @@ typedef struct rpcgen
     int funcnum;
     funcgen_t *funcs;
 }rpcgen_t;
+
+
+int pomme_gen_macro(rpcgen_t *server);
 #endif

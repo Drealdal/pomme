@@ -280,7 +280,7 @@ int pomme_set_sigaction(int signo, void (*handle)(int))
     sigaction(signo,&tact, NULL);
     return 0;
 }
-int print_uper(FILE *fd,char *str)
+int print_uper(FILE *fd,const char *str)
 {
     if(str == NULL) return;
     char *ps = str;
@@ -295,7 +295,7 @@ int print_uper(FILE *fd,char *str)
     }
     return 0;
 }
-char * to_uper(char *str)
+char * to_uper(const char *str)
 {
     if(str == NULL) 
     {
@@ -303,20 +303,21 @@ char * to_uper(char *str)
     }
 
     char *re = malloc(strlen(str)+1);
+    char *t = re;
     if( re == NULL )
     {
 	error("Malloc Error");
     }
     while(*str != '\0')
     {
-	if( *str >'A' && *str < 'Z' )
-	    *re++ = *str++;
-	else{
+	if(*str >='a' && *str <= 'z'){
 	    *re++ = *str++ + 'A' - 'a';
+	}else
+	{
+	    *re++ = *str++;
 	}
 
     }
     *re = '\0';
-    return re;
-    
+    return t;
 }
