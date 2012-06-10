@@ -25,10 +25,13 @@
  *
  * @return: ==0 for success, < 0 for failure 
  */
-int pomme_pasre_param(xmlNodePtr node, pomme_type_t *param)
+#include "pomme_rpcparse.h"
+#include "pomme_rpcgen.h"
+#include <libxml/parser.h>
+int pomme_parse_param(xmlNodePtr node, pomme_param_t *param)
 {
     assert(NULL != node );
-    assert(NULL != type );
+    assert(NULL != param );
     if( xmlStrcmp(node->name, BAD_CAST(RPC_PARAM)) != 0 )
     {
 	debug("wrong label for params:%d",node->line);
@@ -83,20 +86,20 @@ int pomme_parse_params(xmlNodePtr node, pomme_param_t **params)
     {
 	*params = NULL;
     }else{
-	*param = malloc(count*sizeof(pomme_param_t));
-	if(*param == NULL )
+	*params = malloc(count*sizeof(pomme_param_t));
+	if(*params == NULL )
 	{
 	    debug("Malloc Error");
 	    return -1;
 	}
     }	
 
-    curNode = node->xmlChildreanNode;
+    curNode = node->xmlChildrenNode;
     count = 0;
     while( curNode != NULL )
     {
 	if(  pomme_parse_param(curNode,
-		       	*param+count)  < 0 )
+		       	*params+count)  < 0 )
 	{
 	    ret = -1;
 	}
@@ -112,7 +115,7 @@ int pomme_parse_params(xmlNodePtr node, pomme_param_t **params)
 int pomme_parse_return(xmlNodePtr node, pomme_param_t *param)
 {
     assert(NULL != node );
-    assert(NULL != type );
+    assert(NULL != param );
     if( xmlStrcmp(node->name, BAD_CAST(RPC_FUNCTION_RETURN)) != 0 )
     {
 	debug("wrong label for params:%d",node->line);
@@ -147,19 +150,53 @@ int pomme_parse_function(xmlNodePtr node, funcgen_t *func)
 
     if(xmlStrcmp(node->name , BAD_CAST(RPC_FUNCTION)) != 0 )
     {
-	debug("Wrong lable(%s) for function at %d",node->name, node-line);
+	debug("Wrong lable(%s) for function at %d",node->name, node->line);
 	return -1;
     }
 
     if(xmlHasProp(node, BAD_CAST(RPC_FUNCTION_NAME)))
     {
-	func->name = xmlGetProp(node, BAD_CAST(RPC_FUNCTION_RETURN_TYPE));
+	func->name = xmlGetProp(node, BAD_CAST(RPC_FUNCTION_NAME));
     }else{
 	debug("Function Must have names");
 	return -1;
     }
     // TODO
-    return 0;
+    xmlNodePtr curNode = node->xmlChildrenNode;
+    xmlNodePtr params = NULL , rparam = NULL;
+    while( curNode != NULL )
+    {
+	if( (params != NULL) && ( rparam != NULL ))
+	{
+	    debug("Only one params and one return node allows");
+	    ret = -1;
+	    break;
+	}
+	if( xmlStrcmp(curNode->name,BAD_CAST(RPC_PARAMS)) == 0 )
+	{
+	    params = curNode; 
+	}else if (xmlStrcmp(curNode->name,
+		    BAD_CAST(RPC_FUNCTION_RETURN )) == 0 ) 
+	{
+	    rparam = curNode;
+	}else{
+	    debug("Not accept label(%s) at line %d",curNode->name, curNode->line);
+	    ret = -1;
+	}
+	curNode = curNode->next;
+    }
+    ret = pomme_parse_params(params, &func->params);
+    if( ret < 0 )
+    {
+	debug("parse params for function(%s) failure",func->name);
+    }else{
+	func->argnum = ret;
+    }
+    if(pomme_parse_return(rparam, &func->rparam) < 0  )
+    {
+	ret = -1;
+    }	
+    return ret;
 }
 /*
  * <functions>
@@ -174,6 +211,123 @@ int pomme_parse_function(xmlNodePtr node, funcgen_t *func)
  */
 int pomme_parse_functions(xmlNodePtr node, funcgen_t **funcs)
 {
-    int ret = 0;
-    return 0;
+    int ret = 0, i = 0;
+    assert( node != NULL );
+
+    if( xmlStrcmp(node->name, BAD_CAST(RPC_FUNCTIONS) ) != 0 )
+    {
+	debug("Not accept label(%s), (%s) is expected",node->name, RPC_FUNCTIONS);
+	return -1;
+    }
+
+    xmlNodePtr curNode = node->xmlChildrenNode;
+    int count = 0;
+    while( curNode != NULL )
+    {
+	count++;
+	curNode = curNode->next;
+    }
+
+    *funcs = malloc(count * sizeof(funcgen_t));
+    if( *funcs == NULL )
+    {
+	debug("Malloc Memory Error");
+	return -1;
+    }
+    curNode = node->xmlChildrenNode;
+    for( i = 0 ; i < count; i++)
+    {
+	if( pomme_parse_function(curNode, *funcs + i ) < 0 )
+	{
+	    ret = -1;
+	}
+	curNode = curNode->next;
+    }
+
+    return count;
+}
+/*
+ * <server name="meta_server">
+ * 	<functions>
+ * 	</functions>
+ * <server>
+ * fileGenerated: pomme_meta_server.h
+ *                pomme_meta_server.c
+ *                pomme_meta_server_imp.h
+ *                pomme_meta_server_imp.c
+ *                pomme_meta_server_client.h
+ *                pomme_meta_server_client.c
+ *                pomme_meta_server_const.h
+ * 
+ */
+int pomme_parse_server(xmlNodePtr node, rpcgen_t *server)
+{
+     int ret = 0;
+     assert( node != NULL );
+     assert( server != NULL );
+     if( (xmlStrcmp(node->name, BAD_CAST(RPC_SERVER))) != 0 )
+     {
+	 debug("not accept label(%s) , expecting(%s)",node->name, RPC_SERVER);
+	 return -1;
+     }
+    if( xmlHasProp(node, BAD_CAST(RPC_NAME)))
+    {
+	server->name = xmlGetProp(node, BAD_CAST(RPC_NAME));
+	debug("Server Name:%s",server->name);
+    }else{
+	debug("No name attr for param at line:%d",node->line);
+	return -1;
+    }
+
+    xmlNodePtr curNode = node->xmlChildrenNode;
+    xmlNodePtr funcs = NULL;
+
+    while( curNode != NULL )
+    {
+	if( funcs != NULL )
+	{
+	    debug("Too much children");
+	    break;
+	}
+	if( xmlStrcmp(curNode->name, BAD_CAST(RPC_FUNCTIONS)) == 0  )
+	{
+	    funcs = curNode;
+	}
+	curNode = curNode->next;
+    }
+
+    if( funcs == NULL )
+    {
+	debug("No functions is defined in for server(%s)",node->name);
+	ret = -1;
+    }else{
+	if ( (ret = pomme_parse_functions(funcs,
+			&server->funcs)) < 0 )
+	{
+	    debug("Parse functions fail for server(%s)",node->name);
+	}else{
+	    server->funcnum = ret;
+	    ret = 0;
+	}
+    }
+    return ret ;
+}
+int pomme_parse_init(xmlNodePtr proot,rpcgen_t **server)
+{
+    int i,ret;
+    int count = 1;
+    xmlNodePtr curNode = proot;
+
+    *server = malloc(sizeof(rpcgen_t));
+    if( *server == NULL )
+    {
+	debug("Mem problem");
+	exit(-1);
+    }
+    if( ( ret = pomme_parse_server(curNode, 
+		    *server) ) < 0)
+    {
+	exit(-1);
+    }
+    return count;
 }

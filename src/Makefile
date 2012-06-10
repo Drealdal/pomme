@@ -24,9 +24,14 @@ LIB_FLAG=-L$(BDB_HOME)/lib -ldb -pthread -luuid -lxml2
 CFLAGS=$(INCLUDE_FLAG)  -Wall -DDEBUG=1
 INSTALL_DIR=$(POMME_HOME)
 
-all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils all_client)
-rpc_depends=$(addprefix $(OBJECT_DIR)/,pomme_rpc.o pomme_rpcc.o pomme_rpcs.o pomme_serilize.o pomme_thread.o)
+all_rpc: $(rpc_depends) $(BIN_DIR)/rpcgen
+
+all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils all_client) all_rpc 
+rpc_depends=$(addprefix $(OBJECT_DIR)/,pomme_rpc.o pomme_rpcc.o pomme_rpcs.o pomme_serilize.o pomme_thread.o pomme_rpcparse.o pomme_rpcgen.o)
 all_clean= $(addprefix clean_, test server utils client rpc)
+
+all: init $(all_depends)
+	mkdir -p .object
 
 include $(SERVER_DIR)/Makefile
 include $(RPC_DIR)/Makefile
@@ -35,11 +40,8 @@ include $(TEST_DIR)/Makefile
 include $(CLIENT_DIR)/Makefile
 
 
-.PHONY: all $(all_depends) all_clean init clear rpc
+.PHONY: all $(all_depends) all_clean init clear all_rpc
 
-rpc: $(rpc_depends)
-all: init $(all_depends)
-	mkdir -p .object
 
 default:
 	echo $(INCLUDE_DIR)

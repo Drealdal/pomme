@@ -17,7 +17,15 @@
  */
 #ifndef _POMME_RPCPARSE_H
 #define _POMME_RPCPARSE_H
-
-int pomme_rpcxml(char *path, funcgen_t *func);
-
+#include "pomme_rpcgen.h"
+#include <libxml/parser.h>
+int pomme_parse_server(xmlNodePtr node, rpcgen_t *server);
+/**
+ * @brief pomme_parse_init: read a xml file. and create 
+ *
+ * @param path: the parse of the file
+ *
+ * @return: < 0 for failure 
+ */
+int pomme_parse_init(xmlNodePtr node, rpcgen_t **server);
 #endif
