@@ -58,3 +58,6 @@ init:
 	mkdir -p .object
 	mkdir -p ../bin
 	mkdir -p ../lib
+	mkdir -p ../data
+	mkdir -p ../datam
+#include "pomme_rpcparse.h"
