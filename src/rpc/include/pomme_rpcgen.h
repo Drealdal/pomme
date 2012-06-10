@@ -31,16 +31,22 @@ extern const pomme_type_t POMME_USHORT;
 extern const pomme_type_t POMME_ULL;
 extern const pomme_type_t POMME_UINT; // 
 extern const pomme_type_t POMME_UCHAR;
+typedef struct param
+{
+    char *name;
+    pomme_type_t type;
+}pomme_param_t;
 
 typedef struct funcgen
 {
     char *name;
     int argNum;
-    pomme_type_t *args;
-    pomme_link_t next;
+    pomme_param_t *args;
+    pomme_param_t *rParam; // return type
 
 }funcgen_t;
 typedef struct rpcgen
 {
+    funcgen_t *funcs;
 }rpcgen_t;
 #endif

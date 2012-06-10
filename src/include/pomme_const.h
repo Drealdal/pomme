@@ -126,6 +126,17 @@
 #define POMME_DATA_HOME "/tmp/"
 #define POMME_MFILE_NAME "/home/zhumeiqi/work/pomme/data/mfile.db"
 #define POMME_SFILE_NAME "/home/zhumeiqi/work/pomme/data/sfile.db"
+/*  rpc configure xml lables */
+#define RPC_PARAM "param"
+#define RPC_PARAMS "params"
+#define RPC_PARAM_TYPE "type"
+#define RPC_PARAM_NAME "name"
+
+#define RPC_FUNCTIONS "functions"
+#define RPC_FUNCTION "function"
+#define RPC_FUNCTION_RETURN "return"
+#define RPC_FUNCTION_RETURN_TYPE "type"
+
 
 /*  function names */
 #define POMME_META_CREATE_FILE create_file
