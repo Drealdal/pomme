@@ -61,6 +61,11 @@ static inline void rpc_const_file(char *serverName,char *path)
     assert( serverName != NULL );
     sprintf(path,"pomme_%s_const.h",serverName);
 }
+static inline void rpc_server_hfile(char *serverName, char *path)
+{
+    assert( serverName != NULL );
+    sprintf(path, "pomme_%s.h",serverName);
+}
 static inline void print_func_name_macro(FILE *fd, char *server_name, funcgen_t *func)
 {
     char *upers = to_uper(server_name);
@@ -82,40 +87,80 @@ int pomme_gen_macro(rpcgen_t *server)
     int i = 0;
     assert(server != NULL);
     char cpath[POMME_PATH_MAX];
-    
-    debug("?");
+
     rpc_const_file(server->name, cpath);
     FILE *fd = fopen(cpath, "w+");
-    debug("?");
+    
     if(fd == NULL)
     {
 	error("open %s fail",cpath);
 	exit(-1);
     }	
+
     char *uname = to_uper(server->name);
-    debug("?:%s",uname);
+
     /*  header */
     fprintf(fd,"#ifndef _%s_CONST_H\n",uname);
     fprintf(fd,"#define _%s_CONST_H\n",uname);
+
     /*  body */
     fprintf(fd,"#define SERVER_NAME %s\n",server->name);
-    debug("funcnum:%d",server->funcnum);
+    
     for( i = 0; i < server->funcnum; i++)
     {
 	debug("func_name:%s",server->funcs[i].name);
 	fprintf(fd, "#define ");
+
 	print_func_name_macro(fd, server->name, server->funcs+i);
 	fprintf(fd," %s \n",(server->funcs+i)->name);
 
 	fprintf(fd,"#define ");
 	print_func_name_str_macro(fd, server->name, server->funcs+i);
+
 	fprintf(fd," \"%s\" \n",(server->funcs+i)->name);
     }
     /*  tail */
     fprintf(fd,"#endif");
 
-    debug("over");
-  //  free(uname);
+    free(uname);
     fclose(fd);
+    return ret;
+}
+/*
+ * data_server.h
+ */
+int pomme_gen_struct(rpcgen_t *server)
+{
+    int ret = 0;
+    int i = 0;
+    assert(server != NULL);
+    char cpath[POMME_PATH_MAX];
+
+    rpc_const_file(server->name, cpath);
+    FILE *fd = fopen(cpath, "w+");
+    
+    if(fd == NULL)
+    {
+	error("open %s fail",cpath);
+	exit(-1);
+    }	
+
+    char *uname = to_uper(server->name);
+    /*  header */
+    fprintf(fd,"#ifndef _%s_H\n",uname);
+    fprintf(fd,"#define _%s_H\n",uname);
+
+    fprintf(fd,"\n");
+    /*  body */
+    fprintf(fd,"typedef struct %s{\n",server->name);
+
+    fprintf(fd,"/*  struct mem */\n\n");
+    fprintf(fd,"/*  rpc function */\n\n");
+
+
+
+    fprintf(fd,"};");
+
+
     return ret;
 }
