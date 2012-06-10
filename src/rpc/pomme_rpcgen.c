@@ -43,7 +43,7 @@ const pomme_type_t POMME_USHORT={
 
 const pomme_type_t POMME_ULL={
 .name="unsigned long long",
-.len=sizeof(unsigned long long);
+.len=sizeof(unsigned long long)
 };
 
 const pomme_type_t POMME_UINT={

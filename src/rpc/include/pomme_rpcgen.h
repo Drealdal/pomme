@@ -17,6 +17,7 @@
  */
 #ifndef _POMME_RPCGEN_H
 #define _POMME_RPCGEN_H
+#include "utils.h"
 typedef struct type
 {
     char *name;
@@ -41,12 +42,13 @@ typedef struct funcgen
 {
     char *name;
     int argNum;
-    pomme_param_t *args;
-    pomme_param_t *rParam; // return type
+    pomme_param_t *params;
+    pomme_param_t rparam; // return type
 
 }funcgen_t;
 typedef struct rpcgen
 {
+    char *name;
     funcgen_t *funcs;
 }rpcgen_t;
 #endif

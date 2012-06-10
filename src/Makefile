@@ -25,7 +25,7 @@ CFLAGS=$(INCLUDE_FLAG)  -Wall -DDEBUG=1
 INSTALL_DIR=$(POMME_HOME)
 
 all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils all_client)
-rpc_depends=$(addprefix $(OBJECT_DIR)/,pomme_rpc.o pomme_rpcc.o pomme_rpcs.o pomme_serilize.o pomme_thread.o)
+rpc_depends=$(addprefix $(OBJECT_DIR)/,pomme_rpc.o pomme_rpcc.o pomme_rpcs.o pomme_serilize.o pomme_thread.o pomme_rpcparse.o pomme_rpcgen.o)
 all_clean= $(addprefix clean_, test server utils client rpc)
 
 include $(SERVER_DIR)/Makefile

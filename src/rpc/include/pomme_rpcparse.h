@@ -17,7 +17,7 @@
  */
 #ifndef _POMME_RPCPARSE_H
 #define _POMME_RPCPARSE_H
+#include "pomme_rpcgen.h"
 
-int pomme_rpcxml(char *path, funcgen_t *func);
 
 #endif
