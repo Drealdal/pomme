@@ -101,4 +101,13 @@ char * to_uper(const char *str);
  * @return:  
  */
 int print_uper(FILE *fd,const char *str);
+/**
+ * @brief short_name 
+ *
+ * @param str The string of input
+ * @param len the len of the result len
+ *
+ * @return 
+ */
+char *pomme_short_name(const char *str,int len);
 #endif

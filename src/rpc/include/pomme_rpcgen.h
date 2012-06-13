@@ -49,6 +49,7 @@ typedef struct funcgen
 typedef struct rpcgen
 {
     char *name;
+    char *prefix;
     int funcnum;
     funcgen_t *funcs;
 }rpcgen_t;

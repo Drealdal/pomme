@@ -56,16 +56,30 @@ const pomme_type_t POMME_UCHAR={
 .len=sizeof(unsigned char)
 };
 
-static inline void rpc_const_file(char *serverName,char *path)
+static inline void rpc_const_file(char *prefix,char *serverName,char *path)
 {
     assert( serverName != NULL );
-    sprintf(path,"pomme_%s_const.h",serverName);
+    assert( prefix != NULL );
+    sprintf(path,"%s_%s_const.h",prefix,serverName);
 }
 static inline void rpc_server_hfile(char *serverName, char *path)
 {
     assert( serverName != NULL );
-    sprintf(path, "pomme_%s.h",serverName);
+    assert( prefix != NULL );
+    sprintf(path, "%s_%s.h",prefix,serverName);
 }
+
+static inline void rpc_server_cfile(char *prefix, char *serverName, char *path);
+{
+    assert(serverName != NULL);
+    sprintf(path, "%s_%s.c",prefix, serverName);
+}
+static inline void rpc_server_structname(rpcgen_t *server,char name)
+{
+    assert( server != NULL );
+    sprintf("%s_%s_t",server->prefix, server->name);
+}
+
 static inline void print_func_name_macro(FILE *fd, char *server_name, funcgen_t *func)
 {
     char *upers = to_uper(server_name);
@@ -88,7 +102,7 @@ int pomme_gen_macro(rpcgen_t *server)
     assert(server != NULL);
     char cpath[POMME_PATH_MAX];
 
-    rpc_const_file(server->name, cpath);
+    rpc_const_file(server->prefix,server->name, cpath);
     FILE *fd = fopen(cpath, "w+");
     
     if(fd == NULL)
@@ -136,7 +150,7 @@ int pomme_gen_struct(rpcgen_t *server)
     assert(server != NULL);
     char cpath[POMME_PATH_MAX];
 
-    rpc_const_file(server->name, cpath);
+    rpc_server_hfile(server->prefix,server->name, cpath);
     FILE *fd = fopen(cpath, "w+");
     
     if(fd == NULL)
@@ -154,13 +168,98 @@ int pomme_gen_struct(rpcgen_t *server)
     /*  body */
     fprintf(fd,"typedef struct %s{\n",server->name);
 
-    fprintf(fd,"/*  struct mem */\n\n");
+    fprintf(fd,"/*  struct member */\n\n");
+
     fprintf(fd,"/*  rpc function */\n\n");
 
+    for( i = 0; i < server->funcnum; i++)
+    {
+	debug("func_name:%s",server->funcs[i].name);
 
+	fprintf(fd, "pomme_data_t * ( *");
 
-    fprintf(fd,"};");
+	print_func_name_macro(fd, server->name, server->funcs+i);
+	fprintf(fd, 
+		" ) (const void *%s, const int n , const pomme_data_t *arg)\n\n",
+		server->name);
+
+    }
+    rpc_server_structnmae(server, cpath);
+    fprintf(fd,"}%s;",cpath);
 
 
     return ret;
+}
+/*
+ *data_server.c 
+ */
+int pomme_gen_main(rpcgen_t *server)
+{
+    int ret = 0;
+    int ret = 0;
+    int i = 0;
+    assert(server != NULL);
+    char cpath[POMME_PATH_MAX];
+
+    rpc_server_cfile(server->prefix,server->name, cpath);
+    FILE *fd = fopen(cpath, "w+");
+    
+    if(fd == NULL)
+    {
+	error("open %s fail",cpath);
+	exit(-1);
+    }	
+    char *uname = to_uper(server->name);
+
+    rpc_server_hfile(server->prefix,server->name, cpath);
+    /*  header */
+    fprintf(fd, "#include \"%s\"\n\n",cpath);
+    rpc_server_structname(server, cpath);
+
+    /*  DEF_HEADER */
+
+    for( i = 0; i < server->funcnum; i++)
+    {
+	debug("func_name:%s",server->funcs[i].name);
+
+	fprintf(fd, "DEF_POMME_RPC_FUNC(");
+	print_func_name_macro(fd, server->name, server->funcs+i);
+	fprintf(fd, ")\n");
+	if( i % 3 == 0 ) 
+	{
+	    fprintf(fd, "\n");
+	}
+
+    }
+
+
+    char *nshort = pomme_short_name(server->name,2);
+    fprintf(fd,"/* register function declear  */\n");
+    fprintf(fd,"static int register_funcs(%s * %s);\n", 
+	    cpath, nshort);
+
+    fprintf(fd,"\n/*  The init function of the structure */\n");
+    fprintf(fd,"int %s_%s_init(%s *%s)\n{", server->prefix,
+	    nshort, cpath, nshort);
+
+    for( i = 0; i < server->funcnum; i++)
+    {
+	fprintf(fd, "%s->",nshort);
+	print_func_name_macro(fd, server->name, server->funcs+i);
+	fprintf(fd, " = &");
+	print_func_name_macro(fd, server->name, server->funcs+i);
+	fprintf(";\n");
+	if( i % 3 == 0 ) 
+	{
+	    fprintf(fd, "\n");
+	}
+    }
+
+    fprintf("}");
+
+
+    return ret;
+
+    return ret;
+
 }

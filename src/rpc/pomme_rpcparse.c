@@ -125,8 +125,10 @@ int pomme_parse_return(xmlNodePtr node, pomme_param_t *param)
 
     if( xmlHasProp(node, BAD_CAST(RPC_FUNCTION_RETURN_TYPE)))
     { 
+
 	param->type.name = xmlGetProp(node, BAD_CAST(RPC_FUNCTION_RETURN_TYPE));
 	param->type.len = -1;
+
     }else{
 	debug("No type for param %s at line %d",param->name,node->line);
 	return -1;
@@ -270,6 +272,7 @@ int pomme_parse_server(xmlNodePtr node, rpcgen_t *server)
 	 debug("not accept label(%s) , expecting(%s)",node->name, RPC_SERVER);
 	 return -1;
      }
+
     if( xmlHasProp(node, BAD_CAST(RPC_NAME)))
     {
 	server->name = xmlGetProp(node, BAD_CAST(RPC_NAME));

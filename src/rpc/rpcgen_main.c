@@ -65,12 +65,13 @@ int main(int argc, char **argv)
 	exit(-1);
     }
 
-
     debug("%s",server->name);
     if(( ret = pomme_gen_macro(server)) < 0 )
     {
 	error("Fail generate Const file for server(%s)",(server+i)->name);
     }
+
+    pomme_gen_struct(server);
     return 0;
 }
 
