@@ -17,43 +17,43 @@
  */
 #include "pomme_rpcgen.h"
 const pomme_type_t POMME_CHAR={
-.name="char",
-.len=sizeof(char)
+    .name="char",
+    .len=sizeof(char)
 };
 
 const pomme_type_t POMME_INT={
-.name="int",
-.len=sizeof(int)
+    .name="int",
+    .len=sizeof(int)
 };
 
 const pomme_type_t POMME_LL={
-.name="long long",
-.len=sizeof(long long)
+    .name="long long",
+    .len=sizeof(long long)
 };
 
 const pomme_type_t POMME_SHORT={
-.name="SHORT",
-.len=sizeof(short)
+    .name="SHORT",
+    .len=sizeof(short)
 };
 
 const pomme_type_t POMME_USHORT={
-.name="unsigned short",
-.len=sizeof(unsigned short)
+    .name="unsigned short",
+    .len=sizeof(unsigned short)
 };
 
 const pomme_type_t POMME_ULL={
-.name="unsigned long long",
-.len=sizeof(unsigned long long)
+    .name="unsigned long long",
+    .len=sizeof(unsigned long long)
 };
 
 const pomme_type_t POMME_UINT={
-.name="unsigned int",
-.len=sizeof(unsigned int)
+    .name="unsigned int",
+    .len=sizeof(unsigned int)
 };
 
 const pomme_type_t POMME_UCHAR={
-.name="unsigned char",
-.len=sizeof(unsigned char)
+    .name="unsigned char",
+    .len=sizeof(unsigned char)
 };
 
 static inline void rpc_const_file(char *prefix,char *serverName,char *path)
@@ -74,10 +74,27 @@ static inline void rpc_server_cfile(char *prefix, char *serverName, char *path);
     assert(serverName != NULL);
     sprintf(path, "%s_%s.c",prefix, serverName);
 }
-static inline void rpc_server_structname(rpcgen_t *server,char name)
+
+static inline void rpc_server_imph(char *prefix,
+	char *serverName, char *path)
+{
+    assert( serverName != NULL );
+    sprintf(path, "%s_%s_imp.h",prefix, serverName);
+}
+
+static inline void rpc_server_impc(char *prefix,
+	char *serverName, char *path)
+{
+    assert( serverName != NULL );
+    sprintf(path, "%s_%s_imp.c",prefix, serverName);
+}
+
+static inline void rpc_server_structname(rpcgen_t *server,
+	char *path)
 {
     assert( server != NULL );
-    sprintf("%s_%s_t",server->prefix, server->name);
+    assert( path != NULL );
+    sprintf(path,"%s_%s_t",server->prefix, server->name);
 }
 
 static inline void print_func_name_macro(FILE *fd, char *server_name, funcgen_t *func)
@@ -92,6 +109,12 @@ static inline void print_func_name_str_macro(FILE *fd, char *server_name, funcge
     char *uperf = to_uper(func->name);
     fprintf(fd, "RPC_%s_%s_STR",upers, uperf);
 }
+
+static inline void print_func_imp_name(FILE *fd, 
+	char *prefix, funcgen_t *func)
+{
+    fprintf(fd, "%s_%s",prefix, func->name);
+}
 /*
  * all the names are defined as macros
  */
@@ -104,7 +127,7 @@ int pomme_gen_macro(rpcgen_t *server)
 
     rpc_const_file(server->prefix,server->name, cpath);
     FILE *fd = fopen(cpath, "w+");
-    
+
     if(fd == NULL)
     {
 	error("open %s fail",cpath);
@@ -119,7 +142,7 @@ int pomme_gen_macro(rpcgen_t *server)
 
     /*  body */
     fprintf(fd,"#define SERVER_NAME %s\n",server->name);
-    
+
     for( i = 0; i < server->funcnum; i++)
     {
 	debug("func_name:%s",server->funcs[i].name);
@@ -152,7 +175,7 @@ int pomme_gen_struct(rpcgen_t *server)
 
     rpc_server_hfile(server->prefix,server->name, cpath);
     FILE *fd = fopen(cpath, "w+");
-    
+
     if(fd == NULL)
     {
 	error("open %s fail",cpath);
@@ -170,7 +193,9 @@ int pomme_gen_struct(rpcgen_t *server)
 
     fprintf(fd,"/*  struct member */\n\n");
 
+    fprintf(fd,"pomme_rpcs_t rpcs;\n");
     fprintf(fd,"/*  rpc function */\n\n");
+
 
     for( i = 0; i < server->funcnum; i++)
     {
@@ -197,14 +222,14 @@ int pomme_gen_main(rpcgen_t *server)
 {
     int ret = 0;
     int ret = 0;
-    int i = 0;
+    int i = 0,j = 0;
     assert(server != NULL);
     char cpath[POMME_PATH_MAX];
 
     rpc_server_cfile(server->prefix,server->name, cpath);
-    FILE *fd = fopen(cpath, "w+");
-    
-    if(fd == NULL)
+    file *fd = fopen(cpath, "w+");
+
+    if(fd == null)
     {
 	error("open %s fail",cpath);
 	exit(-1);
@@ -214,6 +239,9 @@ int pomme_gen_main(rpcgen_t *server)
     rpc_server_hfile(server->prefix,server->name, cpath);
     /*  header */
     fprintf(fd, "#include \"%s\"\n\n",cpath);
+    rpc_server_imph(server->prefix, server->name, cpath);
+    fprintf(fd, "#include \"%s\"\n\n",cpath);
+
     rpc_server_structname(server, cpath);
 
     /*  DEF_HEADER */
@@ -224,7 +252,7 @@ int pomme_gen_main(rpcgen_t *server)
 
 	fprintf(fd, "DEF_POMME_RPC_FUNC(");
 	print_func_name_macro(fd, server->name, server->funcs+i);
-	fprintf(fd, ")\n");
+	fprintf(fd, ");\n");
 	if( i % 3 == 0 ) 
 	{
 	    fprintf(fd, "\n");
@@ -232,12 +260,12 @@ int pomme_gen_main(rpcgen_t *server)
 
     }
 
-
     char *nshort = pomme_short_name(server->name,2);
     fprintf(fd,"/* register function declear  */\n");
     fprintf(fd,"static int register_funcs(%s * %s);\n", 
 	    cpath, nshort);
 
+    /* init function init*/
     fprintf(fd,"\n/*  The init function of the structure */\n");
     fprintf(fd,"int %s_%s_init(%s *%s)\n{", server->prefix,
 	    nshort, cpath, nshort);
@@ -254,12 +282,179 @@ int pomme_gen_main(rpcgen_t *server)
 	    fprintf(fd, "\n");
 	}
     }
+    fprintf(fd,"/*  Call register funcs */\n");
+    fprintf(fd,"register_funcs(%s);\n",nshort);
 
-    fprintf("}");
+    fprintf(fp,"}");
+    /* init function over*/
+    /* register function begin*/ 
+    fprintf(fd,"/* register function */\n");
+    fprintf(fd,"static int register_funcs(%s * %s)\n{", 
+	    cpath, nshort);
+    for( i = 0; i < server->funcnum; i++)
+    {
+	funcgen_t *f = server->funcs+i;
 
+	fprintf(fd,"pomme_data_t *arg = malloc(sizeof(pomme_data_t)*%d);\n",f->argnum);
+	fprintf(fd,"memset(arg,0,sizeof(pomme_data_t)*%d);\n"
+		,f->argnum);
+
+	for( j = 0; j < f->argnum; j++ )
+	{
+	    pomme_param_t *p = f->params+j;
+	    pomme_type_t *t = p->type;
+	    if( type->ispointer == 1 )
+	    {
+		fprintf(fd,"arg[%d].size = -1;\n");
+	    }else{
+		fprintf(fd,"arg[%d].size = sizeof(%s);\n",
+			t->name);
+	    }
+	}
+
+	fprintf(fd,"%s->rpcs.func_register(&%s->rpcs,"
+		,nshort,nshort);
+	print_func_name_str_macro(fd, server->name, f);
+	fprintf(fd, "%s->",nshort);
+	print_func_name_macro(fd, server->name, f);
+	fprintf(fd,",%d,arg);\n",f->argnum);
+
+    }
+
+    fprintf(fp,"}");
+    /* register function over*/ 
+
+    for( i = 0; i < server->funcnum; i++)
+    {
+	funcgen_t *f = server->funcs+i;
+
+	fprintf(fd, "DEF_POMME_RPC_FUNC(");
+	print_func_name_macro(fd, server->name, server->funcs+i);
+	fprintf(fd, ")\n{");
+	fprintf(fd, "assert(n==%d);\n",f->argnum);
+	fprintf(fd, "assert(extra != NULL);\n");
+	rpc_server_structname(server, cpath);
+	fprintf(fd, "%s * %s = (%s *)extra;\n",
+		cpath, nshort,cpath);
+
+	/*  for each param */
+	for( j = 0 ; j < f->argnum ; j ++ )
+	{
+	    pomme_param_t  *p = f->params+j;
+	    pomme_type_t *t = p->type;
+	    if( p->ispointer == 1 )
+	    {
+		fprintf(fd, "%s * %s = (%s *)arg[%d].data;\n",
+			t->name, p->name, t->name, j);
+	    }else{
+		fprintf(fd, "%s %s = *(%s *)arg[%d].data;\n",
+			t->name, p->name, t->name, j );
+	    }
+
+	}
+
+	/*  call the function */
+	fprintf(fd, "return ");
+	print_func_imp_name(fd, server->prefix, f->name);
+	fprintf(fd,"(%s", nshort);
+	for( j = 0; j < f->argnum; j++ )
+	{
+	    pomme_param_t  *p = f->params+j;
+	    fprintf(fd,",%s",p->name);
+	}
+	fprintf(fd,");\n");
+	fprintf(fd,"}\n");
+    }
+    free(nshort);
+    return ret;
+}
+
+int pomme_gen_imph(rpcgen_t *server)
+{
+    int ret = 0;
+    assert(server != NULL);
+    char cpath[POMME_MAX_PATH];
+    rpc_server_imph(server, cpath);
+    file *fd = fopen(cpath, "w+");
+
+    if(fd == null)
+    {
+	error("open %s fail",cpath);
+	exit(-1);
+    }	
+    /*  header */
+    fprintf(fd,"#ifndef _%s_IMP_H\n",uname);
+    fprintf(fd,"#define _%s_IMP_H\n",uname);
+    fprintf(fd,"\n");
+    /*  function declear */
+    
+    rpc_server_structname(server,cpath)
+    for( i = 0; i < server->funcnum; i++)
+    {
+	fprintf(fd,"pomme_data_t * ");
+	print_func_imp_name(fd, server->prefix, f->name);
+	fprintf(fd,"(%s",cpath);
+
+	for( j = 0; j < f->argnum; j++ )
+	{
+	    pomme_param_t  *p = f->params+j;
+	    pomme_type_t *t = p->type;
+	    if( p->is_pointer )
+	    {
+		fprintf(fd,",%s * %s",t->name,p->name);
+	    }else{
+		fprintf(fd,", %s %s",t->name,p->name);
+	    }
+	}
+	fprintf(fd,");\n");
+	
+    }
+    /*  tail */
+    fprintf(fd,"#endif\n");
 
     return ret;
+}
+int pomme_gen_impc(rpcgen_t *server)
+{
+    int ret = 0;
+    assert(server != NULL);
+    char cpath[POMME_MAX_PATH];
+    rpc_server_impc(server, cpath);
+    file *fd = fopen(cpath, "w+");
+
+    if(fd == null)
+    {
+	error("open %s fail",cpath);
+	exit(-1);
+    }	
+    /*  header */
+    rpc_server_imph(server, cpath);
+    fprintf(fd,"#include \"%s\"\n",cpath);
+
+    fprintf(fd,"\n");
+    /*  function declear */
+    
+    rpc_server_structname(server,cpath)
+    for( i = 0; i < server->funcnum; i++)
+    {
+	fprintf(fd,"pomme_data_t * ");
+	print_func_imp_name(fd, server->prefix, f->name);
+	fprintf(fd,"(%s",cpath);
+
+	for( j = 0; j < f->argnum; j++ )
+	{
+	    pomme_param_t  *p = f->params+j;
+	    pomme_type_t *t = p->type;
+	    if( p->is_pointer )
+	    {
+		fprintf(fd,",%s * %s",t->name,p->name);
+	    }else{
+		fprintf(fd,", %s %s",t->name,p->name);
+	    }
+	}
+	fprintf(fd,")\n{");
+	fprintf(fd,"}\n");
+    }
 
     return ret;
-
 }

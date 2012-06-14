@@ -35,6 +35,7 @@ extern const pomme_type_t POMME_UCHAR;
 typedef struct param
 {
     char *name;
+    int ispointer;
     pomme_type_t type;
 }pomme_param_t;
 
