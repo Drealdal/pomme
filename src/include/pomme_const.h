@@ -104,6 +104,8 @@
 
 #define POMME_DATA_HEART_BEAT_INTERVAL 10
 #define POMME_META_FILE_LOCK_TIME 30
+
+
 /*
  * configure change to configure file???
  */
@@ -126,8 +128,10 @@
 #define POMME_DATA_HOME "/tmp/"
 #define POMME_MFILE_NAME "/home/zhumeiqi/work/pomme/data/mfile.db"
 #define POMME_SFILE_NAME "/home/zhumeiqi/work/pomme/data/sfile.db"
+#define RPC_SHORT_LEN 3
 /*  rpc configure xml lables */
 #define RPC_SERVER "server"
+#define RPC_SERVER_PREFIX "prefix"
 #define RPC_NAME "name"
 #define RPC_PARAM "param"
 #define RPC_PARAMS "params"

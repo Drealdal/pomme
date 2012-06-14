@@ -72,6 +72,9 @@ int main(int argc, char **argv)
     }
 
     pomme_gen_struct(server);
+    pomme_gen_main(server);
+    pomme_gen_imph(server);
+    pomme_gen_impc(server);
     return 0;
 }
 

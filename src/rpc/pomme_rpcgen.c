@@ -141,7 +141,8 @@ int pomme_gen_macro(rpcgen_t *server)
 
     /*  header */
     fprintf(fd,"#ifndef _%s_CONST_H\n",uname);
-    fprintf(fd,"#define _%s_CONST_H\n",uname);
+    fprintf(fd,"#define _%s_CONST_H\n\n",uname);
+
 
     /*  body */
     fprintf(fd,"#define SERVER_NAME %s\n",server->name);
@@ -158,6 +159,7 @@ int pomme_gen_macro(rpcgen_t *server)
 	print_func_name_str_macro(fd, server->name, server->funcs+i);
 
 	fprintf(fd," \"%s\" \n",(server->funcs+i)->name);
+	fprintf(fd,"\n");
     }
     /*  tail */
     fprintf(fd,"#endif");
@@ -189,6 +191,9 @@ int pomme_gen_struct(rpcgen_t *server)
     /*  header */
     fprintf(fd,"#ifndef _%s_H\n",uname);
     fprintf(fd,"#define _%s_H\n",uname);
+
+    fprintf(fd, "#include \"utils.h\"\n");
+    fprintf(fd, "#include \"pomme_utils.h\"\n\n");
 
     fprintf(fd,"\n");
     /*  body */
@@ -262,14 +267,14 @@ int pomme_gen_main(rpcgen_t *server)
 
     }
 
-    char *nshort = pomme_short_name(server->name,2);
+    char *nshort = pomme_short_name(server->name,RPC_SHORT_LEN);
     fprintf(fd,"/* register function declear  */\n");
     fprintf(fd,"static int register_funcs(%s * %s);\n", 
 	    cpath, nshort);
 
     /* init function init*/
     fprintf(fd,"\n/*  The init function of the structure */\n");
-    fprintf(fd,"int %s_%s_init(%s *%s)\n{", server->prefix,
+    fprintf(fd,"int %s_%s_init(%s *%s)\n{\n", server->prefix,
 	    nshort, cpath, nshort);
 
     for( i = 0; i < server->funcnum; i++)
@@ -287,15 +292,17 @@ int pomme_gen_main(rpcgen_t *server)
     fprintf(fd,"/*  Call register funcs */\n");
     fprintf(fd,"register_funcs(%s);\n",nshort);
 
-    fprintf(fd,"}");
+    fprintf(fd,"}\n");
     /* init function over*/
     /* register function begin*/ 
     fprintf(fd,"/* register function */\n");
-    fprintf(fd,"static int register_funcs(%s * %s)\n{", 
+    fprintf(fd,"static int register_funcs(%s * %s)\n{\n", 
 	    cpath, nshort);
+
     for( i = 0; i < server->funcnum; i++)
     {
 	funcgen_t *f = server->funcs+i;
+	fprintf(fd,"/* %s*/\n",f->name);
 
 	fprintf(fd,"pomme_data_t *arg = malloc(sizeof(pomme_data_t)*%d);\n",f->argnum);
 	fprintf(fd,"memset(arg,0,sizeof(pomme_data_t)*%d);\n"
@@ -323,7 +330,7 @@ int pomme_gen_main(rpcgen_t *server)
 
     }
 
-    fprintf(fd,"}");
+    fprintf(fd,"}\n");
     /* register function over*/ 
 
     for( i = 0; i < server->funcnum; i++)
@@ -332,7 +339,7 @@ int pomme_gen_main(rpcgen_t *server)
 
 	fprintf(fd, "DEF_POMME_RPC_FUNC(");
 	print_func_name_macro(fd, server->name, server->funcs+i);
-	fprintf(fd, ")\n{");
+	fprintf(fd, ")\n{\n");
 	fprintf(fd, "assert(n==%d);\n",f->argnum);
 	fprintf(fd, "assert(extra != NULL);\n");
 	rpc_server_structname(server, cpath);
@@ -357,7 +364,7 @@ int pomme_gen_main(rpcgen_t *server)
 
 	/*  call the function */
 	fprintf(fd, "return ");
-	print_func_imp_name(fd, server->prefix, f->name);
+	print_func_imp_name(fd, server->prefix, f);
 	fprintf(fd,"(%s", nshort);
 	for( j = 0; j < f->argnum; j++ )
 	{
@@ -396,8 +403,11 @@ int pomme_gen_imph(rpcgen_t *server)
     {
 	funcgen_t *f = server->funcs+i;
 	fprintf(fd,"pomme_data_t * ");
-	print_func_imp_name(fd, server->prefix, f->name);
-	fprintf(fd,"(%s",cpath);
+	print_func_imp_name(fd, server->prefix, f);
+
+   	char *nshort = pomme_short_name(server->name,RPC_SHORT_LEN);
+	fprintf(fd,"(%s *%s",cpath,nshort);
+	free(nshort);
 
 	for( j = 0; j < f->argnum; j++ )
 	{
@@ -405,7 +415,7 @@ int pomme_gen_imph(rpcgen_t *server)
 	    pomme_type_t *t = &p->type;
 	    if( p->ispointer )
 	    {
-		fprintf(fd,",%s * %s",t->name,p->name);
+		fprintf(fd,", %s * %s",t->name,p->name);
 	    }else{
 		fprintf(fd,", %s %s",t->name,p->name);
 	    }
@@ -413,6 +423,7 @@ int pomme_gen_imph(rpcgen_t *server)
 	fprintf(fd,");\n");
 	
     }
+   
     /*  tail */
     free(uname);
     fprintf(fd,"#endif\n");
@@ -443,9 +454,12 @@ int pomme_gen_impc(rpcgen_t *server)
     for( i = 0; i < server->funcnum; i++)
     {
 	funcgen_t *f = server->funcs+i;
+	fprintf(fd,"/*  %s */\n",f->name);
 	fprintf(fd,"pomme_data_t * ");
-	print_func_imp_name(fd, server->prefix, f->name);
-	fprintf(fd,"(%s",cpath);
+	print_func_imp_name(fd, server->prefix, f);
+   	 char *nshort = pomme_short_name(server->name,RPC_SHORT_LEN);
+	fprintf(fd,"(%s *%s",cpath,nshort);
+	free(nshort);
 
 	for( j = 0; j < f->argnum; j++ )
 	{
@@ -458,7 +472,7 @@ int pomme_gen_impc(rpcgen_t *server)
 		fprintf(fd,", %s %s",t->name,p->name);
 	    }
 	}
-	fprintf(fd,")\n{");
+	fprintf(fd,")\n{\n");
 	fprintf(fd,"}\n");
     }
 

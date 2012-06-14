@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server name="data_server" prefix="pomme">
+    <functions>
+	<function name="get_object">
+	    <params>
+		<param name="handle" type="int"></param>
+		<param name="pro" type="pomme_protocol_t"></param>
+	    </params>
+	    <return type="int"></return>
+	</function>
+	<function name="put_object">
+	    <params>
+		<param name="handle" type="int"></param>
+		<param name="pro" type="pomme_protocol_t"></param>
+	    </params>
+	    <return type="int"></return>
+	</function>
+    </functions>
+</server>

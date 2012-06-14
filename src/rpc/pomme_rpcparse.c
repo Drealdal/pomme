@@ -106,7 +106,7 @@ int pomme_parse_params(xmlNodePtr node, pomme_param_t **params)
 	curNode= curNode->next;
 	count++;
     }
-    return ret;
+    return count;
 }
 
 /**
@@ -280,6 +280,13 @@ int pomme_parse_server(xmlNodePtr node, rpcgen_t *server)
     }else{
 	debug("No name attr for param at line:%d",node->line);
 	return -1;
+    }
+    
+    if( xmlHasProp(node, BAD_CAST(RPC_SERVER_PREFIX)))
+    {
+	server->prefix = xmlGetProp(node,BAD_CAST(RPC_SERVER_PREFIX));
+    }else{
+	debug("No name prefix attr for param at line:%d",node->line);
     }
 
     xmlNodePtr curNode = node->xmlChildrenNode;

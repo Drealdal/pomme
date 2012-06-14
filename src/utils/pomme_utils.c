@@ -329,19 +329,7 @@ char *pomme_short_name(const char *str,int len)
 	return NULL;
     }
     char *t = malloc(len);
-    char *re  = t;
-    int l =0;
-    while( l < len && *str != '\0')
-    {
-	while(*str != ' '&& *str != '\0' ) str++;
-	if( *str != '\0') t[l++] = *str;
-	while(*str == ' ' ) str++;
-    }
-    srand(time(NULL));
-    while( l < len )
-    {
-	re[l++] = rand()%26 + 'a'; 
-    }
-    t[l] = 0;
-    return re;
+    memset(t, 0 , len);
+    memcpy( t, str, len-1 );
+    return t;
 }
