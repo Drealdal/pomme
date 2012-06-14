@@ -478,3 +478,12 @@ int pomme_gen_impc(rpcgen_t *server)
 
     return ret;
 }
+
+int pomme_client_hgen(rpcgen_t *server)
+{
+
+}
+int pomme_client_cgen(rpcgen_t *server)
+{
+
+}
