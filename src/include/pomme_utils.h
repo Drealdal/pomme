@@ -30,6 +30,10 @@
 
 #define warning(msg,argc...) fprintf(stdout,"WARNING:%s %s %d: "msg"\n",FFL,##argc)
 #define error(msg,argc...) fprintf(stderr,"ERROR:%s %s %d: "msg"\n",FFL,##argc)
+#define err_exit(msg,argc...) do{\
+fprintf(stderr,"Fatal ERROR:%s %s %d:"msg"\n",FFL,##argc);\
+exit(-1);\
+}while(0);
 
 
 int pomme_data_init(pomme_data_t **data, int size);

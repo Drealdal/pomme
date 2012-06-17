@@ -129,8 +129,10 @@
 #define POMME_MFILE_NAME "/home/zhumeiqi/work/pomme/data/mfile.db"
 #define POMME_SFILE_NAME "/home/zhumeiqi/work/pomme/data/sfile.db"
 #define RPC_SHORT_LEN 3
+
 /*  rpc configure xml lables */
 #define RPC_SERVER "server"
+#define RPC_NORET "void"
 #define RPC_SERVER_PREFIX "prefix"
 #define RPC_NAME "name"
 #define RPC_PARAM "param"
@@ -144,7 +146,7 @@
 #define RPC_FUNCTION_RETURN "return"
 #define RPC_FUNCTION_RETURN_TYPE "type"
 
-
+#define RPC_MAKEFILE "Makefile"
 /*  function names */
 #define POMME_META_CREATE_FILE create_file
 #define POMME_META_CREATE_FILE_S "create_file"

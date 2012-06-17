@@ -130,6 +130,7 @@ int pomme_parse_return(xmlNodePtr node, pomme_param_t *param)
 	param->type.len = -1;
 
     }else{
+	param->type.name = RPC_NORET;
 	debug("No type for param %s at line %d",param->name,node->line);
 	return -1;
     }	

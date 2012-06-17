@@ -92,6 +92,20 @@ static inline void rpc_server_impc(char *prefix,
     sprintf(path, "%s_%s_imp.c",prefix, serverName);
 }
 
+static inline void rpc_clinet_hfile(char *prefix, 
+	char *serverName, char *path)
+{
+    assert( serverName  != NULL );
+    sprintf(path, "%s_client_%s.h",prefix, serverName);
+}
+
+static inline void rpc_clinet_cfile(char *prefix, 
+	char *serverName, char *path)
+{
+    assert( serverName  != NULL );
+    sprintf(path, "%s_client_%s.c",prefix, serverName);
+}
+
 static inline void rpc_server_structname(rpcgen_t *server,
 	char *path)
 {
@@ -100,12 +114,14 @@ static inline void rpc_server_structname(rpcgen_t *server,
     sprintf(path,"%s_%s_t",server->prefix, server->name);
 }
 
+
 static inline void print_func_name_macro(FILE *fd, char *server_name, funcgen_t *func)
 {
     char *upers = to_uper(server_name);
     char *uperf = to_uper(func->name);
     fprintf(fd, "RPC_%s_%s",upers, uperf);
 }
+
 static inline void print_func_name_str_macro(FILE *fd, char *server_name, funcgen_t *func)
 {
     char *upers = to_uper(server_name);
@@ -117,6 +133,24 @@ static inline void print_func_imp_name(FILE *fd,
 	char *prefix, funcgen_t *func)
 {
     fprintf(fd, "%s_%s",prefix, func->name);
+}
+static inline void print_csync_func_name(FILE *fd, char *prefix, funcgen_t *func)
+{
+    fprintf(fd, "%s_sync_%s",prefix, func->name);
+}
+static inline void print_casyn_func_name(FILE *fd, char *prefix, funcgen_t *func)
+{
+    fprintf(fd, "%s_asyn_%s",prefix, func->name);
+}
+
+static inline int has_return(funcgen_t *func)
+{
+    assert( func != NULL );
+    if( strcmp(RPC_NORET,func->rparam.type.name) == 0)
+    {
+	return 0;
+    }
+    return 1;
 }
 /*
  * all the names are defined as macros
@@ -162,7 +196,7 @@ int pomme_gen_macro(rpcgen_t *server)
 	fprintf(fd,"\n");
     }
     /*  tail */
-    fprintf(fd,"#endif");
+    fprintf(fd,"#endif\n\n");
 
     free(uname);
     fclose(fd);
@@ -220,7 +254,9 @@ int pomme_gen_struct(rpcgen_t *server)
     rpc_server_structname(server, cpath);
     fprintf(fd,"}%s;",cpath);
 
+    fprintf(fd,"#endif\n\n");
 
+    free(uname);
     return ret;
 }
 /*
@@ -438,7 +474,7 @@ int pomme_gen_impc(rpcgen_t *server)
     rpc_server_impc(server->prefix,server->name, cpath);
     FILE *fd = fopen(cpath, "w+");
 
-    if(fd == NULL)
+    if(fd == null)
     {
 	error("open %s fail",cpath);
 	exit(-1);
@@ -481,9 +517,158 @@ int pomme_gen_impc(rpcgen_t *server)
 
 int pomme_client_hgen(rpcgen_t *server)
 {
+    int ret = 0,i;
+    char cpath[POMME_PATH_MAX];
+    rpc_clinet_hfile(server->prefix, 
+	    server->name,cpath);
 
+    FILE *fd = fopen(cpath, "w+");
+
+    if(fd == null)
+    {
+	error("open %s fail",cpath);
+	exit(-1);
+    }	
+    char *uname = to_uper(server->name);
+    /*  header  */
+    fprintf(fd, "#ifndef _%s_CLIENT_H\n",uname);
+    fprintf(fd, "#define _%s_CLIENT_H\n",uname);
+    free(uname);
+
+    fprintf(fd, "#include \"pomme_rpcc.h\"\n\n");
+
+    /*  body  */
+
+    for( i = 0; i < server->funcnum; i++)
+    {
+	funcgen_t * f = server->funcs+i;
+
+	fprintf(fd,"/* *\n* @bref:");
+	print_csync_func_name(fd, server->prefix,f);
+	fprintf(fd,"*/\n");
+	fprintf(fd,"int ");
+	print_csync_func_name(fd,server->prefix,f);
+	fprintf(fd,"rpcc_t *rct");
+
+	for( j = 0; j < f->argnum; j++ )
+	{
+	    pomme_param_t  *p = f->params+j;
+	    pomme_type_t *t = &p->type;
+	    /* pass pointer */
+	    fprintf(fd,",\n%s * %s",t->name,p->name);
+	}
+	if(strcmp(f->rparam.name,"void") == 0 )
+	{
+	    fprintf(fd,",\n%s **%s",f->rparam->type.name,f->rparam->name);
+	}
+	fprintf(fd,");\n");
+    }
+
+    /*  tail */
+    fprintf(fd, "#endif\n\n");
+
+    return ret;
 }
 int pomme_client_cgen(rpcgen_t *server)
 {
+    int ret = 0,i;
+    char cpath[POMME_PATH_MAX];
+    rpc_clinet_cfile(server->prefix, 
+	    server->name,cpath);
 
+    FILE *fd = fopen(cpath, "w+");
+
+    if(fd == null)
+    {
+	error("open %s fail",cpath);
+	exit(-1);
+    }	
+    /*  header  */
+    rpc_clinet_hfile(server->prefix, 
+	    server->name,cpath);
+
+    fprintf(fd, "#include \"%s\"\n\n",cpath);
+
+    /*  body  */
+
+    for( i = 0; i < server->funcnum; i++)
+    {
+	funcgen_t * f = server->funcs+i;
+
+	fprintf(fd,"int ");
+	print_csync_func_name(fd,server->prefix,f);
+	fprintf(fd,"rpcc_t *rct");
+
+	for( j = 0; j < f->argnum; j++ )
+	{
+	    pomme_param_t  *p = f->params+j;
+	    pomme_type_t *t = &p->type;
+	    /* pass pointer */
+	    fprintf(fd,",\n%s * %s",t->name,p->name);
+	}
+	if(has_return(f) == 1 )
+	{
+	    fprintf(fd,",\n%s **%s",f->rparam->type.name,f->rparam->name);
+	}
+	fprintf(fd,")\n{\n");
+
+	int len = f->argnum +1;
+	fprintf(fd,"pomme_data_t *arg = malloc(%d*sizeof(pomme_data_t));\n");
+	fprintf(fd,"assert(arg!=NULL)\n");
+
+	fprintf(fd,"char *name = ");
+	print_func_name_str_macro(fd,  server->name,  f);
+
+	fprintf(fd,"\n");
+	fprintf(fd,"arg[0].size = pomme_strlen(name);\n");
+	fprintf(fd,"arg[0].data = name;\n");
+
+	for( j  = 0; j < f->argnmu; j++ )
+	{
+	    pomme_param_t *p = f->params + j ;
+	    pomme_type_t *t = &p->type;
+	    
+	    /*  gen size */
+	    if( (strcmp(t->type,"char") == 0 ) 
+		    &&(p->ispointer == 1))
+	    {
+		fprintf(fd, "arg[%d].size = strlen(%s);\n",p->name);
+	    }else{	
+		fprintf(fd, "arg[%d].size = sizeof(%s));\n",p->name);
+	    }
+	    if( p->ispointer == 1 )
+	    {
+		fprintf(fd, "arg[%d].data = %s;\n",p->name);
+	    }else{
+		fprintf(fd, "arg[%d].data = &%s;\n",p->name);
+	    }
+	    fprintf(fd,"\n");
+	}
+
+	fprintf(fd,"pomme_data_t res;\n");
+	fprintf(fd,"memset(&res, 0, sizeof(pomme_data_t));\n");
+
+	fprintf(fd,"if( (ret = rct->sync_call(rct,3,arg,&res,0)) < 0 )\n{\n");
+	fprintf(fd,"//TODO DEALING ERROR\n debug(\"Error Call\");\n goto err;\n");
+
+	fprintf(fd,"\n}\nesle{\n//TODO SUCCESS\ndebug(\"Success Call\"\n);\n}");
+
+	if(has_return(f) == 1 )
+	{
+	    fprintf(fd,"*%s = (%s *)res.data);\n",f->rparam->name, f->rparam->type.name);
+	}
+
+	fprintf(fd,"err:\n");
+	fprintf(fd,"free(arg);\n");
+
+	fprintf(fd,"return ret;\n");
+	fprintf(fd,"\n}\n");
+    }
+
+
+    return ret;
+
+}
+int pomme_gen_makefile( rpcgen_t *server )
+{
 }
