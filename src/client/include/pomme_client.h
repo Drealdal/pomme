@@ -33,6 +33,11 @@ struct pomme_client
     pomme_hash_t *ms_nodes;
     /*  buffer of the data storage nodes info */
     pomme_hash_t *ds_nodes;
+    /*  open fileCount */
+    u_int32 count;
+    u_int32 nextfd;
+    /**/
+
 
     int ( *get_ds)(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port); 
     int ( *get_ms)(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port);
