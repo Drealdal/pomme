@@ -69,13 +69,43 @@ int pomme_client_init(pomme_client_t *client,
 	debug("Hash init failure");
 	goto m_err;
     }	    
+
+    client->count = 0;
+    client->nextfd = 0;
+
+    if(( ret = pthread_mutex_init(&client->mutex,
+		    NULL)) != 0 )
+    {
+	err_exit("pthread_mutex_init failure");
+    }
+    client->max_count = POMME_MAX_OPEN_FILE;
+
+    init_queue(&client->files,"Client files",client->max_count);
+
     return ret;
 m_err:
     pomme_hash_distroy(&client->ds_nodes);
 err:
     return ret;
-
 }
+
+PFILE *pomme_open(const char *path, const char *mode)
+{
+    int ret = 0;
+    PFILE *file = NULL;
+    file = malloc(sizeof(PFILE));
+
+    if( file == NULL )
+    {
+	debug("malloc error");
+	return file;
+    }
+
+    ret = pomme_sync_read_file_meta(
+
+    return ret;
+}
+
 
 static int get_ds(pomme_client_t *client, 
         u_int32 msid,	

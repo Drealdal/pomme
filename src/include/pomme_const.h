@@ -105,6 +105,8 @@
 #define POMME_DATA_HEART_BEAT_INTERVAL 10
 #define POMME_META_FILE_LOCK_TIME 30
 
+#define POMME_MAX_OPEN_FILE 1024
+
 
 /*
  * configure change to configure file???

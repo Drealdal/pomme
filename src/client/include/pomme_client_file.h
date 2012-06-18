@@ -38,5 +38,4 @@ typedef struct pomme_client_file
     pomme_queue_t nobject;// new object
     queue_body_t next;
 }PFILE;
-
 #endif
