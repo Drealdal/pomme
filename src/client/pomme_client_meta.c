@@ -183,7 +183,7 @@ int pomme_client_get_ds(rpcc_t *rct, u_int32 id, ds_node *ds)
     pomme_data_t res;
     memset(&res, 0, sizeof(pomme_data_t));
 
-    if( ret = rct->sync_call(rct, 2 , arg, &res, 0 ) < 0 )
+    if( (ret = rct->sync_call(rct, 2 , arg, &res, 0 )) < 0 )
     {
 	debug("Get Ds info error");
 	goto err;
@@ -230,7 +230,7 @@ int pomme_client_lock_file(rpcc_t *rct, char *path,
     pomme_data_t res;
     memset(&res, 0, sizeof(pomme_data_t));
 
-    if( ret = rct->sync_call(rct, 2 , arg, &res, 0 ) < 0 )
+    if( (ret = rct->sync_call(rct, 2 , arg, &res, 0 )) < 0 )
     {
 	debug("Get Ds info error");
 	goto err;

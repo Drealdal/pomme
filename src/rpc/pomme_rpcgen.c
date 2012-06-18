@@ -157,8 +157,8 @@ static inline int has_return(funcgen_t *func)
  */
 int pomme_gen_macro(rpcgen_t *server)
 {
-    int ret = 0;
-    int i = 0;
+    int ret = 0,i;
+    char *uname;
     assert(server != NULL);
     char cpath[POMME_PATH_MAX];
 
@@ -167,11 +167,10 @@ int pomme_gen_macro(rpcgen_t *server)
 
     if(fd == NULL)
     {
-	error("open %s fail",cpath);
-	exit(-1);
+	err_exit("open %s fail",cpath);
     }	
 
-    char *uname = to_uper(server->name);
+    uname = to_uper(server->name);
 
     /*  header */
     fprintf(fd,"#ifndef _%s_CONST_H\n",uname);
@@ -277,7 +276,6 @@ int pomme_gen_main(rpcgen_t *server)
 	error("open %s fail",cpath);
 	exit(-1);
     }	
-    char *uname = to_uper(server->name);
 
     rpc_server_hfile(server->prefix,server->name, cpath);
     /*  header */
@@ -463,6 +461,7 @@ int pomme_gen_imph(rpcgen_t *server)
     /*  tail */
     free(uname);
     fprintf(fd,"#endif\n");
+    debug("imp header file generated");
 
     return ret;
 }
@@ -474,7 +473,7 @@ int pomme_gen_impc(rpcgen_t *server)
     rpc_server_impc(server->prefix,server->name, cpath);
     FILE *fd = fopen(cpath, "w+");
 
-    if(fd == null)
+    if(fd == NULL)
     {
 	error("open %s fail",cpath);
 	exit(-1);
@@ -512,24 +511,26 @@ int pomme_gen_impc(rpcgen_t *server)
 	fprintf(fd,"}\n");
     }
 
+    debug("imp cfile generated");
     return ret;
 }
 
 int pomme_client_hgen(rpcgen_t *server)
 {
-    int ret = 0,i;
+    int ret = 0,i,j;
     char cpath[POMME_PATH_MAX];
+    char *uname;
     rpc_clinet_hfile(server->prefix, 
 	    server->name,cpath);
 
     FILE *fd = fopen(cpath, "w+");
 
-    if(fd == null)
+    if(fd == NULL)
     {
 	error("open %s fail",cpath);
 	exit(-1);
     }	
-    char *uname = to_uper(server->name);
+    uname = to_uper(server->name);
     /*  header  */
     fprintf(fd, "#ifndef _%s_CLIENT_H\n",uname);
     fprintf(fd, "#define _%s_CLIENT_H\n",uname);
@@ -559,26 +560,28 @@ int pomme_client_hgen(rpcgen_t *server)
 	}
 	if(strcmp(f->rparam.name,"void") == 0 )
 	{
-	    fprintf(fd,",\n%s **%s",f->rparam->type.name,f->rparam->name);
+	    fprintf(fd,",\n%s **%s",f->rparam.type.name,f->rparam.name);
 	}
 	fprintf(fd,");\n");
     }
 
     /*  tail */
     fprintf(fd, "#endif\n\n");
+    free(uname);
+    debug("client header file generated");
 
     return ret;
 }
 int pomme_client_cgen(rpcgen_t *server)
 {
-    int ret = 0,i;
+    int ret = 0,i,j;
     char cpath[POMME_PATH_MAX];
     rpc_clinet_cfile(server->prefix, 
 	    server->name,cpath);
 
     FILE *fd = fopen(cpath, "w+");
 
-    if(fd == null)
+    if(fd == NULL)
     {
 	error("open %s fail",cpath);
 	exit(-1);
@@ -608,12 +611,12 @@ int pomme_client_cgen(rpcgen_t *server)
 	}
 	if(has_return(f) == 1 )
 	{
-	    fprintf(fd,",\n%s **%s",f->rparam->type.name,f->rparam->name);
+	    fprintf(fd,",\n%s **%s",f->rparam.type.name,f->rparam.name);
 	}
 	fprintf(fd,")\n{\n");
 
 	int len = f->argnum +1;
-	fprintf(fd,"pomme_data_t *arg = malloc(%d*sizeof(pomme_data_t));\n");
+	fprintf(fd,"pomme_data_t *arg = malloc(%d*sizeof(pomme_data_t));\n",len);
 	fprintf(fd,"assert(arg!=NULL)\n");
 
 	fprintf(fd,"char *name = ");
@@ -623,24 +626,24 @@ int pomme_client_cgen(rpcgen_t *server)
 	fprintf(fd,"arg[0].size = pomme_strlen(name);\n");
 	fprintf(fd,"arg[0].data = name;\n");
 
-	for( j  = 0; j < f->argnmu; j++ )
+	for( j  = 0; j < f->argnum; j++ )
 	{
 	    pomme_param_t *p = f->params + j ;
 	    pomme_type_t *t = &p->type;
 	    
 	    /*  gen size */
-	    if( (strcmp(t->type,"char") == 0 ) 
+	    if( (strcmp(t->name,"char") == 0 ) 
 		    &&(p->ispointer == 1))
 	    {
-		fprintf(fd, "arg[%d].size = strlen(%s);\n",p->name);
+		fprintf(fd, "arg[%d].size = strlen(%s);\n",j+1,p->name);
 	    }else{	
-		fprintf(fd, "arg[%d].size = sizeof(%s));\n",p->name);
+		fprintf(fd, "arg[%d].size = sizeof(%s));\n",j+1,p->name);
 	    }
 	    if( p->ispointer == 1 )
 	    {
-		fprintf(fd, "arg[%d].data = %s;\n",p->name);
+		fprintf(fd, "arg[%d].data = %s;\n",j+1,p->name);
 	    }else{
-		fprintf(fd, "arg[%d].data = &%s;\n",p->name);
+		fprintf(fd, "arg[%d].data = &%s;\n",j+1,p->name);
 	    }
 	    fprintf(fd,"\n");
 	}
@@ -655,7 +658,7 @@ int pomme_client_cgen(rpcgen_t *server)
 
 	if(has_return(f) == 1 )
 	{
-	    fprintf(fd,"*%s = (%s *)res.data);\n",f->rparam->name, f->rparam->type.name);
+	    fprintf(fd,"*%s = (%s *)res.data);\n",f->rparam.name, f->rparam.type.name);
 	}
 
 	fprintf(fd,"err:\n");
@@ -665,10 +668,12 @@ int pomme_client_cgen(rpcgen_t *server)
 	fprintf(fd,"\n}\n");
     }
 
+    debug("client c file generated");
 
     return ret;
 
 }
 int pomme_gen_makefile( rpcgen_t *server )
 {
+    return 0;
 }

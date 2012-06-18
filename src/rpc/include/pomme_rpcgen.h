@@ -57,4 +57,10 @@ typedef struct rpcgen
 
 
 int pomme_gen_macro(rpcgen_t *server);
+int pomme_gen_struct(rpcgen_t *server);
+int pomme_gen_impc(rpcgen_t *server);
+int pomme_gen_imph(rpcgen_t *server);
+int pomme_gen_main(rpcgen_t *server);
+int pomme_client_cgen(rpcgen_t *server);
+int pomme_client_hgen(rpcgen_t *server);
 #endif

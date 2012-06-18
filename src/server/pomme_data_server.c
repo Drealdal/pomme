@@ -686,7 +686,7 @@ err_exit:
  *
  * @return 
  */
-int pomme_ds_heart_beat(int signo)
+void pomme_ds_heart_beat(int signo)
 {
     int ret = 0;
     pomme_ds_t *pds = &GLOBAL_DS; 
@@ -695,6 +695,8 @@ int pomme_ds_heart_beat(int signo)
 
     hb.ip = pds->ip;
     hb.port = pds->port;
+    hb.myid = pds->myid;
+    hb.mygroup = -1;
 
     rpcc_t rpcc;
 
@@ -702,7 +704,7 @@ int pomme_ds_heart_beat(int signo)
 		    pds->metaport,0)) != 0 )
     {
 	debug("init rpc client error");
-	return 0;
+	return;
     }
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
     char *name = POMME_META_HEART_BEAT_S;
@@ -721,5 +723,5 @@ int pomme_ds_heart_beat(int signo)
     }
     pomme_data_t *pre = &res;
     pomme_data_distroy(&pre);
-    return 0;
+    return;
 }

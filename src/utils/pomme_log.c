@@ -18,11 +18,11 @@
 #include "pomme_log.h"
 #include "utils.h"
 static int stop_log = 0;
-static log_t * get_log_from_logger(struct logger *loger);
-static log_t * get_log(pomme_log_level_t level,struct logger *logger);
-static int add_log(char *message,struct logger *logger);
+log_t * get_log_from_logger(struct logger *loger);
+log_t * get_log(pomme_log_level_t level,struct logger *logger);
+static void add_log(char *message,struct logger *logger);
 static void distory_logger(struct logger *logger);
-static void* write_log(void *);
+static void * write_log(void *);
 
 int global_log_level = POMME_LOG_WARNING;
 pomme_queue_t loggers;
@@ -66,7 +66,7 @@ void POMME_LOG(char *filename,int line,char *message,pomme_log_level_t level,str
 	add_log(local_mem,logger);
 	return;
 }
-static int add_log(char *message,struct logger *logger)
+static void add_log(char *message,struct logger *logger)
 {
 	if( logger == NULL)
 	{
@@ -118,9 +118,8 @@ static int add_log(char *message,struct logger *logger)
  * @loger 
  * @return , return a free slots or null if no available free slots  
  *-----------------------------------------------------------------------------*/
-static log_t * get_log_from_logger(struct logger *loger)
+log_t * get_log_from_logger(struct logger *loger)
 {
-	//TODO 
 	return (log_t *)malloc(sizeof(log_t));
 }
 struct logger *create_logger(pomme_log_level_t level,char *filename)
@@ -152,7 +151,7 @@ struct logger *create_logger(pomme_log_level_t level,char *filename)
 	FILE * handle = fopen(file,"a+");
 	if( NULL == handle )
 	{
-		debug("%s:%s open log file failure\n",__FILE__,__LINE__);
+	    debug("open logfile failure");
 #ifndef IGNORE_LOG_FILE_ERROR
 		exit(-1);
 #else
@@ -189,7 +188,8 @@ int init_log()
 	init_queue(&buffer,"Log Buffer",1000000);
 	init_queue(&slots,"Free Log slots",1000000);
 	init_queue(&logger,"Loggers",100);
-	int err = pthread_create(&log_thread, NULL,&write_log,NULL);
+	pthread_create(&log_thread, NULL,&write_log,NULL);
+	return 0;
 }
 int stop_logger()
 {
@@ -210,7 +210,6 @@ static void* write_log(void * argc)
 	struct queue_head *local =  &local_logs;
 	struct queue_head * slots = &free_slots;
 	init_queue(&local,"Log thread local",1000);
-	int ret;
 	struct queue_body * body = NULL;
 	while( stop_log == 0 )
 	{
@@ -242,4 +241,5 @@ static void* write_log(void * argc)
 		distory_logger(entry);
 	}
 	stop_log=0;
+	return NULL;
 }

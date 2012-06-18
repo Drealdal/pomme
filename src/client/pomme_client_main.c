@@ -23,7 +23,7 @@
 extern int errno;
 int main()
 {
-    int ret , sock_fd;
+    int ret ;
     char * host_name = "127.0.0.1";   
     u_int32 ip = inet_addr(host_name);
     rpcc_t rpcc;

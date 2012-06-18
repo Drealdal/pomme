@@ -114,7 +114,7 @@ static int fregister(pomme_rpcs_t *rpcs,
 
     link_add( &pf->next, &rpcs->func);
     return ret;
-malloc_err:
+//malloc_err:
     free(pf);
 err:
     return ret;
@@ -225,7 +225,6 @@ static void thread_call(void *argu)
     rpcs->call(rpcs,param->fname->data, param->conn);
 /* clear and free */
     close(param->conn);
-    debug("close:%d",param->fname);
     pomme_data_distroy(&param->fname);
 }
 static int handle_request(pomme_rpcs_t *rpcs,
@@ -364,4 +363,5 @@ static int start(pomme_rpcs_t *rpcs)
 int stop(pomme_rpcs_t *rpcs)
 {
     rpcs->thread_pool.stop(&rpcs->thread_pool);
+    return 1;
 }

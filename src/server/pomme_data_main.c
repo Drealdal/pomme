@@ -17,13 +17,25 @@
  */
 #include "pomme_data_server.h"
 extern pomme_ds_t GLOBAL_DS;
-int main()
+
+void usage(int argc, char *argv[])
 {
-    pomme_ds_t *ds = &GLOBAL_DS;
+    if( argc < 2 )
+    {
+	err_exit("usage:%s myid",argv[0]);
+    }
+}
+int main(int argc, char *argv[])
+{
     int ret = 0;
-    memset(ds, 0 , sizeof(pomme_ds_t));
     char *home=NULL, *m_file=NULL, *s_file=NULL;
     int e_c_flags = 0 ,e_o_flags= 0 ,e_o_mode = 0;
+
+    usage(argc,argv);
+    pomme_ds_t *ds = &GLOBAL_DS;
+
+    ds->myid = atoi(argv[1]);
+    memset(ds, 0 , sizeof(pomme_ds_t));
 
 /*
  * flags init

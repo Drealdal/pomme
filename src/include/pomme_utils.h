@@ -38,6 +38,9 @@ exit(-1);\
 
 int pomme_data_init(pomme_data_t **data, int size);
 int pomme_data_distroy(pomme_data_t **data);
+int pomme_data_extend(pomme_data_t *data, int size);
+
+
 int pomme_strlen(const char *path);
 char *pomme_time(time_t t, char *buf);
 struct tm *pomme_time_all();
@@ -87,7 +90,6 @@ int setnonblocking(int sock);
  * @brief pomme_get_endian : test the endian of the server
  */
 int pomme_get_endian();
-int print_uper(FILE *fd,const char *str);
 
 /**
  * @brief to_uper: change a string in to uper case 
@@ -104,7 +106,7 @@ char * to_uper(const char *str);
  * @param str: the origin string
  * @return:  
  */
-int print_uper(FILE *fd,const char *str);
+void print_uper(FILE *fd,char *str);
 /**
  * @brief short_name 
  *
@@ -114,4 +116,6 @@ int print_uper(FILE *fd,const char *str);
  * @return 
  */
 char *pomme_short_name(const char *str,int len);
+void pomme_set_sigaction(int signo, void (*handle)(int));
+int pomme_set_timer(int sec, int usec);
 #endif

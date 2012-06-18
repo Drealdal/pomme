@@ -112,7 +112,8 @@ int pomme_client_get_data(u_int64 id,
     unsigned char t_buffer[POMME_PACKAGE_SIZE];
     size_t t_len = 0;
 
-    if( ( ret = pomme_recv(handle, t_buffer, POMME_PACKAGE_SIZE,
+    if( ( ret = pomme_recv(handle, t_buffer, 
+		    POMME_PACKAGE_SIZE,
 	    &t_len, flags) ) < 0 )
     {
 	debug("recv first fail");

@@ -40,7 +40,7 @@ int pomme_parse_param(xmlNodePtr node, pomme_param_t *param)
 
     if( xmlHasProp(node, BAD_CAST(RPC_PARAM_NAME)))
     {
-	param->name = xmlGetProp(node,BAD_CAST(RPC_PARAM_NAME));
+	param->name = (char *)xmlGetProp(node,BAD_CAST(RPC_PARAM_NAME));
     }else{
 	debug("No name attr for param at line:%d",node->line);
 	return -1;
@@ -48,7 +48,7 @@ int pomme_parse_param(xmlNodePtr node, pomme_param_t *param)
 
     if( xmlHasProp(node, BAD_CAST(RPC_PARAM_TYPE)))
     { 
-	param->type.name = xmlGetProp(node, BAD_CAST(RPC_PARAM_TYPE));
+	param->type.name = (char *)xmlGetProp(node, BAD_CAST(RPC_PARAM_TYPE));
 	param->type.len = -1;
     }else{
 	debug("No type for param %s at line %d",param->name,node->line);
@@ -126,7 +126,7 @@ int pomme_parse_return(xmlNodePtr node, pomme_param_t *param)
     if( xmlHasProp(node, BAD_CAST(RPC_FUNCTION_RETURN_TYPE)))
     { 
 
-	param->type.name = xmlGetProp(node, BAD_CAST(RPC_FUNCTION_RETURN_TYPE));
+	param->type.name = (char *)xmlGetProp(node, BAD_CAST(RPC_FUNCTION_RETURN_TYPE));
 	param->type.len = -1;
 
     }else{
@@ -159,7 +159,7 @@ int pomme_parse_function(xmlNodePtr node, funcgen_t *func)
 
     if(xmlHasProp(node, BAD_CAST(RPC_FUNCTION_NAME)))
     {
-	func->name = xmlGetProp(node, BAD_CAST(RPC_FUNCTION_NAME));
+	func->name = (char *)xmlGetProp(node, BAD_CAST(RPC_FUNCTION_NAME));
     }else{
 	debug("Function Must have names");
 	return -1;
@@ -276,7 +276,7 @@ int pomme_parse_server(xmlNodePtr node, rpcgen_t *server)
 
     if( xmlHasProp(node, BAD_CAST(RPC_NAME)))
     {
-	server->name = xmlGetProp(node, BAD_CAST(RPC_NAME));
+	server->name = (char *)xmlGetProp(node, BAD_CAST(RPC_NAME));
 	debug("Server Name:%s",server->name);
     }else{
 	debug("No name attr for param at line:%d",node->line);
@@ -285,7 +285,7 @@ int pomme_parse_server(xmlNodePtr node, rpcgen_t *server)
     
     if( xmlHasProp(node, BAD_CAST(RPC_SERVER_PREFIX)))
     {
-	server->prefix = xmlGetProp(node,BAD_CAST(RPC_SERVER_PREFIX));
+	server->prefix = (char *)xmlGetProp(node,BAD_CAST(RPC_SERVER_PREFIX));
     }else{
 	debug("No name prefix attr for param at line:%d",node->line);
     }
@@ -325,7 +325,7 @@ int pomme_parse_server(xmlNodePtr node, rpcgen_t *server)
 }
 int pomme_parse_init(xmlNodePtr proot,rpcgen_t **server)
 {
-    int i,ret;
+    int ret;
     int count = 1;
     xmlNodePtr curNode = proot;
 

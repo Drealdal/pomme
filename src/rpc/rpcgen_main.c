@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 
 
     rpcgen_t *server = NULL;
-    int i, server_count = 0;
+    int server_count;
     if(( server_count = pomme_parse_init( proot,
 		    &server)) < 0 )
     {
@@ -68,13 +68,16 @@ int main(int argc, char **argv)
     debug("%s",server->name);
     if(( ret = pomme_gen_macro(server)) < 0 )
     {
-	error("Fail generate Const file for server(%s)",(server+i)->name);
+	error("Fail generate Const file for server(%s)",server->name);
     }
 
     pomme_gen_struct(server);
     pomme_gen_main(server);
     pomme_gen_imph(server);
     pomme_gen_impc(server);
+    pomme_client_cgen(server);
+    pomme_client_hgen(server);
+
     return 0;
 }
 

@@ -54,6 +54,7 @@ struct ms_object
     uuid_t id;
     u_int64 off;
     u_int64 len;
+    struct queue_body next;
 };
 
 typedef struct nodes

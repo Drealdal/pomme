@@ -84,21 +84,21 @@ int pomme_pack_distroy( pomme_pack_t **pack);
     size_t __size = sizeof(type) * length;\
     pomme_pack(&__len, sizeof(size_t), pack);\
     if(length==0)break;\
-    pomme_pack(data, __size, pack);\
+    pack_data(data, __size, pack);\
 }while(0);
 
 #define pomme_unpack(data, type, pack) do{\
     size_t __size = sizeof(type);\
-    unpack_data(data, __size, pack);\
+    unpack_data((void **)data, __size, pack);\
 }while(0);
 
 #define pomme_unpack_array(data, type, length,pack) do{\
     size_t *__size = NULL;\
-    unpack_data(&__size, sizeof(size_t), pack);\
+    unpack_data((void **)&__size, sizeof(size_t), pack);\
     if(*__size==0)break;\
     size_t __r_size = *__size;\
     *(length) = __r_size / sizeof(type);\
-    unpack_data(data,__r_size,pack);\
+    unpack_data((void **)data,__r_size,pack);\
 }while(0);
 
 int pack_data(void *data , size_t size, pomme_pack_t *pack);

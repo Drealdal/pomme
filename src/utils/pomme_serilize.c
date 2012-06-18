@@ -48,7 +48,6 @@ int read_data(pomme_data_t *wt, int handle)
 int write_data(pomme_data_t *wt, int handle)
 {
     int ret = 0;
-    int wrl = 0;
 
     debug("size: %d",wt->size);
     ssize_t wl = write(handle, &wt->size, sizeof(int));

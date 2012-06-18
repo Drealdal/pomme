@@ -43,5 +43,6 @@ int main()
     rpcs.func_register(&rpcs,"remote_print",&remote_print,1,arg);
     rpcs.start(&rpcs);
 
+    return 1;
 
 }

@@ -62,7 +62,7 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
    {
         read_data(*re+i, fd);
    }
-   debug("?????//size:%d %p",(*re)->size,*re);
+   debug("size:%d %p",(*re)->size,*re);
    if(n != rn )
    {
        ret = POMME_UNMATCH_ARGU_NUM;
@@ -83,7 +83,8 @@ unmatch:
    debug("unmatch arg");
    for(i = 0 ; i < rn ; i++)
    {
-       pomme_data_distroy(*re+i);
+       pomme_data_t *pi = *re + i;
+       pomme_data_distroy(&pi);
    } 
    free(*re);
 ex:

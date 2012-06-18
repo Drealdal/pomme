@@ -36,7 +36,9 @@ struct pomme_client
     /*  open fileCount */
     u_int32 count;
     u_int32 nextfd;
-    /**/
+    /*parrelel access from several client*/
+    pthread_mutex_t mutex;
+    /*   */
 
 
     int ( *get_ds)(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port); 
@@ -46,5 +48,8 @@ int cmp_dsnode(void *node1, void *node2);
 int cmp_msnode(void *node1, void *node2);
 int pomme_clinet_init(pomme_client_t *client, u_int32 mip, u_int32 mport);
 int pomme_client_distroy(pomme_client_t *client);
+
+pomme_file_t * pomme_clinet_open(const char *path,const char *mode);
+void pomme_close(pomme_file_t *file);
 
 #endif

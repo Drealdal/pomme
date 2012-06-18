@@ -209,7 +209,7 @@ data_lock_err:
 data_nodes_err:
     ms->meta_db->close(ms->meta_db, 0);
 rpcs_err:
-sdb_err:
+//sdb_err:
 meta_db_err:
 env_err:
     pomme_hash_distroy(&ms->ds);

@@ -90,6 +90,8 @@ typedef struct pomme_ds
 	/*  statistics */
 	u_int32 ip;
 	u_int16 port;
+	/*  myid */
+	int myid;
 
 }pomme_ds_t; /*
  *@param: init an pomme_env_t structure
@@ -181,11 +183,15 @@ int get_storage_files(char *path, pomme_hash_t *storage,
  *
  * @return 
  */
-int pomme_data_heart_beat();
+void pomme_ds_heart_beat(int signo);
 /*****
  * the first version of the data server
  */
 int server(pomme_ds_t *);
+
+int get_storage_files(char *path, pomme_hash_t *storage,
+	int *cur_id,
+	int *cur_fd);
 
 #endif
 

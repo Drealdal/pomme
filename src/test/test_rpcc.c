@@ -22,15 +22,19 @@
 int main()
 {
     int ret = 0;
+    char * host_name = "127.0.0.1";   
+    char *name = "remote_print";
+
     rpcc_t rpcc;
-    if( (ret = pomme_rpcc_init(&rpcc, "127.0.0.1",
+    u_int32 ip = inet_addr(host_name);
+
+    if( (ret = pomme_rpcc_init(&rpcc, ip,
 	    POMME_RPC_PORT,0)) < 0 )
     {
 	debug("init rpc client error");
 	exit(-1);
     }
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
-    char *name = "remote_print";
     arg[0].size=strlen(name)+1;
     arg[0].data = name;
 

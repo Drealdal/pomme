@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include "pomme_storage.h"
+#include "pomme_data_server.h"
+#include "utils.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
@@ -36,8 +38,9 @@ int main()
 
 	if( sp == NULL )
 	{
+	    sp = malloc(POMME_PATH_MAX);
 	    printf("POMME_HOME not set using $(current_dir_name)/storage as data dir\n");
-	    sp = get_current_dir_name();
+	    sp = getcwd(sp,POMME_PATH_MAX);
 	}
     }
     sp = "/home/zhumeiqi/work/pomme/data";
@@ -85,7 +88,7 @@ int main()
     }
     printf("all pass\n");
     dbp->close(dbp, DB_NOSYNC);
-    get_storage_files("/home/zhumeiqi/work/pomme/data",NULL);
+    get_storage_files("/home/zhumeiqi/work/pomme/data",NULL,&id, &fd);
 
 err:
     return ret;

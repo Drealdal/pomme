@@ -29,8 +29,6 @@ pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
     memset(&key, 0, sizeof(DBT));
     memset(&val, 0, sizeof(DBT));
 
-    DBC *dbc = NULL;
-
     key.size = pomme_strlen(path);
     key.data = (void *)path;
     pomme_file_t file;
@@ -77,11 +75,10 @@ pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path)
     }
     pomme_data_init(&re, sizeof(pomme_file_t) );// the length of the return object will re extrend
     DBT key, val;
-    pomme_file_t file;
     memset(&key, 0, sizeof(DBT));
     memset(&val, 0, sizeof(DBT));
 
-    key.data = path;
+    key.data = (void *)path;
     key.size = pomme_strlen(path);
     key.flags |= DB_DBT_READONLY;
 
@@ -145,7 +142,7 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path,
     memset(&key, 0 , sizeof(DBT));
     memset(&val, 0 , sizeof(DBT)); 
     key.size = pomme_strlen(path);
-    key.data = path;
+    key.data = (void *)path;
 
     val.size = sizeof(ms_object_t);
     val.data = &ob;
@@ -252,7 +249,6 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
 	pomme_data_init(&re,0);
     }
 
-e_xit:
     return re;
 }
 
@@ -267,7 +263,7 @@ pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id)
 
     pomme_hb_t hb;
     key.size = sizeof(u_int32);
-    key.data = id;
+    key.data = (void *)&id;
 
 
     val.ulen = sizeof(pomme_hb_t); 
@@ -313,7 +309,7 @@ pomme_data_t * pomme_lock(pomme_ms_t *ms, const char *path,int interval)
     memset(&val, 0, sizeof(DBT));
     pomme_lock_t lock;
     key.size = pomme_strlen(path);
-    key.data = path;
+    key.data = (void *)path;
     
     val.size = sizeof(pomme_lock_t);
     val.data = &lock;
@@ -358,7 +354,7 @@ pomme_data_t *pomme_extend_lock(pomme_ms_t *ms,
    lock.wt = previous;
 
    key.size = pomme_strlen(path);
-   key.data = path;
+   key.data = (char *)path;
    val.size = sizeof(pomme_lock_t);
 
    val.data = &lock;
@@ -374,6 +370,7 @@ pomme_data_t *pomme_extend_lock(pomme_ms_t *ms,
        pomme_data_init(&re, POMME_LOCK_EXPIRE);
        goto err;
    }
+
    DB *db = ms->lock_manager;
    if( ( ret = db->get(db, NULL, &key, &val, flags) ) != 0 )
    {
@@ -382,9 +379,11 @@ pomme_data_t *pomme_extend_lock(pomme_ms_t *ms,
        pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
        goto err;
    } 
+
    lock.wt = time(NULL) + interval;
    if( ( ret = db->put(db, NULL, &key, &val, 0) ) != 0 )
    {
+
        debug("Put lock info failure");
        POMME_LOG_ERROR("write Lock info fail",ms->logger);
        pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
@@ -408,7 +407,7 @@ pomme_data_t * pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previ
     lock.wt = previous;
 
     key.size = pomme_strlen(path);
-    key.data = path;
+    key.data = (char *)path;
     val.size = sizeof(pomme_lock_t);
 
     val.data = &lock;
@@ -425,13 +424,14 @@ pomme_data_t * pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previ
 	goto err;
     }
     if( time(NULL) > previous ){
-	return -1;
+	pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
+	goto err;
     }
     if( ( ret = db->del(db, NULL, &key, 0) ) != 0 )
     {
 	debug("Del Lock info failure");
 	POMME_LOG_ERROR("Del Lock info fail",ms->logger);
-	pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
+	pomme_data_init(&re,POMME_LOCK_EXPIRE); 
 	goto err;
     }
     pomme_data_init(&re, 0);

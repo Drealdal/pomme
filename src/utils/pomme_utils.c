@@ -270,7 +270,7 @@ int pomme_set_timer(int sec, int usec)
     setitimer(ITIMER_REAL, &val, NULL);
     return 0;
 }
-int pomme_set_sigaction(int signo, void (*handle)(int))
+void pomme_set_sigaction(int signo, void (*handle)(int))
 {
     struct sigaction tact;
     tact.sa_handler = handle;
@@ -278,13 +278,13 @@ int pomme_set_sigaction(int signo, void (*handle)(int))
 
     sigemptyset(&tact.sa_mask);
     sigaction(signo,&tact, NULL);
-    return 0;
+    return ;
 }
-int print_uper(FILE *fd,const char *str)
+void print_uper(FILE *fd,char *str)
 {
-    if(str == NULL) return;
+    if(str == NULL) return ;
     char *ps = str;
-    while(*ps != NULL)
+    while(ps != NULL)
     {
 	if( *ps >'A' && *ps < 'Z' )
 	{
@@ -293,7 +293,7 @@ int print_uper(FILE *fd,const char *str)
 	}
 	fprintf(fd,"%c",*ps + 'A' -'a');
     }
-    return 0;
+    return; 
 }
 char * to_uper(const char *str)
 {
@@ -332,4 +332,46 @@ char *pomme_short_name(const char *str,int len)
     memset(t, 0 , len);
     memcpy( t, str, len-1 );
     return t;
+}
+
+/*  pomme_file_copy */
+int pomme_fcopy(const char *src, const char *dst)
+{
+    int ret,i, has_hole = 0;
+    struct stat state;
+    ret = stat(src, &state);
+    if( (state.st_blksize * state.st_blocks ) -
+	    state.st_size > state.st_blocks )
+    {
+	has_hole = 1;
+	debug("hole file");
+    }
+    unsigned char buffer[state.st_blksize];
+    FILE *in,*out;
+
+    in = fopen(src,"r");
+    if( in == NULL )
+    {
+	err_exit("Open input file error");
+    }
+
+    out = fopen(dst,"w+");
+    if( out == NULL )
+    {
+	err_exit("Open output file error");
+    }
+
+    while( ( ret = fread(buffer, state.st_blksize,1,in)) > 0 )
+    {
+
+	i = 0;
+	if(has_hole)
+	{
+
+	    while(i<ret&&buffer[i++]==0);
+	    fseek(out, i, SEEK_SET);
+	}
+	fwrite(buffer+i, ret - i,1,out);
+    }
+    return ret;
 }

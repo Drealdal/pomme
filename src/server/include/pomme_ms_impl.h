@@ -66,6 +66,8 @@ pomme_data_t * pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previ
 int pomme_map_ds_group(const char *path);
 int ms_start(pomme_ms_t *ms);
 int ms_stop(pomme_ms_t *ms);
+pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id);
+pomme_data_t *pomme_all_ds(pomme_ms_t *ms);
 /**/
 /**
  * @return new object id
