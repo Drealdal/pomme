@@ -7,8 +7,9 @@ $(BIN_DIR)/rpcgen: $(rpcgen_depends) $(RPC_DIR)/rpcgen_main.c
 	$(CC) -o $@ -O2 $(CFLAGS) $^ $(LIB_FLAG)
 
 
+include $(RPC_DIR)/test/Makefile
 
-clean_rpc: 
+clean_rpc:clean_rpc_test 
 	rm -f $(RPC_DIR)/*~
 	rm -f $(RPC_INCLUDE)/*~
 
