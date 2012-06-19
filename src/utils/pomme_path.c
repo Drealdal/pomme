@@ -17,7 +17,14 @@
  */
 #include "pomme_path.h"
 #include "utils.h"
-char *make_dir_path(char *path)
+/**
+ * @brief make_path: the path of a file or directory
+ *
+ * @param path
+ *
+ * @return: a new malloced string , need free by the caller 
+ */
+char *make_path(char *path)
 {
     assert( NULL != path );
     int len = strlen(path)+2;
@@ -45,9 +52,9 @@ char *make_dir_path(char *path)
 	} 
 	*rPath++=*path++;
     }
-    if(is_slash == 0)
+    if(is_slash == 1)
     {
-	*rPath=PATH_SLASH;
+	*(rPath -1) =0;
     }
     return re;
 }
@@ -57,19 +64,22 @@ char *make_sub_dir(char *parrent, char *name)
     assert( NULL != parrent );
     assert( NULL != name );
 
-    int len = strlen(path)+2;
+    int len = strlen(parrent)+strlen(name)+2;
     char *rPath = malloc(len);
     if(rPath == NULL)
     {
 	return rPath;
     }
+
     char *re = rPath;
     memset(rPath, 0, len);
     strcpy(rPath, parrent);
     rPath+=strlen(parrent);
-    while(*name == PATH_SLASH )name++;
+
+    while(*name == PATH_SLASH && *name != '\0')name++;
     int is_slash = 0;
-    while(*name != '\0' )
+
+    while( *name != '\0' )
     {
 	*rPath++ = *name;
 	if( *name == PAHT_SLASH )
@@ -79,6 +89,7 @@ char *make_sub_dir(char *parrent, char *name)
 	}
 	name++;
     }
+
     if( is_slash == 0 )
     {
 	*rPath = '\0';
@@ -140,13 +151,4 @@ char *get_sub_file(char *parrent, char *name)
     }
     return re;
 }
-
-
-
-
-
-
-
-
-
 

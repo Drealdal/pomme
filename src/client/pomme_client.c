@@ -89,10 +89,13 @@ err:
     return ret;
 }
 
-PFILE *pomme_open(const char *path, const char *mode)
+PFILE *pomme_open(const char *spath, const char *mode)
 {
     int ret = 0;
+    char *path = NULL;
     PFILE *file = NULL;
+
+    assert( spath != NULL );
     file = malloc(sizeof(PFILE));
 
     if( file == NULL )
@@ -101,7 +104,9 @@ PFILE *pomme_open(const char *path, const char *mode)
 	return file;
     }
 
-    ret = pomme_sync_read_file_meta(
+    path = make_path(spath);
+     
+
 
     return ret;
 }
