@@ -18,7 +18,7 @@
 #include "pomme_client_data.h"
 
 
-int pomme_client_put_data(u_int64 id,int handle, 
+int pomme_client_put_data(uuid_t id,int handle, 
 	void *buffer,
 	int len,
 	int flags)
