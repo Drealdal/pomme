@@ -43,7 +43,7 @@ int main()
 
     pomme_file_t *file2 = NULL;
 
-    if( ( ret = pomme_stat_file(&rpcc, "/zhumeiqi/test/",&file2)) != 0 )
+    if( ( ret = pomme_client_stat_file(&rpcc, "/zhumeiqi/test/",&file2)) != 0 )
     {
 	debug("State file error");
     }

@@ -17,6 +17,9 @@
  */
 #include "pomme_rpcc.h"
 #include "pomme_client.h"
+#include "pomme_utils.h"
+#include "pomme_path.h"
+#include "pomme_client_meta.h"
 static int get_ds(pomme_client_t *client, 
         u_int32 msid,	
 	u_int32 id,
@@ -107,7 +110,7 @@ PFILE *pomme_open(const char *spath, const char *mode)
 	return file;
     }
 
-    path = make_path(spath);
+    path = make_path((char *)spath);
      
 
 
@@ -133,10 +136,11 @@ static int get_ds(pomme_client_t *client,
 	ds_node *p = value->data;
 	*ip = p->ip;
 	*port = p->port;
-	pomme_data_distory(&value);
+	pomme_data_distroy(&value);
 	goto exit;
     }
-    u_int32 mip, mport;
+    u_int32 mip;
+    u_int16  mport;
     if ( 0 != ( ret = get_ms(client, msid, &mip, &mport) ))
     {
 	goto exit;
@@ -152,7 +156,7 @@ static int get_ds(pomme_client_t *client,
 
     ds_node ds;
 
-    if( ( ret = pomme_client_get_ds(rpcc,
+    if( ( ret = pomme_client_get_ds(&rpcc,
 		    id,&ds) ) != 0 )
     {
 	debug("Get Data Node info failure");

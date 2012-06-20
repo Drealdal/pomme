@@ -38,7 +38,7 @@ struct pomme_client
     /*parrelel access from several client*/
     pthread_mutex_t mutex;
     /**/
-    pomme_queue_t files;
+    pomme_queue_t *files;
     int max_count;
 
 
