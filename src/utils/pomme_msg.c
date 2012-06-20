@@ -18,7 +18,7 @@
 #include "pomme_msg.h"
 #include "utils.h"
 
-int pomme_send(int handle, void *buffer, 
+int pomme_sen2(int handle, void *buffer, 
 	size_t len, int flags)
 {
 	int ret = 0;
@@ -41,7 +41,7 @@ err:
 	return ret;
 }
 
-int pomme_recv(int handle, void *buffer,
+int pomme_rec2(int handle, void *buffer,
 	size_t len,size_t *r_len, int flags)
 {
     int ret = 0 ;
@@ -70,5 +70,4 @@ int pomme_recv(int handle, void *buffer,
 
 err:
     return ret;
-
 }

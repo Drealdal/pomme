@@ -19,7 +19,7 @@
 #include "utils.h"
 
 int pomme_send(int handle, void *buffer, 
-	int len, int flags)
+	size_t len, int flags)
 {
 	int ret = 0;
 	assert(buffer != NULL );

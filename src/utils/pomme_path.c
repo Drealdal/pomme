@@ -82,7 +82,7 @@ char *make_sub_dir(char *parrent, char *name)
     while( *name != '\0' )
     {
 	*rPath++ = *name;
-	if( *name == PAHT_SLASH )
+	if( *name == PATH_SLASH )
 	{
 	    is_slash = 1;
 	    break;
@@ -128,7 +128,7 @@ char *get_sub_file(char *parrent, char *name)
     assert( NULL != parrent );
     assert( NULL != name );
 
-    int len = strlen(path)+2;
+    int len = strlen(parrent)+strlen(name)+2;
     char *rPath = malloc(len);
     if(rPath == NULL)
     {
@@ -142,7 +142,7 @@ char *get_sub_file(char *parrent, char *name)
     int is_slash = 0;
     while(*name != '\0' )
     {
-	if( *name == PAHT_SLASH )
+	if( *name == PATH_SLASH )
 	{
 	    is_slash = 1;
 	    break;

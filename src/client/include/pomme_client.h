@@ -19,8 +19,7 @@
 #define _POMME_CLIENT_H
 #include "pomme_hash.h"
 #include "pomme_meta.h"
-typedef struct node ds_node;
-typedef struct node ms_node;
+#include "pomme_client_file.h"
 
 typedef struct pomme_client pomme_client_t;
 struct pomme_client
