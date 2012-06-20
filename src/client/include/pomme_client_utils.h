@@ -16,5 +16,6 @@
  * =====================================================================================
  */
 #include "pomme_meta.h" 
-int pomme_file_print(pomme_file_t *file);
+#include "pomme_file.h"
+int pomme_file_print(FILE *fd,pomme_file_t *file);
 

@@ -22,7 +22,7 @@
 int main(int argc, char **argv)
 {
     xmlDocPtr pdoc = NULL;
-    xmlNodePtr proot=NULL,curNode=NULL;
+    xmlNodePtr proot=NULL;
     char *psfilename;
     if( argc < 1 )
     {
@@ -44,5 +44,5 @@ int main(int argc, char **argv)
     }	
     printf("rootName:%s",xmlGetProp(proot,BAD_CAST "name"));
 
-
+    return 0;
 }

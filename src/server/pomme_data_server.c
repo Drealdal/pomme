@@ -410,8 +410,11 @@ int pomme_put_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     return ret;
 
 put_err:
-    ftruncate(ds->cur_storage_fd, object.start);
-
+    ret = ftruncate(ds->cur_storage_fd, object.start);
+    if( ret != 0 )
+    {
+	debug("trucate file failure");
+    }
 err:	
     return ret;
 }
@@ -640,7 +643,7 @@ int server(pomme_ds_t *ds)
     pomme_set_sigaction(SIGALRM,&pomme_ds_heart_beat);
     pomme_set_timer(POMME_DATA_HEART_BEAT_INTERVAL,0);
 
-    int nfds = 0, i, conn_sock;
+    int nfds = 0, i, conn_sock = 0;
     while(1)
     {
 	nfds = epoll_wait(epid, events, MAX_CLIENTS+1, -1);

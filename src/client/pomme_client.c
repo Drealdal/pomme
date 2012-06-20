@@ -15,9 +15,15 @@
  *
  * =====================================================================================
  */
-
-static int get_ds(pomme_client_t *client, u_int32 id,
-       	u_int32 *ip, u_int16 *port); 
+#include "pomme_rpcc.h"
+#include "pomme_client.h"
+#include "pomme_utils.h"
+#include "pomme_path.h"
+#include "pomme_client_meta.h"
+static int get_ds(pomme_client_t *client, 
+        u_int32 msid,	
+	u_int32 id,
+       	u_int32 *ip, u_int16 *port);
 static int get_ms(pomme_client_t *client, u_int32 id,
        	u_int32 *ip, u_int16 *port);
 
@@ -57,14 +63,14 @@ int pomme_client_init(pomme_client_t *client,
     client->mport = mport;
 
     if (ret = pomme_hash_init(POMME_CLIENT_BUFFER_DS,
-	    &hash_int, &cmp_ds_node,&client->ds_nodes))
+	    &hash_int, &cmp_dsnode,&client->ds_nodes))
     {
 	debug("Hash init failure");
 	goto err;
     }
 
     if (ret = pomme_hash_init(POMME_CLIENT_BUFFER_MS,
-	    &hash_int, &cmp_ms_node,&client->ms_nodes))
+	    &hash_int, &cmp_msnode,&client->ms_nodes))
     {
 	debug("Hash init failure");
 	goto m_err;
@@ -89,10 +95,13 @@ err:
     return ret;
 }
 
-PFILE *pomme_open(const char *path, const char *mode)
+PFILE *pomme_open(const char *spath, const char *mode)
 {
     int ret = 0;
+    char *path = NULL;
     PFILE *file = NULL;
+
+    assert( spath != NULL );
     file = malloc(sizeof(PFILE));
 
     if( file == NULL )
@@ -101,7 +110,9 @@ PFILE *pomme_open(const char *path, const char *mode)
 	return file;
     }
 
-    ret = pomme_sync_read_file_meta(
+    path = make_path((char *)spath);
+     
+
 
     return ret;
 }
@@ -115,7 +126,7 @@ static int get_ds(pomme_client_t *client,
     int ret;
     pomme_data_t key,*value;
     memset(&key, 0, sizeof(key));
-    key.len = sizeof(u_int32);
+    key.size = sizeof(u_int32);
     key.data = &id;
 
     pomme_data_init(&value, sizeof(ds_node));
@@ -125,10 +136,11 @@ static int get_ds(pomme_client_t *client,
 	ds_node *p = value->data;
 	*ip = p->ip;
 	*port = p->port;
-	pomme_data_distory(&value);
+	pomme_data_distroy(&value);
 	goto exit;
     }
-    u_int32 mip, mport;
+    u_int32 mip;
+    u_int16  mport;
     if ( 0 != ( ret = get_ms(client, msid, &mip, &mport) ))
     {
 	goto exit;
@@ -144,14 +156,14 @@ static int get_ds(pomme_client_t *client,
 
     ds_node ds;
 
-    if( ( ret = pomme_client_get_ds(rpcc,
+    if( ( ret = pomme_client_get_ds(&rpcc,
 		    id,&ds) ) != 0 )
     {
 	debug("Get Data Node info failure");
 	goto exit;
     }
-    *ip = ds->ip;
-    *port = ds->port;
+    *ip = ds.ip;
+    *port = ds.port;
 
 exit:
     return ret;

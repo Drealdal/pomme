@@ -1,67 +1,54 @@
-CC=gcc
-INCLUDE_DIR=./include
-OBJECT_DIR=./.object
-BIN_DIR=../bin
-UTIL_DIR=./utils
+CC = gcc
 
-RPC_DIR=./rpc
-RPC_INCLUDE=./rpc/include
-RPC_TEST=./rpc/test
+INCLUDE_DIR =./include server/include client/include rpc/include $(BDB_HOME)/include /usr/include/libxml2
+SOURCE_DIR = server client utils rpc test 
+LIB_DIR=$(BDB_HOME)/lib 
+BIN_DIR=./bin
+LIB_INCLUDE_FLAGS=$(addprefix -L,$(LIB_DIR)) 
+INCLUDE_FLAGS = $(addprefix -I, $(INCLUDE_DIR) $(SYS_INCLUDE))
+LIB_FLAGS= -ldb -pthread -luuid -lxml2 
+OBJECT_DIR = .object
+SERVER_DIR = server
 
-SERVER_DIR=./server
-SERVER_INCLUDE=./server/include
-SERVER_TEST=./server/test
+CLEAN_DIR=$(addsuffix /*~,$(SOURCE_DIR) $(INCLUDE_DIR))
+CLEAN_OBJECT=$(addsuffix /*.o, $(SOURCE_DIR))
 
-CLIENT_DIR=./client
-CLIENT_INCLUDE=./client/include
-CLIENT_TEST=./client/test
+OBJECT_DIRS=$(OBJECT_DIR) $(addprefix $(OBJECT_DIR)/,$(SOURCE_DIR)) 
 
-XML_INCLUDE=/usr/include/libxml2
+DEBUG = -DDEBUG=1
+CFLAGS = $(INCLUDE_FLAGS) -Wall $(DEBUG) -O2 $(LIB_INCLUDE_FLAGS) $(LIB_FLAGS) 
 
-TEST_DIR=./test
-INCLUDE_FLAG=-I$(INCLUDE_DIR) -I$(BDB_HOME)/include -I$(SERVER_INCLUDE) -I$(CLIENT_INCLUDE) -I$(RPC_INCLUDE) -I$(XML_INCLUDE)
-LIB_FLAG=-L$(BDB_HOME)/lib -ldb -pthread -luuid -lxml2
-CFLAGS=$(INCLUDE_FLAG)  -Wall -DDEBUG=1
-INSTALL_DIR=$(POMME_HOME)
+HEADERS = $(shell ls $(INCLUDE_DIR) | grep '\.h$$')
+ls:
+	echo $(HEADERS)
 
-all_rpc: $(rpc_depends) $(BIN_DIR)/rpcgen
+SOURCE_FILES = $(addsuffix /*.c ,$(SOURCE_DIR))
 
-all_depends=$(addprefix $(OBJECT_DIR)/,all_test all_log all_server all_utils all_client) all_rpc 
-rpc_depends=$(addprefix $(OBJECT_DIR)/,pomme_rpc.o pomme_rpcc.o pomme_rpcs.o pomme_serilize.o pomme_thread.o pomme_rpcparse.o pomme_rpcgen.o)
-all_clean= $(addprefix clean_, test server utils client rpc)
+GREPCMD = grep -L 'int main\s*(.*)'  $(SOURCE_FILES)
+SOURCE_NAMES = $(shell $(GREPCMD) )
+SOURCE_OBJECTS = $(patsubst %.c, %.o, $(SOURCE_NAMES))
 
-all: init $(all_depends)
-	mkdir -p .object
-
-include $(SERVER_DIR)/Makefile
-include $(RPC_DIR)/Makefile
-include $(UTIL_DIR)/Makefile
-include $(TEST_DIR)/Makefile
-include $(CLIENT_DIR)/Makefile
+GREPCMDL = grep -l 'int main\s*(.*)' $(SOURCE_FILES)
+PROGRAM_FILES = $(shell $(GREPCMDL))
+PROGRAM_TARGET = $(patsubst %.c, %bin, $(PROGRAM_FILES))
 
 
-.PHONY: all $(all_depends) all_clean init clear all_rpc
+ALL_OBJECTS = $(SOURCE_OBJECTS) $(PROGRAM_TARGET) 
 
+all: init $(ALL_OBJECTS)
 
-default:
-	echo $(INCLUDE_DIR)
-clean: $(all_clean) 
-	rm -f .object/*
-	rm -f *~
-	rm -f include/*~
-	rm -f bin/*
-clear: clean
-install:
-	mkdir -p $(INSTALL_DIR)
-	mkdir -p $(INSTALL_DIR)/bin
-	mkdir -p $(INSTALL_DIR)/lib
-	cp ../bin/* $(INSTALL_DIR)/bin
-	cp ../lib/* $(INSTALL_DIR)/lib
-	
+%.o: %.c $(HEADERS)
+	$(CC) -c $(CFLAGS) $^ -fpic -o $@ 
+%bin: %.c $(SOURCE_OBJECTS)
+	$(CC)  $^ -o $@ $(CFLAGS)
+	cp $@ $(BIN_DIR)
+
+.PHONY:all clean dist_clean  init
 init:
-	mkdir -p .object
-	mkdir -p ../bin
-	mkdir -p ../lib
-	mkdir -p ../data
-	mkdir -p ../datam
-#include "pomme_rpcparse.h"
+	mkdir -p bin
+clean: 
+	rm -rf $(CLEAN_DIR)	
+	rm -rf $(CLEAN_OBJECT)
+	rm -rf $(PROGRAM_TARGET)
+	rm -rf *~
+

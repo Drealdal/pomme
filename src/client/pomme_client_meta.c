@@ -105,7 +105,7 @@ e_exit:
     return ret;
 }
 
-int pomme_write_file(rpcc_t *rct, 
+int pomme_client_write_file(rpcc_t *rct, 
 	pomme_file_t *file,
        	u_int64 off,
        	u_int64 len,
@@ -118,7 +118,7 @@ int pomme_write_file(rpcc_t *rct,
 
     return ret;
 }
-int pomme_stat_file(rpcc_t *rct, char *path,pomme_file_t **file)
+int pomme_client_stat_file(rpcc_t *rct, char *path,pomme_file_t **file)
 {
     int ret = 0 ;
     assert( rct != NULL );

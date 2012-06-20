@@ -16,9 +16,11 @@
  * =====================================================================================
  */
 #include "pomme_client_utils.h"
+#include "pomme_file.h"
+#include "utils.h"
 int pomme_file_print(FILE *f,pomme_file_t *file)
 {
-    fprintf(f, "%u %s %llu\n",file->dsgroup, ctime(file->c_time),len);
+    fprintf(f, "%u %s %llu\n",file->dsgroup, ctime(&file->c_time),file->len);
     return 0;
 }
 
