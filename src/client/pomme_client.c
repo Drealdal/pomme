@@ -111,8 +111,6 @@ PFILE *pomme_open(const char *spath, const char *mode)
     }
 
     path = make_path((char *)spath);
-     
-
 
     return ret;
 }

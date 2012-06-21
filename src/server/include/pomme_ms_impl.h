@@ -68,7 +68,17 @@ int ms_start(pomme_ms_t *ms);
 int ms_stop(pomme_ms_t *ms);
 pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id);
 pomme_data_t *pomme_all_ds(pomme_ms_t *ms);
-/**/
+
+/**
+ * @brief pomme_mkdir: insert an key-value pair in the database
+ * @param ms: 
+ * @param path the path of the object
+ * @return 
+ */
+pomme_data_t *pomme_mkdir(pomme_ms_t *ms, const char *path);
+pomme_data_t *pomme_dirinit(pomme_ms_t *ms, const char *path);
+
+
 /**
  * @return new object id
  * 10bit for metaserver, rest 54 will be used to identify the object
