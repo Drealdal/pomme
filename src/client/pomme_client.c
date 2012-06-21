@@ -62,15 +62,15 @@ int pomme_client_init(pomme_client_t *client,
     client->mip = mip;
     client->mport = mport;
 
-    if (ret = pomme_hash_init(POMME_CLIENT_BUFFER_DS,
-	    &hash_int, &cmp_dsnode,&client->ds_nodes))
+    if ( (ret = pomme_hash_init(POMME_CLIENT_BUFFER_DS,
+	    &hash_int, &cmp_dsnode,&client->ds_nodes)) != 0)
     {
 	debug("Hash init failure");
 	goto err;
     }
 
-    if (ret = pomme_hash_init(POMME_CLIENT_BUFFER_MS,
-	    &hash_int, &cmp_msnode,&client->ms_nodes))
+    if ( (ret = pomme_hash_init(POMME_CLIENT_BUFFER_MS,
+	    &hash_int, &cmp_msnode,&client->ms_nodes)) != 0)
     {
 	debug("Hash init failure");
 	goto m_err;
