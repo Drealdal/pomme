@@ -194,7 +194,10 @@ int put_data_2_storage(int file_handle,
     ret = write( file_handle, data, len);
     if( ret < len )
     {
-	ftruncate( file_handle, *start);
+	if ( ftruncate( file_handle, *start) != 0 )
+	{
+	    debug("ftruncate file error");
+	}
 	debug("write file fail %s", strerror(ret));
 	ret = POMME_WRITE_FILE_ERROR;
 	goto err;

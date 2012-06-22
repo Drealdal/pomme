@@ -124,6 +124,9 @@
 #define POMME_LOCK_MANAGER_FILE  "/home/zhumeiqi/work/pomme/data/pomme_lock_manager.db"
 #define POMME_LOCK_MANAGER_NAME  "lock_manager"
 
+#define POMME_IMAP_FILE  "/home/zhumeiqi/work/pomme/data/pomme_imap.db"
+#define POMME_IMAP_NAME  "inode_mapping"
+
 #define POMME_META_ENV_HOME "/home/zhumeiqi/work/pomme/datam/"
 
 

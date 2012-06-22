@@ -26,6 +26,7 @@
 #include "pomme_protocol.h"
 #include "pomme_type.h"
 #include "pomme_meta.h"
+#include "fastbit.h"
 
 typedef struct pomme_ms pomme_ms_t;
 struct pomme_ms
@@ -52,6 +53,10 @@ struct pomme_ms
     DB_ENV *env;
 
     DB *meta_db;
+
+    /*  map the file to inodes */
+    DB *imap;
+
     /*
      * The infomation of the data node;
      *
@@ -74,6 +79,10 @@ struct pomme_ms
     pthread_mutex_t lmutex;
 
     pomme_rpcs_t rpcs;
+    /*  fastbit to record the inode numbers */
+    fastbit_t inodes;
+
+
     int (*start)(pomme_ms_t *ms);
     int (*stop)(pomme_ms_t *ms);
     /* file management */

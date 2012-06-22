@@ -116,11 +116,8 @@ int pomme_ms_init(pomme_ms_t *ms,
 //    db_flags |= DB_DUPSORT;
       db_flags |= DB_DUP;
     
-    if( ( ret = ms->meta_db->set_flags(ms->meta_db,db_flags))!= 0)
-    {
-	debug("Set metadb flags failure:%s",db_strerror(ret));
-	goto meta_db_err;
-    }
+
+
 /*  
     if( ( ret = ms->meta_db->set_dup_compare(
 		    ms->meta_db,&object_dup_cmp)) != 0)
@@ -170,13 +167,57 @@ int pomme_ms_init(pomme_ms_t *ms,
 	POMME_LOG_ERROR("Server open lock manager failure",ms->logger);
 	goto data_lock_err;
     }
+    /*  inode mapping */
+
+    if( ( ret = db_create(&ms->imap, ms->env,0)) != 0 )
+    {
+	debug("ms->imap create error");
+	POMME_LOG_ERROR("Server Create db imap failure",ms->logger);
+	goto imap_err;
+    }
+
+    if( ( ret = ms->imap->open(
+		    ms->imap, NULL,POMME_IMAP_FILE,
+		   POMME_IMAP_NAME,DB_BTREE,DB_CREATE,0664)) != 0 )
+    {
+	debug("open imap db failure: %s",db_strerror(ret));
+	POMME_LOG_ERROR("Server open inode mapping failure",ms->logger);
+	goto imap_err;
+    }	
 
 
     if( pthread_mutex_init(&ms->lmutex,NULL) != 0 )
     {
 	debug("Meta server  init Mutex Error\n");
-	goto data_lock_err;
+	goto imap_err;
     }
+    /*  init inodes */
+
+    if (fb_init(&ms->inodes,max_height(),0) < 0 )
+    {
+	goto imap_err;
+    }
+
+    
+    //TODO
+    DBC *dbc = NULL;
+    if( ( ret = ms->imap->cursor(ms->imap,
+		    NULL,&dbc,DB_CURSOR_BULK))!= 0 )
+    {
+	debug("Get read cursor for ms->imap failure:%s",db_strerror(ret));
+	POMME_LOG_ERROR("Server get cursor failure",ms->logger);
+	goto imap_err;
+    }
+
+    DBT key, val;
+    while(( ret = dbc->get(dbc, &key,
+		    &val,DB_NEXT)) != 0 )
+    {
+	u_int64 localid = *(u_int64 *)val.data; 
+	int id = localid%(1<<33);
+	fb_setn0_1(&ms->inode,id);
+    }
+
 
     ms->start = &ms_start;
     ms->POMME_META_CREATE_FILE = &POMME_META_CREATE_FILE;
@@ -204,6 +245,8 @@ int pomme_ms_init(pomme_ms_t *ms,
     }
     ms_register_funcs(ms);
     return ret;
+imap_err:
+    ms->imap->close(ms->imap, 0);
 data_lock_err:
     ms->lock_manager->close(ms->lock_manager, 0 );
 data_nodes_err:
@@ -224,29 +267,34 @@ static int ms_register_funcs(pomme_ms_t *ms)
     // create file
     pomme_data_t *arg = malloc(sizeof(pomme_data_t)*create_file_arg_num);
     memset(arg,0,sizeof(pomme_data_t)*create_file_arg_num);
+
     arg[0].size = -1;
     arg[1].size = sizeof(int);
+
     ms->rpcs.func_register(&ms->rpcs,POMME_META_CREATE_FILE_S,ms->POMME_META_CREATE_FILE,
 	    create_file_arg_num,arg);
     // read file
 
     arg = malloc( sizeof(pomme_data_t)*read_file_arg_num);
     memset(arg,0,sizeof(pomme_data_t)*read_file_arg_num);
-    arg[0].size = -1;
+
+    arg[0].size = sizeof(u_int64);
     ms->rpcs.func_register(&ms->rpcs,POMME_META_READ_FILE_S,ms->POMME_META_READ_FILE,
 	    read_file_arg_num,arg);
     // stat file
     arg = malloc( sizeof(pomme_data_t)*stat_file_arg_num);
     memset(arg,0,sizeof(pomme_data_t)*stat_file_arg_num);
-    arg[0].size = -1;
+
+    arg[0].size = sizeof(u_int64);
     ms->rpcs.func_register(&ms->rpcs,POMME_META_STAT_FILE_S,ms->POMME_META_STAT_FILE,
 	    stat_file_arg_num,arg);
     // write file
     arg = malloc( sizeof(pomme_data_t)*write_file_arg_num); 
     memset(arg, 0, sizeof(pomme_data_t)*write_file_arg_num);
 
-    arg[0].size = -1;
+    arg[0].size = sizeof(u_int64);
     arg[1].size = sizeof(uuid_t);
+
     arg[2].size = sizeof(u_int64);
     arg[3].size = sizeof(u_int64);
 
@@ -274,7 +322,7 @@ static int ms_register_funcs(pomme_ms_t *ms)
 	    all_ds_arg_num,arg);
     // lock
     arg = malloc( sizeof(pomme_data_t)*lock_arg_num);
-    arg[0].size = -1;
+    arg[0].size = sizeof(u_int64);
     arg[1].size = sizeof(int);
 
     ms->rpcs.func_register(&ms->rpcs, POMME_LOCK_S, ms->POMME_LOCK,
@@ -283,7 +331,7 @@ static int ms_register_funcs(pomme_ms_t *ms)
     // extend lock
     arg = malloc( sizeof(pomme_data_t)*extend_lock_arg_num);
 
-    arg[0].size = -1;
+    arg[0].size = sizeof(u_int64);
     arg[1].size = sizeof(int);
     arg[2].size = sizeof(int); 
     ms->rpcs.func_register(&ms->rpcs,  POMME_EXTEND_LOCK_S,
@@ -291,8 +339,9 @@ static int ms_register_funcs(pomme_ms_t *ms)
     // release lock
     arg = malloc( sizeof(pomme_data_t)*release_lock_arg_num);
 
-    arg[0].size = -1;
+    arg[0].size = sizeof(u_int64);
     arg[1].size = sizeof(int);
+
     ms->rpcs.func_register(&ms->rpcs,  POMME_RELEASE_LOCK_S,
 	    ms->POMME_RELEASE_LOCK,release_lock_arg_num, arg);
 
@@ -306,8 +355,10 @@ DEF_POMME_RPC_FUNC(POMME_META_CREATE_FILE)
     assert( extra != NULL);
     pomme_ms_t *ms = (pomme_ms_t *)extra;
 
-    char *path = (char *)arg[0].data;
+
+    char *path = arg[0].data;
     int mode = *(int *)arg[1].data;
+
     return pomme_create_file(ms, path, mode);
 }
 
@@ -317,9 +368,9 @@ DEF_POMME_RPC_FUNC(POMME_META_READ_FILE)
     assert( extra != NULL );
     pomme_ms_t *ms = (pomme_ms_t *)extra;
 
-    char *path = (char *)arg[0].data;
+    u_int64 inode = *(u_int64 *)arg[0].data;
 
-    return pomme_read_file(ms,path);
+    return pomme_read_file(ms,inode);
 
 }
 DEF_POMME_RPC_FUNC(POMME_META_STAT_FILE)
@@ -328,9 +379,9 @@ DEF_POMME_RPC_FUNC(POMME_META_STAT_FILE)
     assert( extra != NULL );
 
     pomme_ms_t *ms = (pomme_ms_t *)extra;
-    char *path = (char *)arg[0].data;
+    u_int64 inode = *(u_int64 *)arg[0].data;
 
-    return pomme_stat_file(ms, path);
+    return pomme_stat_file(ms, inode);
 }
 DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
 {
@@ -338,13 +389,14 @@ DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
     assert ( extra != NULL );
 
     pomme_ms_t *ms = (pomme_ms_t *) extra;
-    char *path = ( char *) arg[0].data;
+    u_int64 inode = *(u_int64 *)arg[0].data;
     uuid_t id;
+
     memcpy(id, arg[1].data, sizeof(uuid_t));
     u_int64 off= *(u_int64 *)arg[1].data;
     u_int64 len = *(u_int64 *)arg[2].data; 
 
-    return pomme_write_file( ms, path, id, off, len );
+    return pomme_write_file( ms, inode, id, off, len );
 
 }
 DEF_POMME_RPC_FUNC(POMME_META_HEART_BEAT)
@@ -379,10 +431,11 @@ DEF_POMME_RPC_FUNC(POMME_LOCK)
     assert( n == lock_arg_num);
     assert( extra != NULL );
     pomme_ms_t *ms = (pomme_ms_t *)extra;
-    char *path = (char *)arg[0].data;
-    int  inteval = *(int *)arg[0].data;
 
-    return pomme_lock(ms, path, inteval);
+    u_int64 inode = *(u_int64 *)arg[0].data;
+    int  inteval = *(int *)arg[1].data;
+
+    return pomme_lock(ms, inode, inteval);
 }
 DEF_POMME_RPC_FUNC(POMME_EXTEND_LOCK)
 {
@@ -390,10 +443,11 @@ DEF_POMME_RPC_FUNC(POMME_EXTEND_LOCK)
     assert( extra != NULL );
     pomme_ms_t *ms = (pomme_ms_t *)extra;
 
-    char *path = (char *)arg[0].data;
+    u_int64 inode = *(u_int64 *)arg[0].data;
     int previous = *(int *) arg[1].data;
     int inteval = *(int *) arg[2].data;
-    return pomme_extend_lock(ms, path, previous, inteval);
+
+    return pomme_extend_lock(ms, inode, previous, inteval);
 
 }
 DEF_POMME_RPC_FUNC(POMME_RELEASE_LOCK)
@@ -402,7 +456,8 @@ DEF_POMME_RPC_FUNC(POMME_RELEASE_LOCK)
     assert( extra != NULL );
 
     pomme_ms_t *ms = (pomme_ms_t *)extra;
-    char *path = (char *)arg[0].data;
+    u_int64 inode = *(u_int64 *)arg[0].data;
     int previous = *(int *)arg[1].data;
-    return pomme_release_lock(ms, path, previous);
+
+    return pomme_release_lock(ms, inode, previous);
 }

@@ -58,7 +58,7 @@ ret:
     return re;
 }
 
-pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path)
+pomme_data_t *pomme_read_file(pomme_ms_t *ms, u_int64 inode)
 {
     int  ret = 0, i;
     pomme_data_t * re = NULL;
@@ -78,8 +78,9 @@ pomme_data_t *pomme_read_file(pomme_ms_t *ms, const char *path)
     memset(&key, 0, sizeof(DBT));
     memset(&val, 0, sizeof(DBT));
 
-    key.data = (void *)path;
-    key.size = pomme_strlen(path);
+    key.data = &inode;
+    key.size = sizeof(u_int64); 
+
     key.flags |= DB_DBT_READONLY;
 
     val.ulen = sizeof(pomme_file_t); 
@@ -125,7 +126,8 @@ e_exit:
     return re; 
 } 
 
-pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path,
+pomme_data_t  *pomme_write_file(pomme_ms_t *ms,
+	u_int64 inode,
 	uuid_t id, 
 	u_int64 off, 
 	u_int64 len)
@@ -141,8 +143,9 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms, const char *path,
     DBT key,val;
     memset(&key, 0 , sizeof(DBT));
     memset(&val, 0 , sizeof(DBT)); 
-    key.size = pomme_strlen(path);
-    key.data = (void *)path;
+
+    key.size = sizeof(u_int64);
+    key.data = &inode;
 
     val.size = sizeof(ms_object_t);
     val.data = &ob;
@@ -176,11 +179,10 @@ err:
     return re;
 }
 
-pomme_data_t *pomme_stat_file(pomme_ms_t *ms, const char *path)
+pomme_data_t *pomme_stat_file(pomme_ms_t *ms, u_int64 inode)
 {
     int ret = 0;
     pomme_data_t *re = NULL;
-    debug("Stat file:%s",path);
     DBT key, val;
     
     pomme_data_init(&re, sizeof(pomme_file_t));
@@ -188,8 +190,8 @@ pomme_data_t *pomme_stat_file(pomme_ms_t *ms, const char *path)
     memset(&key, 0, sizeof(DBT));
     memset(&val, 0, sizeof(DBT));
 
-    key.size = pomme_strlen(path);
-    key.data = (void *)path; 
+    key.size = sizeof(u_int64);
+    key.data = &inode; 
 
     val.ulen = sizeof(pomme_file_t);
     val.data = re->data; 
@@ -299,7 +301,7 @@ pomme_data_t *pomme_all_ds(pomme_ms_t *ms)
     return re;
 }
 /*  local method */
-pomme_data_t * pomme_lock(pomme_ms_t *ms, const char *path,int interval)
+pomme_data_t * pomme_lock(pomme_ms_t *ms, u_int64 inode,int interval)
     // time_t *expire)
 {
     int ret = 0;
@@ -308,8 +310,8 @@ pomme_data_t * pomme_lock(pomme_ms_t *ms, const char *path,int interval)
     memset(&key, 0, sizeof(DBT));
     memset(&val, 0, sizeof(DBT));
     pomme_lock_t lock;
-    key.size = pomme_strlen(path);
-    key.data = (void *)path;
+    key.size = sizeof(u_int64);
+    key.data = &inode;
     
     val.size = sizeof(pomme_lock_t);
     val.data = &lock;
@@ -339,7 +341,7 @@ err:
     return re;
 }
 pomme_data_t *pomme_extend_lock(pomme_ms_t *ms, 
-	const char *path, 
+	u_int64 inode,
 	time_t previous,
        	time_t interval)
 {
@@ -353,8 +355,8 @@ pomme_data_t *pomme_extend_lock(pomme_ms_t *ms,
    pomme_lock_t lock;
    lock.wt = previous;
 
-   key.size = pomme_strlen(path);
-   key.data = (char *)path;
+   key.size = sizeof(u_int64);
+   key.data = (void *)&inode;
    val.size = sizeof(pomme_lock_t);
 
    val.data = &lock;
@@ -395,7 +397,8 @@ err:
    return re;
 }
 
-pomme_data_t * pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previous)
+pomme_data_t * pomme_release_lock(pomme_ms_t *ms, 
+	u_int64 inode, time_t previous)
 {
     int ret = 0;
     pomme_data_t *re = NULL;
@@ -406,10 +409,10 @@ pomme_data_t * pomme_release_lock(pomme_ms_t *ms, const char *path, time_t previ
     pomme_lock_t lock;
     lock.wt = previous;
 
-    key.size = pomme_strlen(path);
-    key.data = (char *)path;
-    val.size = sizeof(pomme_lock_t);
+    key.size = sizeof(u_int64);
+    key.data = (void *)&inode;
 
+    val.size = sizeof(pomme_lock_t);
     val.data = &lock;
     val.flags |= DB_DBT_USERMEM;
 

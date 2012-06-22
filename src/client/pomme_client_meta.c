@@ -60,7 +60,7 @@ err:
 }
 int pomme_sync_read_file_meta(
 	rpcc_t *rct,
-	char *path,
+	u_int64 inode,
 	pomme_file_t **file,
 	int *obj_num,
        	ms_object_t **object)
@@ -75,8 +75,8 @@ int pomme_sync_read_file_meta(
     arg[0].size = pomme_strlen(name);
     arg[0].data = name;
 
-    arg[1].size = pomme_strlen(path);
-    arg[1].data = path;
+    arg[1].size = sizeof(u_int64);
+    arg[1].data = &inode;
 
     pomme_data_t res;
     memset(&res,0,sizeof(pomme_data_t));
@@ -106,7 +106,7 @@ e_exit:
 }
 
 int pomme_client_write_file(rpcc_t *rct, 
-	pomme_file_t *file,
+	u_int64 inode,
        	u_int64 off,
        	u_int64 len,
        	void *data)
@@ -118,7 +118,11 @@ int pomme_client_write_file(rpcc_t *rct,
 
     return ret;
 }
-int pomme_client_stat_file(rpcc_t *rct, char *path,pomme_file_t **file)
+int pomme_client_stat_file(
+	rpcc_t *rct,
+	u_int64 inode,
+       	char *path,
+	pomme_file_t **file)
 {
     int ret = 0 ;
     assert( rct != NULL );
@@ -129,8 +133,8 @@ int pomme_client_stat_file(rpcc_t *rct, char *path,pomme_file_t **file)
     arg[0].size = strlen(name)+1;
     arg[0].data = name;
 
-    arg[1].size = strlen(path)+1;
-    arg[1].data = path;
+    arg[1].size = sizeof(u_int64); 
+    arg[1].data = &inode;
 
     pomme_data_t res;
     memset(&res, 0, sizeof(pomme_data_t));
