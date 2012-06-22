@@ -30,7 +30,7 @@ SOURCE_OBJECTS = $(patsubst %.c, %.o, $(SOURCE_NAMES))
 
 GREPCMDL = grep -l 'int main\s*(.*)' $(SOURCE_FILES)
 PROGRAM_FILES = $(shell $(GREPCMDL))
-PROGRAM_TARGET = $(patsubst %.c, %bin, $(PROGRAM_FILES))
+PROGRAM_TARGET = $(patsubst %.c, %, $(PROGRAM_FILES))
 
 
 ALL_OBJECTS = $(SOURCE_OBJECTS) $(PROGRAM_TARGET) 
@@ -39,7 +39,7 @@ all: init $(ALL_OBJECTS)
 
 %.o: %.c $(HEADERS)
 	$(CC) -c $(CFLAGS) $^ -fpic -o $@ 
-%bin: %.c $(SOURCE_OBJECTS)
+%: %.c $(SOURCE_OBJECTS)
 	$(CC)  $^ -o $@ $(CFLAGS)
 	cp $@ $(BIN_DIR)
 

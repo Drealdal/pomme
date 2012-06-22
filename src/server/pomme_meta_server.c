@@ -193,7 +193,7 @@ int pomme_ms_init(pomme_ms_t *ms,
     }
     /*  init inodes */
 
-    if (fb_init(&ms->inodes,max_height(),0) < 0 )
+    if (fb_init(&ms->inodes,max_height(),0,0) < 0 )
     {
 	goto imap_err;
     }
@@ -214,8 +214,8 @@ int pomme_ms_init(pomme_ms_t *ms,
 		    &val,DB_NEXT)) != 0 )
     {
 	u_int64 localid = *(u_int64 *)val.data; 
-	int id = localid%(1<<33);
-	fb_setn0_1(&ms->inode,id);
+	int id = localid%((long long)1)<<33;
+	fb_setn0_1(&ms->inodes,id);
     }
 
 
