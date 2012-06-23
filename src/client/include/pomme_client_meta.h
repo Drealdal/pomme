@@ -33,11 +33,11 @@
 int pomme_sync_create_file(rpcc_t *rct, 
 	char *path,
 	int mode,
-	pomme_file_t **file);
+	u_int64 *fd);
 
 int pomme_sync_read_file_meta(
 	rpcc_t *rct,
-	char *path,
+	u_int64 inode,
 	pomme_file_t **file,
 	int *obj_num,
        	ms_object_t **object);
@@ -54,11 +54,15 @@ int pomme_sync_read_file_meta(
  * @return == 0 for success, < 0 failure 
  */
 int pomme_client_write_file(rpcc_t *rct, 
-	pomme_file_t *file,
+	u_int64 inode,
        	u_int64 off,
        	u_int64 len,
        	void *data);
-int pomme_client_stat_file(rpcc_t *rct, char *path,pomme_file_t **file);
+
+int pomme_client_stat_file(rpcc_t *rct,
+	u_int64 inode,
+	pomme_file_t **file);
+
 int pomme_client_get_ds(rpcc_t *rct, u_int32 id, ds_node *ds);
 int pomme_uuid_create(uuid_t id);
 #endif

@@ -25,7 +25,7 @@
 int pomme_sync_create_file(rpcc_t *rct, 
 	char *path,
 	int mode,
-	pomme_file_t **file)
+	u_int64 *fd)
 {
     int ret = 0;
     assert( rct != NULL );
@@ -53,7 +53,8 @@ int pomme_sync_create_file(rpcc_t *rct,
     }else{
 	debug("created");
     }
-    *file = (pomme_file_t *)res.data;
+
+    *fd = *(u_int64 *)res.data;
 err:
     free(arg);
     return ret;
@@ -67,7 +68,6 @@ int pomme_sync_read_file_meta(
 {
     int ret = 0; 
     assert(rct != NULL);
-    assert(path != NULL);
 
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
     assert( arg != NULL );
@@ -112,7 +112,6 @@ int pomme_client_write_file(rpcc_t *rct,
        	void *data)
 {
     int ret = 0;
-    assert( NULL != file );
 
     
 
@@ -121,14 +120,15 @@ int pomme_client_write_file(rpcc_t *rct,
 int pomme_client_stat_file(
 	rpcc_t *rct,
 	u_int64 inode,
-       	char *path,
 	pomme_file_t **file)
 {
     int ret = 0 ;
     assert( rct != NULL );
-    assert( path != NULL );
-    pomme_data_t * arg = malloc(2*sizeof(pomme_data_t));
+
+    pomme_data_t * arg = malloc(2*
+	    sizeof(pomme_data_t));
     assert( arg != NULL );
+
     char *name = POMME_META_STAT_FILE_S;
     arg[0].size = strlen(name)+1;
     arg[0].data = name;

@@ -28,6 +28,7 @@ int main()
     u_int32 ip = inet_addr(host_name);
     rpcc_t rpcc;
     pomme_file_t *file = NULL;
+    u_int64 fd;
 
     if( ( ret = pomme_rpcc_init(&rpcc, ip,POMME_META_RPC_PORT,0))
 	    != 0 )
@@ -36,31 +37,31 @@ int main()
 	exit(-1);
     }
     
-    if( ( ret = pomme_sync_create_file(&rpcc,"/zhumeiqi/test/",544,&file)) != 0 )
+    if( ( ret = pomme_sync_create_file(&rpcc,"/zhumeiqi/test/",544,&fd)) != 0 )
     {
 	debug("create error");
     }
 
-    pomme_file_t *file2 = NULL;
 
-    if( ( ret = pomme_client_stat_file(&rpcc, "/zhumeiqi/test/",&file2)) != 0 )
+    if( ( ret = pomme_client_stat_file(&rpcc, fd ,&file)) != 0 )
     {
 	debug("State file error");
     }
-    assert(file2 != NULL);
-    debug("Create Time:%s",pomme_time(file2->c_time,NULL));
+    assert(file != NULL);
+    debug("Create Time:%s",pomme_time(file->c_time,NULL));
 
-    pomme_file_t *file3 = NULL;
+    pomme_file_t *file2 = NULL;
     ms_object_t *object = NULL;
+
     int obj_num = 0;
-    if(( ret = pomme_sync_read_file_meta(&rpcc, "/zhumeiqi/test/",
-		    &file3, &obj_num,&object)) != 0 )
+    if(( ret = pomme_sync_read_file_meta(&rpcc, fd,
+		    &file2, &obj_num,&object)) != 0 )
     {
 	debug("read file error:%d",ret);
     }	
 
     debug("Object Number:%d",obj_num);
-    debug("Create Time:%s",pomme_time(file3->c_time,NULL));
+    debug("Create Time:%s",pomme_time(file2->c_time,NULL));
 
     return 0;
 }
