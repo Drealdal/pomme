@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<function name="test">
+    <params>
+	<param>
+	    <name>name1</name>
+	    <type>char</type>
+	</param>
+    </params>
+</function>

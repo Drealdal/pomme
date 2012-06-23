@@ -156,6 +156,9 @@
 #define POMME_META_CREATE_FILE create_file
 #define POMME_META_CREATE_FILE_S "create_file"
 
+#define	POMME_META_GET_INODE get_inode
+#define POMME_META_GET_INODE_S "get_inode"
+
 #define POMME_META_READ_FILE read_file
 #define POMME_META_READ_FILE_S "read_file"
 

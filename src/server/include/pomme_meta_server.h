@@ -36,6 +36,7 @@ struct pomme_ms
     // the time between the required time and other thread can take lock if the 
     // owner not willing to giveup
     int lock_time;
+
     u_int32 mip;
     u_int16 mport;
 
@@ -81,12 +82,15 @@ struct pomme_ms
     pomme_rpcs_t rpcs;
     /*  fastbit to record the inode numbers */
     fastbit_t inodes;
+    pthread_mutex_t imutex;
 
 
     int (*start)(pomme_ms_t *ms);
     int (*stop)(pomme_ms_t *ms);
     /* file management */
     pomme_data_t * (*POMME_META_CREATE_FILE)(void *ms,const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_GET_INODE)(void *ms,const int n , const pomme_data_t *arg);
+
     pomme_data_t * (*POMME_META_STAT_FILE)(void *ms, const int n , const pomme_data_t *arg);
     // get all the object of the file
     pomme_data_t * (*POMME_META_READ_FILE)(void *ms, const int n , const pomme_data_t *arg);
@@ -103,25 +107,23 @@ struct pomme_ms
 
     pomme_data_t * (*join_dsgroup)(void *ms,int n , pomme_data_t *arg);
     pomme_data_t * (*leave_dsgroup)(void *ms, int n , pomme_data_t *arg);
-
-
     /*
      * local 
      */
-    int (*get_ds_group)(const char *path);
-    /**
-     * @brief rpc funtion which will be called by the data
-     * server to report infomation 
-     */
+    int (*get_ds_group)(u_int64 inode);
+    /*  id of current meta */
+    int myid;
 
 };
 
 int pomme_ms_init(pomme_ms_t *ms,
+	int my_id,
 	pomme_log_level_t log_level,
 	int env_o_flags,
 	int env_o_mode,
 	int hash_size,
 	int max_thread,
 	int max_wating);
+
 
 #endif

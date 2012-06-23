@@ -18,25 +18,100 @@
 #include "pomme_ms_impl.h"
 #include "pomme_file.h"
 #include "pomme_meta.h"
-
-pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
+/**
+ * @brief pomme_create_inode 
+ *
+ * @param ms
+ * @param pinode the inode of the parrent dir
+ * @param mode
+ *
+ * @return 
+ */
+pomme_data_t * pomme_get_inode(pomme_ms_t *ms,
+	u_int64 pinode,
+	char *name,
+	int create)
 {
     int ret = 0;
-    debug("Create file:%s\n",path);
+    pomme_data_t *re = NULL ; 
+    char id[POMME_PATH_MAX];
+    u_int64 inode;
+
+    DBT key, val;
+    memset(&key, 0, sizeof(DBT));
+    memset(&val, 0, sizeof(DBT));
+
+    snprintf(id, POMME_PATH_MAX - 1, "%llu/%s",pinode,name);
+    u_int64 rinode;
+
+    key.size = pomme_strlen(id);
+    key.data = (void *)id;
+
+    val.data = &rinode;
+    val.flags |= DB_DBT_USERMEM;
+    val.ulen = sizeof(u_int64);
+
+    if( ( ret = ms->imap->get(ms->imap,NULL,&key, &val,0 )) != 0 )
+    {
+	if( create == 0 )
+	{
+	    pomme_data_init(&re, POMME_META_FILE_NOT_FOUND);
+	    goto ret;
+	}
+    }else{
+	inode = rinode;
+	goto ok;	
+    }
+
+    if( ( ret = pomme_get_id(ms,&inode)) < 0 )
+    {
+       	pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
+	goto ret;
+    }
+    memset(&val,0,sizeof(DBT));
+    val.size = sizeof(u_int64);
+    val.data = &inode;
+
+    int flags = 0;
+    flags |= DB_NOOVERWRITE;
+
+    debug("Before put");
+    if( ( ret = ms->imap->put(ms->imap, NULL, 
+		    &key, &val, flags)) != 0 )
+    {
+	debug("duplicate file");
+	pomme_data_init(&re,POMME_META_FILE_EXIST);
+	goto ret;
+    }
+ok:
+
+    pomme_data_init(&re,sizeof(u_int64));
+    memcpy(re->data, &inode, sizeof(pomme_file_t));
+
+ret:
+    return re;
+}
+pomme_data_t *pomme_create_file(
+	pomme_ms_t *ms,
+	u_int64 inode,
+	int mode)
+{
+    int ret = 0;
     pomme_data_t *re = NULL ; 
 
     DBT key, val;
     memset(&key, 0, sizeof(DBT));
     memset(&val, 0, sizeof(DBT));
 
-    key.size = pomme_strlen(path);
-    key.data = (void *)path;
+    key.size = sizeof(u_int64); 
+    key.data = (void *)&inode;
+
     pomme_file_t file;
     memset(&file, 0 , sizeof(pomme_file_t));
     time(&file.c_time);
     
     file.acl = mode;
-    file.dsgroup = ms->get_ds_group(path);
+    file.dsgroup = ms->get_ds_group(inode);
 
     val.size = sizeof(pomme_file_t);
     val.data = &file;
@@ -54,9 +129,11 @@ pomme_data_t * pomme_create_file(pomme_ms_t *ms,const char *path,const int mode)
     }
     pomme_data_init(&re,sizeof(pomme_file_t));
     memcpy(re->data, &file, sizeof(pomme_file_t));
+
 ret:
     return re;
 }
+
 
 pomme_data_t *pomme_read_file(pomme_ms_t *ms, u_int64 inode)
 {
@@ -451,7 +528,7 @@ int ms_start(pomme_ms_t *ms) {
 	POMME_LOG_ERROR("RPC SERVER start error",ms->logger);
 	goto err;
     }
-    debug("Start Error");
+    debug("Start Success");
 err: 
     return ret;
 }
@@ -465,7 +542,7 @@ int object_dup_cmp(DB *db,const DBT*dbt1, const DBT* dbt2)
 {
     return -1;
 }
-int pomme_map_ds_group(const char *path)
+int pomme_map_ds_group(u_int64 inode)
 {
     return 0;
 }
@@ -479,4 +556,41 @@ int  ms_create_ds(pomme_ms_t *ms, u_int32 *id, u_int32 *group)
     *id = 1;
     *group = 1;
     return 0;
+}
+
+int pomme_get_id(pomme_ms_t *ms,
+	u_int64 *id)
+{
+
+    int ret = 0;
+    assert( ms != NULL );
+    u_int64 mid = ms->myid;
+    u_int64 idr = mid << 33;
+    pthread_mutex_lock(&ms->imutex);
+
+    ret = fb_set_first0_1(&ms->inodes); 
+
+    pthread_mutex_unlock(&ms->imutex);
+
+    if( ret < 0 )
+    {
+	return -1;
+    }
+    *id = idr + ret;
+    return 0;
+}
+
+int pomme_unset_id(pomme_ms_t *ms, 
+	u_int64 id)
+{
+    int ret = 0;
+    int idr = id%((long long)1 << 33 );
+
+    pthread_mutex_lock(&ms->imutex);
+
+    ret = fb_setn1_0(&ms->inodes, idr); 
+
+    pthread_mutex_unlock(&ms->imutex);
+
+    return ret;
 }

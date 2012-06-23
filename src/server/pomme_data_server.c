@@ -649,8 +649,8 @@ int server(pomme_ds_t *ds)
 	nfds = epoll_wait(epid, events, MAX_CLIENTS+1, -1);
 	if( nfds == -1 )
 	{
-	    debug("epoll wait failure");
-	    goto err_exit;
+	    debug("epoll wait failure:%s",strerror(errno));
+	    continue;
 	}
 
 	for( i = 0; i< nfds; ++i )

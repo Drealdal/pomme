@@ -59,6 +59,48 @@ err:
     free(arg);
     return ret;
 }
+int pomme_sync_get_inode(rpcc_t *rct,
+	u_int64 pinode,
+	char *name,
+	int create,
+	u_int64 *inode)
+{
+    int ret = 0;
+    assert( rct != NULL );
+    assert( rct != NULL );
+
+    pomme_data_t *arg = (pomme_data_t *)malloc(4*sizeof(pomme_data_t));
+    assert( arg != NULL );
+
+    char *fname = POMME_META_GET_INODE_S;
+    arg[0].size = pomme_strlen(fname);
+    arg[0].data = fname;
+
+    arg[1].size = sizeof(u_int64);
+    arg[1].data = &pinode;
+
+    arg[2].size = pomme_strlen(name);
+    arg[2].data = name;
+
+    arg[3].size = sizeof(int);
+    arg[3].data = &create;
+
+    pomme_data_t res;
+    memset(&res, 0, sizeof(pomme_data_t));
+
+    if( (ret = rct->sync_call(rct,3,arg,&res,0) ) < 0) 
+    {
+	debug("Error calling:%s",fname);
+	goto err;
+    }else{
+	debug("created");
+    }
+    *inode = *(u_int64 *)res.data;
+err:
+    free(arg);
+    return ret;
+}
+	
 int pomme_sync_read_file_meta(
 	rpcc_t *rct,
 	u_int64 inode,

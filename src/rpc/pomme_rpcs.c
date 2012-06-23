@@ -115,7 +115,7 @@ static int fregister(pomme_rpcs_t *rpcs,
     link_add( &pf->next, &rpcs->func);
     return ret;
 //malloc_err:
-    free(pf);
+//    free(pf);
 err:
     return ret;
 }
@@ -305,11 +305,13 @@ static int start(pomme_rpcs_t *rpcs)
     int sock_fd,epid;
     struct epoll_event ev;
 
+    debug("Trying to start rpc server....");
     /* max_clients +1  */
     struct epoll_event events[rpcs->max_clients+1];
 
     rpcs->func_print(rpcs);
     rpcs->thread_pool.start(&rpcs->thread_pool);
+    debug("Marking");
     if( ( ret = create_server(rpcs->port, 
 		   rpcs->max_pending,rpcs->max_clients, 
 		   events,&sock_fd, &epid) ) < 0 )
@@ -325,7 +327,7 @@ static int start(pomme_rpcs_t *rpcs)
 	if( nfds == -1)
 	{
 	    debug("wait failure");
-	    exit(-1);
+	    continue;
 	}
 	for( i = 0 ; i < nfds ; ++i )
 	{

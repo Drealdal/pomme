@@ -21,6 +21,7 @@ int main()
 {
     pomme_ms_t ms;
     int e_o_flags = 0, e_o_mode = 0;
+    int id = 0;
 
 
     e_o_flags |= DB_CREATE ;// create if not exist
@@ -34,6 +35,7 @@ int main()
     e_o_mode |= S_IWUSR;
 
     pomme_ms_init(&ms,POMME_META_LOG_LEVEL,
+	    id,
 	    e_o_flags,e_o_mode,
 	    10000,
 	    10,

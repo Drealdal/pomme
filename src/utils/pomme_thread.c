@@ -97,6 +97,7 @@ err:
 
 static int start(pomme_tpool_t *ptp)
 {
+    debug("Starting thread pool...");
     if( ptp->inited != 1 )
     {
 	debug("Not init thread pool");
@@ -104,6 +105,7 @@ static int start(pomme_tpool_t *ptp)
     }
     int ret = 0;
     int i;
+    debug("Starting thread pool:%d...", ptp->cur_thread_num);
     for( i = 0; i < ptp->cur_thread_num; i++ )
     {
 	routine_arg *arg = malloc(sizeof(routine_arg));
@@ -116,13 +118,18 @@ static int start(pomme_tpool_t *ptp)
 	    goto err;
 	}
     }	
+    debug("Starting thread pool:%d...", ptp->max_thread_num);
     for(; i < ptp->max_thread_num;i++)
     {
+	debug("Mark");
 	thread_ids_t *ids = malloc(sizeof(thread_ids_t));	
+	debug("Mark");
+	assert( ids != NULL );
 	memset(ids, 0, sizeof(thread_ids_t));
 	ids->rank = i;
 	queue_push_back(ptp->finished,&ids->next); 
     }
+    debug("Starting thread pool...");
 err:
     return ret;
 }
