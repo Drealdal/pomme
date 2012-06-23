@@ -400,9 +400,23 @@ int cmp_longlong(void *a, void *b)
 {
     long long la = *(long long *)a;
     long long lb = *(long long *)b;
+
     if( la < lb ) return -1;
     else if (la == lb) return 0;
     return 1;
+}
+int cmp_uint64(void *a, void *b)
+{
+    u_int64 la = *(u_int64 *)a;
+    u_int64 lb = *(u_int64 *)b;
+
+    if( la < lb ) return -1;
+    else if (la == lb) return 0;
+    return 1;
+}
+int hash_str(void *str, u_int32 len)
+{
+    return RS_hash( (char *)str);
 }
 int pomme_hash_int_int(int size, pomme_hash_t **hash)
 {
@@ -411,4 +425,8 @@ int pomme_hash_int_int(int size, pomme_hash_t **hash)
 int pomme_hash_int_longlong(int size, pomme_hash_t **hash)
 {
     return pomme_hash_init(size, &hash_int, &cmp_longlong,hash);
+}
+int pomme_hash_str_uint64(int size, pomme_hash_t **hash)
+{
+    return pomme_hash_init(size, &hash_str, &cmp_uint64,hash);
 }

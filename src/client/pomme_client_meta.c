@@ -59,6 +59,7 @@ err:
     free(arg);
     return ret;
 }
+
 int pomme_sync_get_inode(rpcc_t *rct,
 	u_int64 pinode,
 	char *name,

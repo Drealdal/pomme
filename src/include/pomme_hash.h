@@ -25,6 +25,7 @@
 #include "pomme_type.h"
 #include "pomme_blist.h"
 #include "pomme_error.h"
+#include "hash.h"
 
 typedef struct pomme_hash_node
 {
@@ -92,6 +93,7 @@ int str_hash(void *str,u_int32 str_len);
 int pomme_hash_int_int(int size, pomme_hash_t **hash);
 
 int pomme_hash_int_longlong(int szie, pomme_hash_t **hash);
+int pomme_hash_str_uint64(int size, pomme_hash_t **hash);
 
 int cmp_int(void *a, void *b);
 int hash_int(void *a,u_int32 len);

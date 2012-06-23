@@ -24,6 +24,7 @@ static int get_ds(pomme_client_t *client,
         u_int32 msid,	
 	u_int32 id,
        	u_int32 *ip, u_int16 *port);
+
 static int get_ms(pomme_client_t *client, u_int32 id,
        	u_int32 *ip, u_int16 *port);
 
@@ -53,6 +54,7 @@ int cmp_msnode(void *node1, void *node2)
     return 1;
 }
 
+
 int pomme_client_init(pomme_client_t *client, 
 	u_int32 mip, 
 	u_int16 mport)
@@ -75,6 +77,12 @@ int pomme_client_init(pomme_client_t *client,
 	debug("Hash init failure");
 	goto m_err;
     }	    
+    if( ( ret = pomme_hash_str_uint64(POMME_CLIENT_BUFFER_IMAP,
+		    &client->imap)) != 0 )
+    {
+	debug("Hash init failure");
+	goto i_err;
+    }
 
     client->count = 0;
     client->nextfd = 0;
@@ -89,6 +97,8 @@ int pomme_client_init(pomme_client_t *client,
     init_queue(&client->files,"Client files",client->max_count);
 
     return ret;
+i_err:
+    pomme_hash_distroy(&client->imap);
 m_err:
     pomme_hash_distroy(&client->ds_nodes);
 err:
@@ -174,4 +184,11 @@ static int get_ms(pomme_client_t *client, u_int32 id,
     *ip = inet_addr("127.0.0.1");
     *port = POMME_META_RPC_PORT;
     return ret;
+}
+static int get_inode(pomme_client_t *client,
+	char *path, u_int64 *inode)
+{
+   int ret = 0;
+   // TODO
+  return ret; 
 }

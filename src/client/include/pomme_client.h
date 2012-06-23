@@ -32,6 +32,8 @@ struct pomme_client
     pomme_hash_t *ms_nodes;
     /*  buffer of the data storage nodes info */
     pomme_hash_t *ds_nodes;
+    /*  pomme_hash_t inodes , mapping path to inodes num*/
+    pomme_hash_t *imap;
     /*  open fileCount */
     u_int32 count;
     u_int32 nextfd;
@@ -53,6 +55,7 @@ int pomme_client_distroy(pomme_client_t *client);
 
 PFILE * pomme_open(const char *path,const char *mode);
 void pomme_close(PFILE *file);
+
 size_t pomme_write(const void *ptr,size_t size, size_t nmemb, PFILE *stream);
 size_t pomme_read(void *ptr,size_t size, size_t nmemb, PFILE *stream);
 
