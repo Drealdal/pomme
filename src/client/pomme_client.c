@@ -188,7 +188,36 @@ static int get_ms(pomme_client_t *client, u_int32 id,
 static int get_inode(pomme_client_t *client,
 	char *path, u_int64 *inode)
 {
-   int ret = 0;
-   // TODO
-  return ret; 
+    int ret = 0;
+
+    path = make_path(path); 
+    if( strcmp(path,"") == 0 )
+    {
+	*inode = 0;
+	return RET_SUCCESS;
+    }
+
+    pomme_data_t key, val;
+    key.size = pomme_strlen(path);
+    key.data = path;
+
+    val.size = sizeof(u_int64);
+    val.data = inode;
+
+    if(( ret = pomme_hash_get(client->imap,
+		    &key, &val)) < 0 )
+    {
+	char *fpath = get_parrent(path);  
+	u_int64 pinode = -1;
+
+	if(( ret = get_inode(client, fpath,
+		       	&pinode)) < 0 )
+	{
+	    debug("Get inode for %s failure",fpath);
+	    return RET_FAILURE;
+	}
+
+    }
+
+    return ret; 
 }

@@ -17,6 +17,7 @@
  */
 #ifndef _POMME_CONST_H
 #define _POMME_CONST_H
+#include "const.h"
 
 /*
  * error code definitions

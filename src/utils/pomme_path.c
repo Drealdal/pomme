@@ -152,3 +152,31 @@ char *get_sub_file(char *parrent, char *name)
     return re;
 }
 
+char *get_name(char *fullpath)
+{
+    char *ret = NULL;
+    int i, j;
+
+    assert( fullpath != NULL );
+    
+    j = strlen(fullpath) -1;
+    while(fullpath[j] == PATH_SLASH && j >= 0 )
+    {
+	j--;
+    }
+    if( j < 0  )
+    {
+	ret = "";
+	return ret;
+    }
+    i = j;
+    while( fullpath[i] != PATH_SLASH && i >= 0 )
+    {
+	i--;
+    }
+    i++;
+    ret = malloc(j-i+2);
+    memset(ret, 0, j - i + 2 );
+    memcpy(fullpath+i, fullpath, j - i + 1);
+    return ret;
+}
