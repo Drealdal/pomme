@@ -42,6 +42,7 @@ pomme_data_t * pomme_get_inode(pomme_ms_t *ms,
     memset(&val, 0, sizeof(DBT));
 
     snprintf(id, POMME_PATH_MAX - 1, "%llu/%s",pinode,name);
+    debug("ID:%s %d",id,create);
     u_int64 rinode;
 
     key.size = pomme_strlen(id);
@@ -68,7 +69,14 @@ pomme_data_t * pomme_get_inode(pomme_ms_t *ms,
        	pomme_data_init(&re, POMME_META_INTERNAL_ERROR);
 	goto ret;
     }
+    debug("new id %llu",inode);
+
     memset(&val,0,sizeof(DBT));
+    memset(&key,0,sizeof(DBT));
+
+    key.size = pomme_strlen(id);
+    key.data = (void *)id;
+
     val.size = sizeof(u_int64);
     val.data = &inode;
 
@@ -85,8 +93,11 @@ pomme_data_t * pomme_get_inode(pomme_ms_t *ms,
     }
 ok:
 
-    pomme_data_init(&re,sizeof(u_int64));
-    memcpy(re->data, &inode, sizeof(pomme_file_t));
+    debug("Over");
+    debug("%d",pomme_data_init(&re,sizeof(u_int64)));
+    debug("Over");
+    memcpy(re->data, &inode, sizeof(u_int64));
+    debug("Over");
 
 ret:
     return re;
@@ -133,7 +144,6 @@ pomme_data_t *pomme_create_file(
 ret:
     return re;
 }
-
 
 pomme_data_t *pomme_read_file(pomme_ms_t *ms, u_int64 inode)
 {
@@ -214,6 +224,7 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms,
     ms_object_t ob;
     
     uuid_copy(ob.id, id);
+    debug("The object to write:%s",id);
     ob.off = off;
     ob.len = len;
 

@@ -162,8 +162,10 @@ char *get_name(char *fullpath)
     j = strlen(fullpath) -1;
     while(fullpath[j] == PATH_SLASH && j >= 0 )
     {
+	debug("%c",fullpath[j]);
 	j--;
     }
+    debug("%d",j);
     if( j < 0  )
     {
 	ret = "";
@@ -175,8 +177,14 @@ char *get_name(char *fullpath)
 	i--;
     }
     i++;
+    debug("%d",i);
+    debug("%s %s",fullpath+i, fullpath+j);
+
     ret = malloc(j-i+2);
+    assert(ret != NULL);
+
     memset(ret, 0, j - i + 2 );
-    memcpy(fullpath+i, fullpath, j - i + 1);
+    memcpy(ret, fullpath + i, j - i + 1);
+
     return ret;
 }

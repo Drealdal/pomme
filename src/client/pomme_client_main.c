@@ -15,53 +15,14 @@
  *
  * =====================================================================================
  */
-#include "pomme_client_data.h"
-#include "pomme_client_meta.h"
-#include "pomme_meta.h"
 #include "utils.h"
 #include "pomme_rpcc.h"
+#include "pomme_client.h" 
 extern int errno;
 int main()
 {
-    int ret ;
-    char * host_name = "127.0.0.1";   
-    u_int32 ip = inet_addr(host_name);
-    rpcc_t rpcc;
-    pomme_file_t *file = NULL;
-    u_int64 fd;
-
-    if( ( ret = pomme_rpcc_init(&rpcc, ip,POMME_META_RPC_PORT,0))
-	    != 0 )
-    {
-	debug("init rpc client error");
-	exit(-1);
-    }
-    
-    if( ( ret = pomme_sync_create_file(&rpcc,"/zhumeiqi/test/",544,&fd)) != 0 )
-    {
-	debug("create error");
-    }
-
-
-    if( ( ret = pomme_client_stat_file(&rpcc, fd ,&file)) != 0 )
-    {
-	debug("State file error");
-    }
-    assert(file != NULL);
-    debug("Create Time:%s",pomme_time(file->c_time,NULL));
-
-    pomme_file_t *file2 = NULL;
-    ms_object_t *object = NULL;
-
-    int obj_num = 0;
-    if(( ret = pomme_sync_read_file_meta(&rpcc, fd,
-		    &file2, &obj_num,&object)) != 0 )
-    {
-	debug("read file error:%d",ret);
-    }	
-
-    debug("Object Number:%d",obj_num);
-    debug("Create Time:%s",pomme_time(file2->c_time,NULL));
+    PFILE *file = pomme_open("/zhumeiqi/",POMME_CREATE);
+    PFILE *file1 = pomme_open("/zhumeiqi/test",POMME_CREATE);
 
     return 0;
 }

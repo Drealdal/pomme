@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  pomme_dir.h
+ *       Filename:  test_path.c
  *
- *    Description:  An directory
+ *    Description:  test the implement of path
  *
  *        Version:  1.0
- *        Created:  03/27/2012 06:20:53 PM
+ *        Created:  06/23/2012 09:43:21 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -15,21 +15,12 @@
  *
  * =====================================================================================
  */
-#ifndef _POMME_DIR_H
-#define _POMME_DIR_H
-
-#include "utils.h"
-
-/*
- * the name of the dir is used as the key of
- * a dir object
- */
-
-typedef struct pomme_dir
+#include "pomme_path.h"
+int main()
 {
-    time_t ctime; // last status change time
-    u_int32 acl;
-}pomme_dir_t;
-
-
-#endif
+    int ret = 0;
+    char *path = "/zhumeiqi/test";
+    printf("%s \n",get_parrent(path));
+    printf("%s \n",get_name(path));
+    return ret;
+}

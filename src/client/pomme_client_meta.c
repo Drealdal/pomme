@@ -89,7 +89,7 @@ int pomme_sync_get_inode(rpcc_t *rct,
     pomme_data_t res;
     memset(&res, 0, sizeof(pomme_data_t));
 
-    if( (ret = rct->sync_call(rct,3,arg,&res,0) ) < 0) 
+    if( (ret = rct->sync_call(rct,4,arg,&res,0) ) < 0) 
     {
 	debug("Error calling:%s",fname);
 	goto err;
@@ -148,6 +148,11 @@ e_exit:
     return ret;
 }
 
+/**
+ * @brief pomme_client_write_file: only operation on the meta
+ *
+ * @return 
+ */
 int pomme_client_write_file(rpcc_t *rct, 
 	u_int64 inode,
        	u_int64 off,
@@ -156,9 +161,44 @@ int pomme_client_write_file(rpcc_t *rct,
 {
     int ret = 0;
 
+    assert( rct != NULL );
+    pomme_data_t *arg = (pomme_data_t *)
+	malloc(4*sizeof(pomme_data_t));
+    assert( arg != NULL );
+    char *name = POMME_META_WRITE_FILE_S;
+    arg[0].size = pomme_strlen(name);
+    arg[0].data = name;
+
+    arg[1].size = sizeof(u_int64);
+    arg[1].data = &inode;
+    
+    arg[2].size = sizeof(u_int64);
+    arg[2].data = &off;
+
+    arg[3].size = sizeof(u_int64);
+    arg[3].data = &len;
     
 
+    pomme_data_t res;
+    memset(&res, 0, sizeof(pomme_data_t));
+
+    if( ( ret = rct->sync_call(rct,4,arg,&res,0))
+	    < 0 )
+    {
+	debug("Stat error");
+	goto err;	
+    }
+    ret = res.size;
+    if( ret < 0 )
+    {
+	debug("The return code is:%d",ret);
+    }
+
     return ret;
+err:
+    free(arg);
+    return ret;
+
 }
 int pomme_client_stat_file(
 	rpcc_t *rct,

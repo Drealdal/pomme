@@ -52,4 +52,5 @@ clean:
 	rm -rf $(CLEAN_OBJECT)
 	rm -rf $(PROGRAM_TARGET)
 	rm -rf *~
+	rm -rf bin/*
 

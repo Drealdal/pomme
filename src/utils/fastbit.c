@@ -107,6 +107,7 @@ extern "C" {
 
 	fb->depth = depth;
 	fb->sbit = (fastbit_t **)malloc(sizeof(fastbit_t*)*FB_LEN);
+	memset(fb->sbit,0,sizeof(fastbit_t*)*FB_LEN);
 
 	if( fb->sbit == NULL )
 	{

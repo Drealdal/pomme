@@ -27,5 +27,6 @@ char *make_sub_dir(char *parrent, char *name);
 char *make_sub_file(char *parrent, char *name);
 char *get_parrent(char *path);
 char *make_path(char *path);
+char *get_name(char *fullpath);
 
 #endif

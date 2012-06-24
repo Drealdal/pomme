@@ -227,6 +227,10 @@ int pomme_ms_init(pomme_ms_t *ms,
     memset(&key, 0, sizeof(DBT));
     memset(&val, 0, sizeof(DBT));
 
+    if(ms->myid == 0 )
+    {
+	fb_setn0_1(&ms->inodes, 0);
+    }
     while(( ret = dbc->get(dbc, &key,
 		    &val,DB_NEXT)) == 0 )
     {

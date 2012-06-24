@@ -20,10 +20,17 @@
 #include "pomme_hash.h"
 #include "pomme_meta.h"
 #include "pomme_client_file.h"
+#include "pomme_mapping.h"
+
 
 typedef struct pomme_client pomme_client_t;
+extern pomme_client_t GLOBAL_CLIENT;
+
+#define POMME_CREATE 1
+
 struct pomme_client
 {
+    int inited;
     /*  the ip of the master node */
     u_int32 mip;
     /*  the port of the master node */
@@ -34,6 +41,8 @@ struct pomme_client
     pomme_hash_t *ds_nodes;
     /*  pomme_hash_t inodes , mapping path to inodes num*/
     pomme_hash_t *imap;
+    /*  mapping  */
+    map_t msmap;
     /*  open fileCount */
     u_int32 count;
     u_int32 nextfd;
@@ -50,10 +59,14 @@ struct pomme_client
 };
 int cmp_dsnode(void *node1, void *node2);
 int cmp_msnode(void *node1, void *node2);
-int pomme_clinet_init(pomme_client_t *client, u_int32 mip, u_int32 mport);
+
+int pomme_client_init(pomme_client_t *client,
+       	u_int32 mip, 
+	u_int16 mport);
+
 int pomme_client_distroy(pomme_client_t *client);
 
-PFILE * pomme_open(const char *path,const char *mode);
+PFILE * pomme_open(const char *path,int mode);
 void pomme_close(PFILE *file);
 
 size_t pomme_write(const void *ptr,size_t size, size_t nmemb, PFILE *stream);
