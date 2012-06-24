@@ -30,7 +30,7 @@ typedef struct client_object
 }cobject_t;
 typedef struct pomme_client_file
 {
-    char *path;
+    u_int64 inode;
     pomme_file_t meta;
     ms_object_t *object;
     int ocount;// the object count when opening file

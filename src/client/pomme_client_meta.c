@@ -23,13 +23,15 @@
 
 
 int pomme_sync_create_file(rpcc_t *rct, 
-	char *path,
+	u_int64 inode,
 	int mode,
-	u_int64 *fd)
+	PFILE *fd)
 {
     int ret = 0;
     assert( rct != NULL );
-    assert( path != NULL );
+    assert( *fd != NULL );
+
+    memset(fd, 0, sizeof(PFILE));
 
     pomme_data_t *arg = malloc(3*sizeof(pomme_data_t));
     assert( arg != NULL );
@@ -37,8 +39,8 @@ int pomme_sync_create_file(rpcc_t *rct,
     arg[0].size = pomme_strlen(name);
     arg[0].data = name;
 
-    arg[1].size = pomme_strlen(path);
-    arg[1].data = path;
+    arg[1].size = sizeof(u_int64); 
+    arg[1].data = &inode;
 
     arg[2].size = sizeof(int);
     arg[2].data = &mode;
@@ -54,7 +56,10 @@ int pomme_sync_create_file(rpcc_t *rct,
 	debug("created");
     }
 
-    *fd = *(u_int64 *)res.data;
+    memcpy(fd->meta, res->data, sizeof(pomme_file_t));
+    pomme_data_t *pr = &res;
+
+    pomme_data_distory(&pr);
 err:
     free(arg);
     return ret;

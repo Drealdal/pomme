@@ -160,14 +160,29 @@ PFILE *pomme_open(const char *spath, int mode)
 	debug("Create File");
 	create = 1;
     }	
+    if( create == 1 )
+    {
+	u_int64 pinode;
+	char *fpath = get_parrent(path);
+	if( ( ret = get_inode(client,fpath,&pinode,0 )) < 0 )
+	{
+	    debug("Get Parrent inode failure");
+	    return NULL;
+	}
+    }
 
     debug("Before get inode");
     if( (ret = get_inode(client,path,&inode,
 	create) ) < 0 )
     {
 	debug("Get inode info failure");
+	if( ret == POMME_META_FILE_NOT_FOUND )
+	{
+	    debug("Parrent dir not exist");
+	}
 	return NULL;
     }
+
 
     return file;
 }
@@ -271,29 +286,14 @@ static int get_inode(pomme_client_t *client,
 	    debug("Get inode for %s failure",fpath);
 	    goto clear;
 	}
-
-	if ( ( ret = client->msmap.
-		    inode2ms(pinode,&ms)) < 0 )
+	rpcc_t *rct = NULL;
+	if( ( rct = client->msmap->inode2rpcc(client
+			,pinode)) == NULL )
 	{
-	    debug("Map inode:%llu error",pinode);
+	    debug("Get rpc handle error");
 	    goto clear;
 	}
 
-	if( (ret = client->get_ms_info(client,
-		       	ms, &msip, &msport) ) < 0 )
-	{
-	    debug("get meta server info for %u failure",ms);
-	    goto clear;
-	}
-
-	rpcc_t rct;
-	if( ( ret = pomme_rpcc_init(&rct, msip,msport,0))
-		!= 0 )
-	{
-	    debug("init rpc client error");
-	    goto clear;
-	}
-	debug("%s:%s:%s",path,fpath,fname);
 	
 	if( (ret = pomme_sync_get_inode(&rct, 
 		       pinode, fname,create,inode)) < 0 )
@@ -302,6 +302,7 @@ static int get_inode(pomme_client_t *client,
 	    goto clear;
 	}	    
 clear:
+	free(rct);
 	free(fpath);
 	free(fname);
     }
