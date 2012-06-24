@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "pomme_client_meta.h"
+#include "pomme_client_file.h"
 #include "pomme_meta.h"
 #include "utils.h"
 #include "pomme_utils.h"
@@ -29,7 +30,7 @@ int pomme_sync_create_file(rpcc_t *rct,
 {
     int ret = 0;
     assert( rct != NULL );
-    assert( *fd != NULL );
+    assert( fd != NULL );
 
     memset(fd, 0, sizeof(PFILE));
 
@@ -56,10 +57,10 @@ int pomme_sync_create_file(rpcc_t *rct,
 	debug("created");
     }
 
-    memcpy(fd->meta, res->data, sizeof(pomme_file_t));
+    memcpy(&fd->meta, res.data, sizeof(pomme_file_t));
     pomme_data_t *pr = &res;
 
-    pomme_data_distory(&pr);
+    pomme_data_distroy(&pr);
 err:
     free(arg);
     return ret;

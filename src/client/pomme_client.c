@@ -36,6 +36,10 @@ static int get_inode(pomme_client_t *client,
 	char *path, u_int64 *inode,
 	int create);
 
+static rpcc_t * inode2rpcc(
+	pomme_client_t *client,
+	u_int64 inode);
+
 int cmp_dsnode(void *node1, void *node2)
 {
     ds_node *n1 = node1;
@@ -277,8 +281,6 @@ static int get_inode(pomme_client_t *client,
 	debug("%s:%s",fpath,fname);
 
 	u_int64 pinode = -1;
-	u_int32 ms = 0,msip;
-	u_int16 msport;
 
 	if(( ret = get_inode(client, fpath,
 		       	&pinode,create)) < 0 )
@@ -287,15 +289,15 @@ static int get_inode(pomme_client_t *client,
 	    goto clear;
 	}
 	rpcc_t *rct = NULL;
-	if( ( rct = client->msmap->inode2rpcc(client
-			,pinode)) == NULL )
+	if( ( rct = inode2rpcc(client,
+			pinode)) == NULL )
 	{
 	    debug("Get rpc handle error");
 	    goto clear;
 	}
 
 	
-	if( (ret = pomme_sync_get_inode(&rct, 
+	if( (ret = pomme_sync_get_inode(rct, 
 		       pinode, fname,create,inode)) < 0 )
 	{
 	    debug("Remote call failure");
@@ -307,4 +309,38 @@ clear:
 	free(fname);
     }
     return ret; 
+}
+
+static rpcc_t * inode2rpcc(
+	pomme_client_t *client,
+	u_int64 inode)
+{
+	int ret = 0;
+	u_int32 ms,msip;
+	u_int16 msport;
+
+	if ( ( ret = client->msmap.inode2ms(inode,&ms)) < 0 )
+	{
+	    debug("Map inode:%llu error",inode);
+	    return NULL;
+	}
+
+	if( (ret = client->get_ms_info(client,
+		       	ms, &msip, &msport) ) < 0 )
+	{
+	    debug("get meta server info for %u failure",ms);
+	    return NULL;
+	}
+	rpcc_t *rct = malloc(sizeof(rpcc_t));
+	if( rct == NULL )
+	{
+	    return rct;
+	}
+	if( ( ret = pomme_rpcc_init(rct, msip,msport,0))
+		!= 0 )
+	{
+	    debug("init rpc client error");
+	    return NULL;
+	}
+	return rct;
 }
