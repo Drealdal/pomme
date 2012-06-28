@@ -56,7 +56,7 @@ int pomme_sync_create_file(rpcc_t *rct,
 	debug("created");
     }
 
-    memcpy(fd->meta, res.data, sizeof(pomme_file_t));
+    fd->meta = res.data;
     pomme_data_t *pr = &res;
 
     pomme_data_distroy(&pr);

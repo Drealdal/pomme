@@ -347,8 +347,9 @@ static PFILE * get_pfile(pomme_client_t *client)
     PFILE *file = NULL;
     /*  use stack is better */
     queue_body_t *fbody = queue_get_front(client->closed_files);
-    if(fbody == NULL)
+    if(fbody == NULL )
     {
+	debug("Nothing get");
 	file = (PFILE *)malloc(sizeof(PFILE));
 	if( file == NULL )
 	{
@@ -356,8 +357,9 @@ static PFILE * get_pfile(pomme_client_t *client)
 	    return NULL;
 	}
 	memset(file,0,sizeof(PFILE));
+    }else{
+	file = queue_entry(fbody, PFILE, next);
     }
-    file = queue_entry(fbody, PFILE, next);
     queue_push_back(client->open_files, &file->next);
     return file;
 }
