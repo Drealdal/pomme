@@ -19,6 +19,7 @@
 #define _POMME_CLIENT_H
 #include "pomme_hash.h"
 #include "pomme_meta.h"
+#include "pomme_queue.h"
 #include "pomme_client_file.h"
 #include "pomme_mapping.h"
 
@@ -49,13 +50,15 @@ struct pomme_client
     /*parrelel access from several client*/
     pthread_mutex_t mutex;
     /**/
-    pomme_queue_t *files;
+    pomme_queue_t *open_files;
+    pomme_queue_t *closed_files;
     int max_count;
 
 
-    int ( *get_ds_info)(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port); 
-    int ( *get_ms_info)(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port);
-    int ( *get_ms_for_path)(pomme_client_t *client, const char *path);
+    int ( *get_ds_info )(pomme_client_t *client, u_int32 msid, u_int32 id, u_int32 *ip, u_int16 *port); 
+    int ( *get_ms_info )(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port);
+    int ( *get_ms_for_path )(pomme_client_t *client, const char *path);
+    PFILE *( *get_pfile )(pomme_client_t *client);
 };
 int cmp_dsnode(void *node1, void *node2);
 int cmp_msnode(void *node1, void *node2);

@@ -35,7 +35,8 @@ int pomme_client_put_data(
     memset(&pro, 0, sizeof(pomme_protocol_t));
     pro.op = put_data ;
     pro.total_len = len ;
-    pro.id = id;
+
+    uuid_copy(pro.id, id);
 
 
     first_msg_send = len > POMME_MAX_PROTO_DATA ? POMME_MAX_PROTO_DATA:len;
@@ -75,7 +76,7 @@ err:
     return ret;
 }
 
-int pomme_client_get_data(u_int64 id,
+int pomme_client_get_data(uuid_t id,
 	size_t off,
 	size_t len,
 	int handle,
@@ -93,7 +94,7 @@ int pomme_client_get_data(u_int64 id,
     pro.op = get_data;
     pro.total_len = len;
     pro.offset = off;
-    pro.id = id;
+    uuid_copy(pro.id, id);
 
     pomme_pack_t *buf = NULL;
     if( ( ret = pack_msg(&pro, &buf) ) < 0 )

@@ -398,7 +398,7 @@ int pomme_put_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     key.size = sizeof(pro->id); 
     DB *pdb = ds->env.db_meta;
 
-    debug("Create object:%lld",pro->id);
+    debug("Create object:%s",pro->id);
 
     ret = pdb->put(pdb, NULL, &key, &val,flags);
     if( ret < 0 )
@@ -443,7 +443,7 @@ int pomme_get_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     val.flags |= DB_DBT_USERMEM; 
     DB *pdb = ds->env.db_meta;
 
-    debug("Get object:%lld",pro->id);
+    debug("Get object:%s",pro->id);
 
     if( ( ret = pdb->get(pdb, NULL, &key,&val,flags) ) < 0 )
     {
@@ -501,7 +501,7 @@ int pomme_get_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     spro.op = put_data;
     spro.len = first_to_send;
     spro.total_len = l2r;
-    spro.id = pro->id;
+    uuid_copy(spro.id , pro->id);
     spro.offset = pro->offset;
     spro.data = buffer;
 

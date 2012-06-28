@@ -33,7 +33,7 @@ typedef struct pomme_protocol
      * the length of the object data
      */
     size_t total_len;
-    u_int64 id;
+    uuid_t id;
     size_t offset;
     void *data;
 }pomme_protocol_t;

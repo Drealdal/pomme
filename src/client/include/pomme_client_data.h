@@ -62,7 +62,7 @@ int pomme_client_put_data(
  *
  * @return: < 0 failure, = 0 success 
  */
-int pomme_client_get_data(u_int64 id,
+int pomme_client_get_data(uuid_t id,
 	size_t off,
 	size_t len,
 	int handle,

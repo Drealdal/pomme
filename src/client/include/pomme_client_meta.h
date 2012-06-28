@@ -20,6 +20,7 @@
 #include "pomme_rpcc.h"
 #include "pomme_meta.h"
 #include "pomme_file.h"
+#include "pomme_client_file.h"
 /**
  * @brief pomme_sync_create_file 
  *
@@ -31,16 +32,12 @@
  * @return == 0 for success, < 0 for failure 
  */
 int pomme_sync_create_file(rpcc_t *rct, 
-	char *path,
 	int mode,
-	u_int64 *fd);
+	PFILE *file);
 
 int pomme_sync_read_file_meta(
 	rpcc_t *rct,
-	u_int64 inode,
-	pomme_file_t **file,
-	int *obj_num,
-       	ms_object_t **object);
+	PFILE *file);
 
 /**
  * @brief pomme_write_file 

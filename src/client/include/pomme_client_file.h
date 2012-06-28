@@ -31,10 +31,12 @@ typedef struct client_object
 typedef struct pomme_client_file
 {
     u_int64 inode;
-    pomme_file_t meta;
+    u_int64 pinode;
+    /*  meta and object is point to the same memory */
+    pomme_file_t *meta;
     ms_object_t *object;
     int ocount;// the object count when opening file
-    int ncount;// the file create by the client
+    int ncount;// the object create by the client
     pomme_queue_t nobject;// new object
     queue_body_t next;
 }PFILE;

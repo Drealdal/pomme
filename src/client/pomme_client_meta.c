@@ -20,16 +20,16 @@
 #include "utils.h"
 #include "pomme_utils.h"
 #include "pomme_rpcc.h"
+#include "pomme_client_file.h"
 
 
 int pomme_sync_create_file(rpcc_t *rct, 
-	u_int64 inode,
 	int mode,
 	PFILE *fd)
 {
     int ret = 0;
     assert( rct != NULL );
-    assert( *fd != NULL );
+    assert( fd != NULL );
 
     memset(fd, 0, sizeof(PFILE));
 
@@ -40,7 +40,7 @@ int pomme_sync_create_file(rpcc_t *rct,
     arg[0].data = name;
 
     arg[1].size = sizeof(u_int64); 
-    arg[1].data = &inode;
+    arg[1].data = &fd->inode;
 
     arg[2].size = sizeof(int);
     arg[2].data = &mode;
@@ -56,10 +56,10 @@ int pomme_sync_create_file(rpcc_t *rct,
 	debug("created");
     }
 
-    memcpy(fd->meta, res->data, sizeof(pomme_file_t));
+    memcpy(fd->meta, res.data, sizeof(pomme_file_t));
     pomme_data_t *pr = &res;
 
-    pomme_data_distory(&pr);
+    pomme_data_distroy(&pr);
 err:
     free(arg);
     return ret;
@@ -109,13 +109,11 @@ err:
 	
 int pomme_sync_read_file_meta(
 	rpcc_t *rct,
-	u_int64 inode,
-	pomme_file_t **file,
-	int *obj_num,
-       	ms_object_t **object)
+	PFILE *file)
 {
     int ret = 0; 
     assert(rct != NULL);
+    assert(file != NULL );
 
     pomme_data_t *arg = malloc(2*sizeof(pomme_data_t));
     assert( arg != NULL );
@@ -124,7 +122,7 @@ int pomme_sync_read_file_meta(
     arg[0].data = name;
 
     arg[1].size = sizeof(u_int64);
-    arg[1].data = &inode;
+    arg[1].data = &file->inode;
 
     pomme_data_t res;
     memset(&res,0,sizeof(pomme_data_t));
@@ -136,17 +134,16 @@ int pomme_sync_read_file_meta(
     }else{
 	debug("Read file meta ok");
     }
-    *file = res.data;
-    debug("ret:%d",ret);
-    debug("%d",res.size);
-    debug("%d",sizeof(pomme_file_t));
-    debug("%d",sizeof(ms_object_t));
-    *obj_num = (res.size - sizeof(pomme_file_t))/sizeof(ms_object_t);
-    if( *object > 0 )
+
+    file->meta = res.data;
+    file->ocount = (res.size - sizeof(pomme_file_t))
+	/sizeof(ms_object_t);
+
+    if( file->ocount > 0 )
     {
-	*object = res.data + sizeof(pomme_file_t);
+	file->object= res.data + sizeof(pomme_file_t);
     }else{
-	*object = NULL;
+	file->object = NULL;
     }
 e_exit:
     free(arg);

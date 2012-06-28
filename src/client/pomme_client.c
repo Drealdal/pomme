@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "pomme_rpcc.h"
+#include "pomme_type.h"
 #include "pomme_client.h"
 #include "pomme_utils.h"
 #include "pomme_path.h"
@@ -35,6 +36,10 @@ static int get_ms(pomme_client_t *client, u_int32 id,
 static int get_inode(pomme_client_t *client,
 	char *path, u_int64 *inode,
 	int create);
+static PFILE * get_pfile(pomme_client_t *client);
+
+rpcc_t * inode2rpcc(pomme_client_t *client,
+	u_int64 inode);
 
 int cmp_dsnode(void *node1, void *node2)
 {
@@ -111,14 +116,17 @@ int pomme_client_init(pomme_client_t *client,
     }
     client->max_count = POMME_MAX_OPEN_FILE;
 
-    init_queue(&client->files,"Client files",client->max_count);
+    init_queue(&client->open_files,"Opened files",client->max_count);
+    init_queue(&client->closed_files, "Clised files",client->max_count);
+
     pomme_mapping_init(&client->msmap);
 
     client->inited = 1;
     debug("Here");
 
-    client->get_ds_info = get_ds;
-    client->get_ms_info = get_ms;
+    client->get_ds_info = &get_ds;
+    client->get_ms_info = &get_ms;
+    client->get_pfile = &get_pfile;
 
     return ret;
 i_err:
@@ -160,18 +168,15 @@ PFILE *pomme_open(const char *spath, int mode)
 	debug("Create File");
 	create = 1;
     }	
-    if( create == 1 )
+    u_int64 pinode;
+    rpcc_t *rct = NULL;
+    char *fpath = get_parrent(path);
+    if( ( ret = get_inode(client,fpath,&pinode,0 )) < 0 )
     {
-	u_int64 pinode;
-	char *fpath = get_parrent(path);
-	if( ( ret = get_inode(client,fpath,&pinode,0 )) < 0 )
-	{
-	    debug("Get Parrent inode failure");
-	    return NULL;
-	}
+	debug("Get Parrent inode failure");
+	goto clear;
     }
 
-    debug("Before get inode");
     if( (ret = get_inode(client,path,&inode,
 	create) ) < 0 )
     {
@@ -182,9 +187,39 @@ PFILE *pomme_open(const char *spath, int mode)
 	}
 	return NULL;
     }
+    file = client->get_pfile(client);
+    file->inode = inode;
+    file->pinode = pinode;
 
+    if( ( rct = inode2rpcc(client
+		    ,pinode)) == NULL )
+    {
+	debug("Get rpc handle error");
+	goto clear;
+    }
 
+    if( create == 1)
+    {
+	if( ( ret = pomme_sync_create_file(rct,
+			mode,file)) < 0 )
+	{
+	    debug("Create file failure");
+	    goto clear;
+	}
+    }else{
+	if( ( ret = pomme_sync_read_file_meta(rct,
+		       file)) < 0 )
+	{
+	    debug("Open file failure");
+	    goto clear;
+	}	    
+
+    }
     return file;
+clear:
+    free(fpath);
+    free(file);
+    return NULL;
 }
 
 
@@ -193,7 +228,7 @@ static int get_ds(pomme_client_t *client,
 	u_int32 id,
        	u_int32 *ip, u_int16 *port)
 {
-    int ret;
+    int ret = 0;
     pomme_data_t key,*value;
     memset(&key, 0, sizeof(key));
     key.size = sizeof(u_int32);
@@ -274,11 +309,10 @@ static int get_inode(pomme_client_t *client,
     {
 	char *fpath = get_parrent(path);  
 	char *fname = get_name(path);
+	rpcc_t *rct = NULL;
 	debug("%s:%s",fpath,fname);
 
 	u_int64 pinode = -1;
-	u_int32 ms = 0,msip;
-	u_int16 msport;
 
 	if(( ret = get_inode(client, fpath,
 		       	&pinode,create)) < 0 )
@@ -286,8 +320,7 @@ static int get_inode(pomme_client_t *client,
 	    debug("Get inode for %s failure",fpath);
 	    goto clear;
 	}
-	rpcc_t *rct = NULL;
-	if( ( rct = client->msmap->inode2rpcc(client
+	if( ( rct = inode2rpcc(client
 			,pinode)) == NULL )
 	{
 	    debug("Get rpc handle error");
@@ -295,7 +328,7 @@ static int get_inode(pomme_client_t *client,
 	}
 
 	
-	if( (ret = pomme_sync_get_inode(&rct, 
+	if( (ret = pomme_sync_get_inode(rct, 
 		       pinode, fname,create,inode)) < 0 )
 	{
 	    debug("Remote call failure");
@@ -307,4 +340,61 @@ clear:
 	free(fname);
     }
     return ret; 
+}
+static PFILE * get_pfile(pomme_client_t *client)
+{
+    assert( client != NULL );
+    PFILE *file = NULL;
+    /*  use stack is better */
+    queue_body_t *fbody = queue_get_front(client->closed_files);
+    if(fbody == NULL)
+    {
+	file = (PFILE *)malloc(sizeof(PFILE));
+	if( file == NULL )
+	{
+	    debug("Malloc Error");
+	    return NULL;
+	}
+	memset(file,0,sizeof(PFILE));
+    }
+    file = queue_entry(fbody, PFILE, next);
+    queue_push_back(client->open_files, &file->next);
+    return file;
+}
+
+rpcc_t * inode2rpcc(pomme_client_t *client,
+	u_int64 inode)
+{
+	int ret = 0;
+	rpcc_t *rct = NULL;
+	u_int32 ms,msip;
+	u_int16 msport;
+
+	if ( ( ret = client->msmap.inode2ms(inode,&ms)) < 0 )
+	{
+	    debug("Map inode:%llu error",inode);
+	    goto clear;
+	}
+
+	if( (ret = client->get_ms_info(client,
+		       	ms, &msip, &msport) ) < 0 )
+	{
+	    debug("get meta server info for %u failure",ms);
+	    goto clear;
+	}
+
+	rct = malloc(sizeof(rpcc_t));
+	if( rct == NULL )
+	{
+	    return rct;
+	}
+
+	if( ( ret = pomme_rpcc_init(rct, msip,msport,0))
+		!= 0 )
+	{
+	    debug("init rpc client error");
+	    return NULL;
+	}
+clear:
+	return rct;
 }

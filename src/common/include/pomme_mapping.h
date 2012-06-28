@@ -22,7 +22,6 @@
 #include "utils.h"
 typedef struct mapping{
     int ( *inode2ms)(u_int64 inode, u_int32 *ms); 
-    int ( *inode2rpcc)(pomme_client_t *client,u_int64 inode);
 }map_t;
 int pomme_mapping_init(map_t *map);
 
