@@ -73,7 +73,7 @@ int pomme_parse_param(xmlNodePtr node, pomme_param_t *param)
  */
 int pomme_parse_params(xmlNodePtr node, pomme_param_t **params)
 {
-    int ret = 0;
+    int ret ;
     assert( node != NULL );
     xmlNodePtr curNode = node->xmlChildrenNode;
     int count = 0;
@@ -214,7 +214,7 @@ int pomme_parse_function(xmlNodePtr node, funcgen_t *func)
  */
 int pomme_parse_functions(xmlNodePtr node, funcgen_t **funcs)
 {
-    int ret = 0, i = 0;
+    int ret, i = 0;
     assert( node != NULL );
 
     if( xmlStrcmp(node->name, BAD_CAST(RPC_FUNCTIONS) ) != 0 )

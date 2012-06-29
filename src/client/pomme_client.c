@@ -38,7 +38,11 @@ static int get_inode(pomme_client_t *client,
 	int create);
 static PFILE * get_pfile(pomme_client_t *client);
 
-rpcc_t * inode2rpcc(pomme_client_t *client,
+static rpcc_t * inode2rpcc(pomme_client_t *client,
+	u_int64 inode);
+
+static rpcc_t * inode2rpcc(
+	pomme_client_t *client,
 	u_int64 inode);
 
 int cmp_dsnode(void *node1, void *node2)
@@ -364,13 +368,15 @@ static PFILE * get_pfile(pomme_client_t *client)
     return file;
 }
 
-rpcc_t * inode2rpcc(pomme_client_t *client,
+
+static rpcc_t * inode2rpcc(
+	pomme_client_t *client,
 	u_int64 inode)
 {
 	int ret = 0;
-	rpcc_t *rct = NULL;
 	u_int32 ms,msip;
 	u_int16 msport;
+	rpcc_t *rct = NULL;
 
 	if ( ( ret = client->msmap.inode2ms(inode,&ms)) < 0 )
 	{

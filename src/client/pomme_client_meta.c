@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "pomme_client_meta.h"
+#include "pomme_client_file.h"
 #include "pomme_meta.h"
 #include "utils.h"
 #include "pomme_utils.h"
