@@ -23,8 +23,10 @@ int main()
 {
     PFILE *file = pomme_open("/zhumeiqi/",POMME_CREATE);
     PFILE *file1 = pomme_open("/zhumeiqi/test",POMME_CREATE);
+    
+    char *data = "The data is write by client!!!";
+    pomme_write(data,strlen(data)+1, 1, file1);
 
-    pomme_open("/zhumeiqi2/adaf",0);
 
     return 0;
 }

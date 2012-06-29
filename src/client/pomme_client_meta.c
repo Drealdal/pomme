@@ -158,34 +158,39 @@ e_exit:
  */
 int pomme_client_write_file(rpcc_t *rct, 
 	u_int64 inode,
+	uuid_t id,
        	u_int64 off,
-       	u_int64 len,
-       	void *data)
+       	u_int64 len)
 {
     int ret = 0;
 
     assert( rct != NULL );
     pomme_data_t *arg = (pomme_data_t *)
-	malloc(4*sizeof(pomme_data_t));
+	malloc(5*sizeof(pomme_data_t));
     assert( arg != NULL );
+
+
     char *name = POMME_META_WRITE_FILE_S;
     arg[0].size = pomme_strlen(name);
     arg[0].data = name;
 
     arg[1].size = sizeof(u_int64);
     arg[1].data = &inode;
-    
-    arg[2].size = sizeof(u_int64);
-    arg[2].data = &off;
+
+    arg[2].size = sizeof(uuid_t); // the size of the uuid
+    arg[2].data = id;
 
     arg[3].size = sizeof(u_int64);
-    arg[3].data = &len;
+    arg[3].data = &off;
+
+    arg[4].size = sizeof(u_int64);
+    arg[4].data = &len;
     
 
     pomme_data_t res;
     memset(&res, 0, sizeof(pomme_data_t));
 
-    if( ( ret = rct->sync_call(rct,4,arg,&res,0))
+    if( ( ret = rct->sync_call(rct,5,arg,&res,0))
 	    < 0 )
     {
 	debug("Stat error");

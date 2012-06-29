@@ -222,9 +222,12 @@ pomme_data_t  *pomme_write_file(pomme_ms_t *ms,
     int ret = 0;
     pomme_data_t * re = NULL;
     ms_object_t ob;
+    char out[36];
     
+
     uuid_copy(ob.id, id);
-    debug("The object to write:%s",id);
+
+
     ob.off = off;
     ob.len = len;
 

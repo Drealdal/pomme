@@ -52,9 +52,9 @@ int pomme_sync_read_file_meta(
  */
 int pomme_client_write_file(rpcc_t *rct, 
 	u_int64 inode,
+	uuid_t id,
        	u_int64 off,
-       	u_int64 len,
-       	void *data);
+       	u_int64 len);
 
 int pomme_client_stat_file(rpcc_t *rct,
 	u_int64 inode,

@@ -492,11 +492,9 @@ int pomme_get_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
 	debug("read data fail");
 	goto err;
     }
-    debug("seek");
 
     pomme_protocol_t spro;
     memset(&spro, 0, sizeof(spro));
-    debug("1");
 
     spro.op = put_data;
     spro.len = first_to_send;

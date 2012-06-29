@@ -21,7 +21,6 @@
 
 int pomme_rpc_write(int fd, int n , pomme_data_t *wrs)
 {
-    debug("write n:%d",n);
     int i,ret = 0;
     /* write the number of agument */
     if( (ret = write(fd, &n, sizeof(int))) < 0)
@@ -29,7 +28,7 @@ int pomme_rpc_write(int fd, int n , pomme_data_t *wrs)
 	debug("write error");
 	return POMME_WRITE_MSG_ERROR;
     }
-    debug("agr to write:%d",n);
+
     for( i = 0 ; i < n ; i ++ )
     {
 	write_data(&wrs[i],fd);
@@ -37,7 +36,8 @@ int pomme_rpc_write(int fd, int n , pomme_data_t *wrs)
     return ret;
 }
 
-int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
+int pomme_rpc_read(int fd, int n ,
+       	pomme_data_t *expect, pomme_data_t **re)
 {
     int i  , ret = 0;
     /* read the number of agument */
@@ -48,7 +48,6 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
 	debug("read_error");
 	return POMME_READ_MSG_ERROR; 
     }
-    debug("arg num to read:%d",rn);
 
     if(rn != 0 )
     {
@@ -62,13 +61,13 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
    {
         read_data(*re+i, fd);
    }
-   debug("size:%d %p",(*re)->size,*re);
+
    if(n != rn )
    {
        ret = POMME_UNMATCH_ARGU_NUM;
        goto unmatch;
    }
-   debug("Hehe 1");
+
    for( i = 0; i < n ; i++ )
    {
        if(expect[i].size != -1 && expect[i].size != (*re)[i].size)
@@ -77,7 +76,6 @@ int pomme_rpc_read(int fd, int n , pomme_data_t *expect, pomme_data_t **re)
 	   goto unmatch;
        } 
    }
-   debug("What wrong");
    goto ex;
 unmatch:
    debug("unmatch arg");

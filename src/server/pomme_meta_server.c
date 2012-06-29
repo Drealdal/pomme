@@ -435,6 +435,7 @@ DEF_POMME_RPC_FUNC(POMME_META_STAT_FILE)
 }
 DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
 {
+    debug("Write file");
     assert( n == write_file_arg_num );
     assert ( extra != NULL );
 
@@ -442,9 +443,11 @@ DEF_POMME_RPC_FUNC(POMME_META_WRITE_FILE)
     u_int64 inode = *(u_int64 *)arg[0].data;
     uuid_t id;
 
-    memcpy(id, arg[1].data, sizeof(uuid_t));
-    u_int64 off= *(u_int64 *)arg[1].data;
-    u_int64 len = *(u_int64 *)arg[2].data; 
+    uuid_copy(id, arg[1].data);
+
+
+    u_int64 off= *(u_int64 *)arg[2].data;
+    u_int64 len = *(u_int64 *)arg[3].data; 
 
     return pomme_write_file( ms, inode, id, off, len );
 

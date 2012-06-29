@@ -242,9 +242,11 @@ int pomme_write(const void *ptr,
     int ret = 0, i = 0;
     u_int64 len = 0, off = 0;
     u_int32 dsgroup = 0;
+    uuid_t id;
     assert( file != NULL );
     assert( ptr != NULL );
 
+    pomme_client_t *client = &GLOBAL_CLIENT;
     len = size * nmemb;
     off = file->off;
 
@@ -258,20 +260,29 @@ int pomme_write(const void *ptr,
 	debug("Get data node group infomation error");
 	goto clear;
     }
+
+    uuid_generate_time(id); 
     for( i = 0; i < dsnum; i++ )
     {
 	//TODO using multi thread 
+	debug("Not real write!!!!");
     }
-
+    char out[36];
+    uuid_unparse(id,out);
+    debug("The object id is:%s",out);
+    uuid_t id2;
+    uuid_copy(id2,id);
     if(( ret = pomme_client_write_file(file->rct,
-		    file->inode, off, len , ptr )) < 0 )
+		    file->inode,id, off, len )) < 0 )
     {
 	debug("Create meta object failure");
 	goto clear;
     }
+    file->off += len;
 
    debug("Write success");
-   return ret; 
+
+   return len; 
 
 clear:
     return ret;
