@@ -45,6 +45,11 @@ static rpcc_t * inode2rpcc(
 	pomme_client_t *client,
 	u_int64 inode);
 
+static int get_dsgroup(pomme_client_t *client,
+       	u_int32 gid,
+	int *dsnum,
+       	u_int32 **dsids);
+
 int cmp_dsnode(void *node1, void *node2)
 {
     ds_node *n1 = node1;
@@ -128,9 +133,10 @@ int pomme_client_init(pomme_client_t *client,
     client->inited = 1;
     debug("Here");
 
-    client->get_ds_info = &get_ds;
-    client->get_ms_info = &get_ms;
-    client->get_pfile = &get_pfile;
+    client->get_ds_info = get_ds;
+    client->get_ms_info = get_ms;
+    client->get_pfile = get_pfile;
+    client->get_dsgroup = get_dsgroup;
 
     return ret;
 i_err:
@@ -201,6 +207,8 @@ PFILE *pomme_open(const char *spath, int mode)
 	debug("Get rpc handle error");
 	goto clear;
     }
+    file->rct = rct;
+    debug("the inode is:%llu pinode is:%llu",file->inode,file->pinode);
 
     if( create == 1)
     {
@@ -223,7 +231,58 @@ PFILE *pomme_open(const char *spath, int mode)
 clear:
     free(fpath);
     free(file);
+    free(rct);
     return NULL;
+}
+int pomme_write(const void *ptr, 
+	size_t size,
+       	size_t nmemb,
+	PFILE *file)
+{
+    int ret = 0, i = 0;
+    u_int64 len = 0, off = 0;
+    u_int32 dsgroup = 0;
+    assert( file != NULL );
+    assert( ptr != NULL );
+
+    len = size * nmemb;
+    off = file->off;
+
+    dsgroup = file->meta->dsgroup;
+    int dsnum = 0;
+    u_int32 *dsids = NULL;
+
+    if( (ret = client->get_dsgroup(client, 
+		    dsgroup,&dsnum,&dsids)) < 0 )
+    {
+	debug("Get data node group infomation error");
+	goto clear;
+    }
+    for( i = 0; i < dsnum; i++ )
+    {
+	//TODO using multi thread 
+    }
+
+    if(( ret = pomme_client_write_file(file->rct,
+		    file->inode, off, len , ptr )) < 0 )
+    {
+	debug("Create meta object failure");
+	goto clear;
+    }
+
+   debug("Write success");
+   return ret; 
+
+clear:
+    return ret;
+}
+
+static int get_dsgroup(pomme_client_t *client,
+    u_int32 gid,
+    int *dsnum, 
+    u_int32 **dsids)
+{
+
 }
 
 
@@ -314,7 +373,7 @@ static int get_inode(pomme_client_t *client,
 	char *fpath = get_parrent(path);  
 	char *fname = get_name(path);
 	rpcc_t *rct = NULL;
-	debug("%s:%s",fpath,fname);
+	debug("parrent inode of:%s/%s",fpath,fname);
 
 	u_int64 pinode = -1;
 
@@ -343,6 +402,7 @@ clear:
 	free(fpath);
 	free(fname);
     }
+    debug("Inode Get for %s is:%llu",path,*inode);
     return ret; 
 }
 static PFILE * get_pfile(pomme_client_t *client)

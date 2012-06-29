@@ -121,10 +121,10 @@ static int start(pomme_tpool_t *ptp)
     debug("Starting thread pool:%d...", ptp->max_thread_num);
     for(; i < ptp->max_thread_num;i++)
     {
-	debug("Mark");
 	thread_ids_t *ids = malloc(sizeof(thread_ids_t));	
-	debug("Mark");
+
 	assert( ids != NULL );
+
 	memset(ids, 0, sizeof(thread_ids_t));
 	ids->rank = i;
 	queue_push_back(ptp->finished,&ids->next); 

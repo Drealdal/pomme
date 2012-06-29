@@ -59,6 +59,7 @@ struct pomme_client
     int ( *get_ms_info )(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port);
     int ( *get_ms_for_path )(pomme_client_t *client, const char *path);
     PFILE *( *get_pfile )(pomme_client_t *client);
+    int ( *get_dsgroup)(pomme_client_t *client, u_int32 gid,int *dsnum, u_int32 **dsids);
 };
 int cmp_dsnode(void *node1, void *node2);
 int cmp_msnode(void *node1, void *node2);

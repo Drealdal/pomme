@@ -130,11 +130,11 @@ pomme_data_t *pomme_create_file(
     int flags = 0;
     flags |= DB_NOOVERWRITE;
 
-    debug("Before put");
+    debug("Before put:%llu",inode);
     if( ( ret = ms->meta_db->put(ms->meta_db, NULL, 
 		    &key, &val, flags)) != 0 )
     {
-	debug("duplicate file");
+	debug("duplicate file:%s",db_strerror(ret));
 	pomme_data_init(&re,POMME_META_FILE_EXIST);
 	goto ret;
     }

@@ -19,6 +19,7 @@
 #define _POMME_CLINET_FILE_H
 #include "pomme_file.h"
 #include "pomme_meta.h"
+#include "pomme_rpcc.h"
 
 typedef struct client_object
 {
@@ -30,9 +31,12 @@ typedef struct client_object
 }cobject_t;
 typedef struct pomme_client_file
 {
+    int type;
     u_int64 inode;
     u_int64 pinode;
+    u_int64 off;
     /*  meta and object is point to the same memory */
+    rpcc_t *rct;
     pomme_file_t *meta;
     ms_object_t *object;
     int ocount;// the object count when opening file

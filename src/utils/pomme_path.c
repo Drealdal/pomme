@@ -165,7 +165,6 @@ char *get_name(char *fullpath)
 	debug("%c",fullpath[j]);
 	j--;
     }
-    debug("%d",j);
     if( j < 0  )
     {
 	ret = "";
@@ -177,8 +176,6 @@ char *get_name(char *fullpath)
 	i--;
     }
     i++;
-    debug("%d",i);
-    debug("%s %s",fullpath+i, fullpath+j);
 
     ret = malloc(j-i+2);
     assert(ret != NULL);

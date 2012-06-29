@@ -32,7 +32,6 @@ int pomme_sync_create_file(rpcc_t *rct,
     assert( rct != NULL );
     assert( fd != NULL );
 
-    memset(fd, 0, sizeof(PFILE));
 
     pomme_data_t *arg = malloc(3*sizeof(pomme_data_t));
     assert( arg != NULL );
@@ -42,6 +41,7 @@ int pomme_sync_create_file(rpcc_t *rct,
 
     arg[1].size = sizeof(u_int64); 
     arg[1].data = &fd->inode;
+    debug("Create file for %p inode:%llu\n",fd,fd->inode);
 
     arg[2].size = sizeof(int);
     arg[2].data = &mode;
@@ -347,5 +347,11 @@ int pomme_client_extend_lock(rpcc_t *tct, char *path,
 int pomme_client_release_lock(rpcc_t *rct, char *path,
 	int previous)
 {
+    return 0;
+}
+int pomme_client_get_dsgroup(rpcc_t *rct,
+       	u_int32 gid, int dsnum, u_int32 *dss)
+{
+    int ret = 0;
     return 0;
 }
