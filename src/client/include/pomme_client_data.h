@@ -24,14 +24,6 @@
 #include "pomme_msg.h"
 
 
-typedef struct pomme_client
-{
-    /**
-     * @brief meta server, the root server of the cluster
-     */
-   int mserver_handle; 
-
-}pomme_client_t;
 
 /**
  * @brief pomme_put_data : put data to an connection

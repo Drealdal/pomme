@@ -314,6 +314,7 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
 	hb->mygroup = *((u_int32 *)re->data + 1 );
 	hb->myid = *((u_int32 *)re->data );
     }
+    debug("Info write to database:ip %u port %u",hb->ip,hb->port);
 
     DBT key, val;
     memset( &val, 0, sizeof(DBT));
@@ -325,7 +326,6 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
     val.size = sizeof(pomme_hb_t) ;
     val.data = (u_int32 *)hb ;
 
-    debug("OK");
       if ( (ret = ms->data_nodes->put(ms->data_nodes, 
 		    NULL,&key, &val, 0 )) != 0 )
     {
@@ -347,12 +347,13 @@ pomme_data_t *pomme_heart_beat(pomme_ms_t *ms, pomme_hb_t *hb)
 
 pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id)
 {
+    debug("Get Ds");
     int ret = 0;
     pomme_data_t *re = NULL;
 
     DBT key, val;
-    memset(&key, 0, sizeof(key));
-    memset(&val, 0, sizeof(val));
+    memset(&key, 0, sizeof(DBT));
+    memset(&val, 0, sizeof(DBT));
 
     pomme_hb_t hb;
     key.size = sizeof(u_int32);
@@ -364,6 +365,7 @@ pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id)
     val.data = &hb;
 
     //int
+    debug("Get Ds");
     if( ( ret = ms->data_nodes->get(ms->data_nodes, NULL,
 		    &key, &val, 0 )) != 0)
     {
@@ -381,6 +383,7 @@ pomme_data_t *pomme_get_ds(pomme_ms_t *ms, u_int32 id)
     ds_node *p = re->data;
     p->ip = hb.ip;
     p->port = hb.port;
+    debug("Infor return to client: ip %u port %u",hb.ip,hb.port);
 
 e_xit:
     return re; 
@@ -567,8 +570,8 @@ int ms_create_object(pomme_ms_t *ms, uuid_t id)
 }
 int  ms_create_ds(pomme_ms_t *ms, u_int32 *id, u_int32 *group)
 {
-    *id = 1;
-    *group = 1;
+    *id = 0;
+    *group = 0;
     return 0;
 }
 

@@ -53,8 +53,11 @@ int pomme_client_put_data(
     	goto err;
     }
 
+//    ret = pomme_send(handle, buf->data,
+//    		pomme_msg_len((&pro)), flags);
+
     ret = pomme_send(handle, buf->data,
-    		pomme_msg_len((&pro)), flags);
+    		buf->cur, flags);
     if( ret < 0 )
     {
     	debug("send package failure");
@@ -151,10 +154,13 @@ int pomme_client_get_data(uuid_t id,
 
     size_t tr_len = rpro.len;
     memcpy(buffer,t_buffer, tr_len);
+
     while( tr_len < rpro.total_len )
     {
 	size_t tmp = 0;
-	ret = pomme_recv(handle, buffer+tr_len, rpro.total_len - tr_len, &tmp, flags);
+	ret = pomme_recv(handle, buffer+tr_len, 
+		rpro.total_len - tr_len, 
+		&tmp, flags);
 	if( ret < 0 )
 	{
 	    debug("recv err,data total get:%d",tr_len);
@@ -179,7 +185,7 @@ int pomme_client_close(int handle)
     pomme_protocol_t pro;
     memset( &pro, 0, sizeof(pro));
 
-    pro.op = pomme_close;
+    pro.op = data_close;
     pomme_pack_t *buf = NULL;
     if( ( ret = pack_msg(&pro, &buf) ) < 0 )
     {

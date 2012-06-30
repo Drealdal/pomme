@@ -363,7 +363,6 @@ int pomme_fcopy(const char *src, const char *dst)
 
     while( ( ret = fread(buffer, state.st_blksize,1,in)) > 0 )
     {
-
 	i = 0;
 	if(has_hole)
 	{

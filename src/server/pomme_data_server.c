@@ -154,6 +154,7 @@ int pomme_ds_init( pomme_ds_t *ds,
     ds->metaip = inet_addr("127.0.0.1");
     ds->metaport = POMME_META_RPC_PORT;
 
+
     ret = pomme_env_init(&ds->env, 
 	    env_c_flags,env_o_flags,
 	    home,
@@ -398,7 +399,6 @@ int pomme_put_object(pomme_ds_t *ds,int handle, pomme_protocol_t *pro)
     key.size = sizeof(pro->id); 
     DB *pdb = ds->env.db_meta;
 
-    debug("Create object:%s",pro->id);
 
     ret = pdb->put(pdb, NULL, &key, &val,flags);
     if( ret < 0 )
@@ -552,6 +552,7 @@ static int handle_request(pomme_ds_t *ds,int handle)
 
     pomme_protocol_t pro;
     memset( &pro, 0, sizeof(pomme_protocol_t));
+    debug("Receved buffer lenght:%d",r_len);
 
     pomme_pack_t *p_buffer = NULL;
     ret = pomme_pack_create( &p_buffer,
@@ -604,7 +605,7 @@ int server(pomme_ds_t *ds)
     bzero(&addr, sizeof(addr));
 
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(POMME_DATA_PORT);
+    addr.sin_port = htons(ds->port);
 
     ret = bind(socid, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
     if( ret < 0 )
@@ -662,7 +663,7 @@ int server(pomme_ds_t *ds)
 		    goto err_exit;
 		}
 		setnonblocking(conn_sock);
-		ev.events = EPOLLIN | EPOLLET;
+		ev.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
 		ev.data.fd = conn_sock;
 
 		if( epoll_ctl(epid, EPOLL_CTL_ADD, conn_sock, &ev) < 0 )
@@ -694,6 +695,7 @@ void pomme_ds_heart_beat(int signo)
     pomme_hb_t hb;
     memset(&hb, 0, sizeof(pomme_hb_t));
 
+    debug("The ip to use:%u :%u",pds->ip,pds->port);
     hb.ip = pds->ip;
     hb.port = pds->port;
     hb.myid = pds->myid;

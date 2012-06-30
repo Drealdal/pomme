@@ -90,6 +90,7 @@ int pomme_pack_distroy( pomme_pack_t **pack )
     {
 	free(pBuf->data);
     }
+
     if( IS_PACK_NEED_FREE(pBuf))
     {
 	free(pBuf);
@@ -101,12 +102,12 @@ err:
 
 int pack_data(void *data , size_t size, pomme_pack_t *pack)
 {
-
     int ret = 0;
     void *tP = NULL;
     assert( pack!=NULL );
 
-    debug("SIZE TO PACK:%d %d",pack->cur,size);
+    fprintf(stderr,"I hate!");
+    debug("SIZE TO PACK:%d %d total_size:%d",pack->cur,size,pack->size);
 
     if( ! IS_VALID_PACK(pack) )
     {
@@ -124,6 +125,7 @@ int pack_data(void *data , size_t size, pomme_pack_t *pack)
 	    goto err;
 	}
 	pack->size += POMME_PACKAGE_SIZE;
+	debug("Realloc:%d",pack->size);
 	tP = realloc(pack->data, pack->size);
 	if( NULL == tP )
 	{
@@ -139,6 +141,7 @@ int pack_data(void *data , size_t size, pomme_pack_t *pack)
 	debug("data put:%d",*(pack->data+pack->cur));
     }
     pack->cur += size;
+    debug("CurSize:%d",pack->cur);
 err:
     return ret;
 }
@@ -146,7 +149,7 @@ int unpack_data(void **data, size_t length, pomme_pack_t *pack)
 {
     int ret = 0;
     assert( pack != NULL );
-    debug("MAGIC:%d",pack->magic);
+    debug("MAGIC:%d total_len:%d",pack->magic,pack->size);
     if( !( IS_VALID_PACK(pack)) )
     {
 	debug("Not valid package");
@@ -170,6 +173,7 @@ int unpack_data(void **data, size_t length, pomme_pack_t *pack)
 	debug("data get:%d",*(int *)(pack->data + pack->cur) );
     }
     pack->cur += length;
+    debug("CurSize:%d",pack->cur);
 err:
     return ret;
 }

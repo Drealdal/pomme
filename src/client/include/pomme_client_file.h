@@ -32,6 +32,7 @@ typedef struct client_object
 typedef struct pomme_client_file
 {
     int type;
+    u_int32 ms;
     u_int64 inode;
     u_int64 pinode;
     u_int64 off;

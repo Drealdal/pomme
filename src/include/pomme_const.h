@@ -85,8 +85,8 @@
 /*
  * const data definitions
  */
-#define POMME_PACKAGE_MAGIC 0x1e
-#define POMME_STORAGE_MAGIC 0X1e
+#define POMME_PACKAGE_MAGIC 0x77
+#define POMME_STORAGE_MAGIC 0X77
 
 #define POMME_DATA_LOG_LEVEL POMME_LOG_ALL
 #define POMME_META_LOG_LEVEL POMME_LOG_ALL
@@ -113,9 +113,9 @@
 /*
  * configure change to configure file???
  */
-#define POMME_DATA_PORT 0x1e00
-#define POMME_RPC_PORT 0x1E01
-#define POMME_META_RPC_PORT 0x1e02
+#define POMME_DATA_PORT 0x7700
+#define POMME_RPC_PORT 0x7701
+#define POMME_META_RPC_PORT 0x7702
 
 #define POMME_META_FILE "/home/zhumeiqi/work/pomme/data/pomme_meta.db"
 #define POMME_META_NAME "pomme_meta"
@@ -187,6 +187,12 @@
 
 #define POMME_RELEASE_LOCK release_lock
 #define POMME_RELEASE_LOCK_S "release_lock"
+/*  function of data nodes */
+#define POMME_DATA_GET_DATA get_data
+#define POMME_DATA_GET_DATA_S "get_data"
+
+#define POMME_DATA_PUT_DATA put_data
+#define POMME_DATA_PUT_DATA_S "put_data"
 
 #endif
 

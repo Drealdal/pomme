@@ -20,9 +20,9 @@ extern pomme_ds_t GLOBAL_DS;
 
 void usage(int argc, char *argv[])
 {
-    if( argc < 2 )
+    if( argc < 3 )
     {
-	err_exit("usage:%s myid",argv[0]);
+	err_exit("usage:%s myid port",argv[0]);
     }
 }
 int main(int argc, char *argv[])
@@ -33,9 +33,12 @@ int main(int argc, char *argv[])
 
     usage(argc,argv);
     pomme_ds_t *ds = &GLOBAL_DS;
+    memset(ds, 0 , sizeof(pomme_ds_t));
 
     ds->myid = atoi(argv[1]);
-    memset(ds, 0 , sizeof(pomme_ds_t));
+    ds->port = atoi(argv[2]);
+    ds->ip = inet_addr("127.0.0.1");
+    
 
 /*
  * flags init

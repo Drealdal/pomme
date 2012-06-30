@@ -467,7 +467,7 @@ DEF_POMME_RPC_FUNC(POMME_META_GET_DS)
     assert( n == heart_beat_arg_num );
     assert( extra != NULL );
     pomme_ms_t *ms = (pomme_ms_t *) extra;
-    u_int32 id = *(u_int32 *)arg[1].data;
+    u_int32 id = *(u_int32 *)arg[0].data;
 
     return pomme_get_ds(ms,id);
 }

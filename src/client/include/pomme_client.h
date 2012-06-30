@@ -21,6 +21,7 @@
 #include "pomme_meta.h"
 #include "pomme_queue.h"
 #include "pomme_client_file.h"
+#include "pomme_client_data.h"
 #include "pomme_mapping.h"
 
 
@@ -55,11 +56,23 @@ struct pomme_client
     int max_count;
 
 
-    int ( *get_ds_info )(pomme_client_t *client, u_int32 msid, u_int32 id, u_int32 *ip, u_int16 *port); 
-    int ( *get_ms_info )(pomme_client_t *client, u_int32 id, u_int32 *ip, u_int16 *port);
-    int ( *get_ms_for_path )(pomme_client_t *client, const char *path);
+    int ( *get_ds_info )(
+	    pomme_client_t *client,
+	    u_int32 msid, u_int32 id,
+	    u_int32 *ip, 
+	    u_int16 *port); 
+
+    int ( *get_ms_info )(pomme_client_t *client,
+	    u_int32 id,
+	    u_int32 *ip,
+	    u_int16 *port);
+
+    int ( *get_ms_for_path )(pomme_client_t *client,
+	    const char *path);
     PFILE *( *get_pfile )(pomme_client_t *client);
-    int ( *get_dsgroup)(pomme_client_t *client, u_int32 gid,int *dsnum, u_int32 **dsids);
+
+    int ( *get_dsgroup)(pomme_client_t *client, 
+	    u_int32 gid,int *dsnum, u_int32 **dsids);
 };
 int cmp_dsnode(void *node1, void *node2);
 int cmp_msnode(void *node1, void *node2);
@@ -73,8 +86,23 @@ int pomme_client_distroy(pomme_client_t *client);
 PFILE * pomme_open(const char *path,int mode);
 void pomme_close(PFILE *file);
 
-int pomme_write(const void *ptr,size_t size, size_t nmemb, PFILE *file);
+int pomme_write(const void *ptr,
+	size_t size, 
+	size_t nmemb, 
+	PFILE *file);
 
-int pomme_read(void *ptr,size_t size, size_t nmemb, PFILE *stream);
+int pomme_read(void *ptr,
+	size_t size, 
+	size_t nmemb, 
+	PFILE *stream);
 
+typedef struct send_arg
+{
+    u_int32 dsid;
+    uuid_t objectid;
+    PFILE *file;
+    void *data;
+    int len;
+    int flags;// reserved
+}send_arg_t;
 #endif

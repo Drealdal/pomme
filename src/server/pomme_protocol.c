@@ -38,7 +38,7 @@ int pack_msg(pomme_protocol_t *pro, pomme_pack_t **buf)
     pomme_pack(&pro->total_len, size_t , *buf);
 
 //    pomme_pack(&pro->id, u_int64 ,*buf);
-    pomme_pack_array(pro->id,unsigned char,  16,*buf);
+    pomme_pack_array(pro->id,unsigned char, sizeof(uuid_t), *buf);
     pomme_pack(&pro->offset, size_t,*buf);
 
     pomme_pack_array(&pro->data, char, pro->len , *buf);
@@ -64,7 +64,7 @@ int unpack_msg(pomme_protocol_t *pro, pomme_pack_t *buf)
 
     pomme_unpack( (void **)&p_tlen, size_t, buf);
     pomme_unpack_array( &pro->id, unsigned char, &len , buf);
-    assert(len == 16);
+    assert(len == sizeof(uuid_t));
 
     pomme_unpack( (void **)&p_off, size_t ,buf);
     pomme_unpack_array( (void **)&pro->data, char, &pro->len, buf);
@@ -83,7 +83,7 @@ static int get_proto_type(pomme_protocol_t * t)
 	case get_data:
 		printf("get_data\n");
 		break;
-	case pomme_close:
+	case data_close:
 		printf("close_conn\n");
 		break;
 	default:

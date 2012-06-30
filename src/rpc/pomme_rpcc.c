@@ -43,8 +43,6 @@ static int sync_call(rpcc_t *rh, int n,
 	debug("write error");
 	return POMME_WRITE_ARGU_ERROR;
     }
-    debug("write fname");
-
 
     if( ( ret = pomme_rpc_write(conn, 
 		    n-1,argu+1) ) < 0 )

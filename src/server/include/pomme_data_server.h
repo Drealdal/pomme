@@ -93,6 +93,7 @@ typedef struct pomme_ds
 	/*  myid */
 	int myid;
 
+
 }pomme_ds_t; /*
  *@param: init an pomme_env_t structure
  *@param: c_flags, the create flags for db_env

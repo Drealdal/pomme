@@ -88,22 +88,46 @@ struct pomme_ms
     int (*start)(pomme_ms_t *ms);
     int (*stop)(pomme_ms_t *ms);
     /* file management */
-    pomme_data_t * (*POMME_META_CREATE_FILE)(void *ms,const int n , const pomme_data_t *arg);
-    pomme_data_t * (*POMME_META_GET_INODE)(void *ms,const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_CREATE_FILE)(void *ms,
+	    const int n , 
+	    const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_GET_INODE)(void *ms,
+	    const int n,
+	    const pomme_data_t *arg);
 
-    pomme_data_t * (*POMME_META_STAT_FILE)(void *ms, const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_STAT_FILE)(void *ms,
+	    const int n,
+	    const pomme_data_t *arg);
     // get all the object of the file
-    pomme_data_t * (*POMME_META_READ_FILE)(void *ms, const int n , const pomme_data_t *arg);
-    pomme_data_t * (*POMME_META_WRITE_FILE)(void *ms, const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_READ_FILE)(void *ms,
+	    const int n ,
+	    const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_WRITE_FILE)(void *ms, 
+	    const int n ,
+	    const pomme_data_t *arg);
     /* data server group management */
-    pomme_data_t * (*POMME_META_HEART_BEAT)(void *ms, const int n, const pomme_data_t *arg);
-    pomme_data_t * (*POMME_META_GET_DS)(void *ms, const int n, const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_HEART_BEAT)(void *ms, 
+	    const int n, 
+	    const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_GET_DS)(void *ms, 
+	    const int n,
+	    const pomme_data_t *arg);
     /*  for the web  */
-    pomme_data_t * (*POMME_META_ALL_DS)(void *ms, const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_META_ALL_DS)(void *ms,
+	    const int n,
+	    const pomme_data_t *arg);
     /*  lock */
-    pomme_data_t * (*POMME_LOCK)(void *ms, const int n , const pomme_data_t *arg);
-    pomme_data_t * (*POMME_EXTEND_LOCK)(void *ms, const int n , const pomme_data_t *arg);
-    pomme_data_t * (*POMME_RELEASE_LOCK)(void *ms, const int n , const pomme_data_t *arg);
+    pomme_data_t * (*POMME_LOCK)(void *ms,
+	    const int n,
+	    const pomme_data_t *arg);
+
+    pomme_data_t * (*POMME_EXTEND_LOCK)(void *ms,
+	    const int n,
+	    const pomme_data_t *arg);
+
+    pomme_data_t * (*POMME_RELEASE_LOCK)(void *ms,
+	    const int n,
+	    const pomme_data_t *arg);
 
     pomme_data_t * (*join_dsgroup)(void *ms,int n , pomme_data_t *arg);
     pomme_data_t * (*leave_dsgroup)(void *ms, int n , pomme_data_t *arg);

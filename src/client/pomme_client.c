@@ -25,6 +25,15 @@
 
 pomme_client_t GLOBAL_CLIENT;
 
+/**
+ * @brief send_data runtine for data send thread
+ *
+ * @param data
+ *
+ * @return 
+ */
+void * send_data(void *data);
+
 static int get_ds(pomme_client_t *client, 
         u_int32 msid,	
 	u_int32 id,
@@ -208,6 +217,7 @@ PFILE *pomme_open(const char *spath, int mode)
 	goto clear;
     }
     file->rct = rct;
+    
     debug("the inode is:%llu pinode is:%llu",file->inode,file->pinode);
 
     if( create == 1)
@@ -243,6 +253,14 @@ int pomme_write(const void *ptr,
     u_int64 len = 0, off = 0;
     u_int32 dsgroup = 0;
     uuid_t id;
+    send_arg_t *arg = NULL;
+
+    void *tret = NULL;
+    int failure = 0;
+
+    int dsnum = 0;
+    u_int32 *dsids = NULL;
+
     assert( file != NULL );
     assert( ptr != NULL );
 
@@ -251,27 +269,63 @@ int pomme_write(const void *ptr,
     off = file->off;
 
     dsgroup = file->meta->dsgroup;
-    int dsnum = 0;
-    u_int32 *dsids = NULL;
 
     if( (ret = client->get_dsgroup(client, 
 		    dsgroup,&dsnum,&dsids)) < 0 )
     {
 	debug("Get data node group infomation error");
-	goto clear;
+	return -1;
     }
 
     uuid_generate_time(id); 
+
+    pthread_t tids[dsnum];
+    memset(tids, 0, sizeof(pthread_t)*dsnum);
     for( i = 0; i < dsnum; i++ )
     {
-	//TODO using multi thread 
-	debug("Not real write!!!!");
+	 arg = malloc(sizeof(send_arg_t));
+	
+	assert(arg != NULL);
+	memset(arg, 0, sizeof(send_arg_t));
+
+	arg->dsid = dsids[i];
+	uuid_copy(arg->objectid, id);
+
+	arg->file = file;
+	arg->len = len;
+	arg->data = ptr;
+
+	if( (ret = pthread_create(&tids[i],NULL,
+			send_data,(void *)arg) ) != 0 )
+	{
+	    debug("Create send thread failure");
+	    goto clear;
+	}
     }
-    char out[36];
-    uuid_unparse(id,out);
-    debug("The object id is:%s",out);
-    uuid_t id2;
-    uuid_copy(id2,id);
+
+
+    for( i = 0; i < dsnum; i++ )
+    {
+	if( ( ret  = pthread_join(tids[i],&tret) ) != 0 )
+	{
+	    debug("Pthread join failure");
+	    ret = -1;
+	    goto clear;
+	} 
+	if( (int)tret != 0 )
+	{
+	    // TODO 
+	    debug("Put Data failure");
+	    failure = 1;
+	}
+    }
+
+    if( failure == 1 )
+    {
+	ret = -1;
+	goto clear;
+    }
+
     if(( ret = pomme_client_write_file(file->rct,
 		    file->inode,id, off, len )) < 0 )
     {
@@ -293,9 +347,11 @@ static int get_dsgroup(pomme_client_t *client,
     int *dsnum, 
     u_int32 **dsids)
 {
-
+    *dsnum = 1;
+    *dsids = malloc(*dsnum * sizeof(int));
+    *dsids[0] = 0;
+    return 0;
 }
-
 
 static int get_ds(pomme_client_t *client, 
         u_int32 msid,	
@@ -476,4 +532,50 @@ static rpcc_t * inode2rpcc(
 	}
 clear:
 	return rct;
+}
+void * send_data(void *data)
+{
+    int ret = 0;
+    pomme_client_t *client = &GLOBAL_CLIENT;
+    send_arg_t *arg = (send_arg_t *)data;
+    PFILE *file = arg->file;
+
+    u_int32 ip,ms;
+    u_int16 port;
+    int handle;
+
+    if ( ( ret = client->msmap.inode2ms(file->inode,&ms)) < 0 )
+    {
+	debug("Map inode:%llu error",file->inode);
+	goto clear;
+    }
+
+    if( ( ret = client->get_ds_info(client,
+		    ms, arg->dsid,&ip, &port)) < 0 )
+    {
+	debug("Get infomation for %u failure",arg->dsid);
+	goto clear;
+    }	
+
+   debug("Data node: %u:%u",ip,port); 
+   if( (ret =  create_client(ip,port,
+		   &handle) ) < 0 ) 
+   {
+       // TODO , collect infomation to report failures:
+       debug("Connect error");
+       goto clear;
+   }
+   if( ( ret = pomme_client_put_data(arg->objectid,
+		   handle, arg->data,
+		   arg->len,arg->flags) ) < 0 )
+   {
+       debug("Put data error");
+       goto clear;
+   }  
+   return (void *) 0 ;
+clear:
+   close(handle);
+   free(data);
+   return (void *)ret;
+
 }
