@@ -94,7 +94,7 @@ int pomme_write(const void *ptr,
 int pomme_read(void *ptr,
 	size_t size, 
 	size_t nmemb, 
-	PFILE *stream);
+	PFILE *file);
 
 typedef struct send_arg
 {

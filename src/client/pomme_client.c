@@ -249,6 +249,7 @@ int pomme_write(const void *ptr,
        	size_t nmemb,
 	PFILE *file)
 {
+    // TODO need add lock ?
     int ret = 0, i = 0;
     u_int64 len = 0, off = 0;
     u_int32 dsgroup = 0;
@@ -338,6 +339,22 @@ int pomme_write(const void *ptr,
 
    return len; 
 
+clear:
+    return ret;
+}
+int pomme_read(void *ptr,
+	size_t size,
+	size_t nmemb,
+	PFILE *file)
+{
+    int ret = 0;
+    assert( ptr != NULL );
+    assert( file != NULL );
+
+    u_int64 off = file->off;
+    u_int64 len = size * nmemb;
+
+    return ret;
 clear:
     return ret;
 }
