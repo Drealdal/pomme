@@ -2,7 +2,7 @@ CC = gcc
 
 INCLUDE_DIR =./include server/include client/include rpc/include common/include $(BDB_HOME)/include /usr/include/libxml2
 SOURCE_DIR = common server client utils rpc test server/test  
-LIB_DIR=$(BDB_HOME)/lib 
+LIB_DIR =$(BDB_HOME)/lib 
 BIN_DIR=./bin
 LIB_INCLUDE_FLAGS=$(addprefix -L,$(LIB_DIR)) 
 INCLUDE_FLAGS = $(addprefix -I, $(INCLUDE_DIR) $(SYS_INCLUDE))

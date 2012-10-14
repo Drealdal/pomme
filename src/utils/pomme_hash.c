@@ -135,7 +135,9 @@ static inline int distroy_hash_node(pomme_hash_node_t **node)
 /*-----------------------------------------------------------------------------
  *  add an item into the hash table
  *-----------------------------------------------------------------------------*/
-int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
+int pomme_hash_put(pomme_hash_t *hash, 
+		pomme_data_t *key, 
+		pomme_data_t *data)
 {
 	if( hash == NULL )
 	{
@@ -147,15 +149,19 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 		debug("trying to put null key or null data to hash table");
 		return -1;
 	}
+
 	u_int32 ipos = (*hash->hash_func)(key->data,key->size)%(hash->size);
+
 	pomme_link_t *p_link = &hash->table[ipos];
 	pomme_hash_node_t *pos = NULL;
+
 	list_for_each_entry(pos,p_link,link)
 	{
 		if(&pos->link == p_link)
 		{
 			break;
 		}
+
 		if( (pos->key_len == key->size) &&
 				( 0 == hash->cmp_func(key->data,pos->key)))
 		{
@@ -167,6 +173,7 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 				 **/
 				pos->value = data->data;
 				data->data = pos->value;
+
 				int t = pos->value_len;
 				pos->value_len = data->size;
 				data->size = t;
@@ -177,14 +184,17 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 				 * so we copy the data into the original mem and update
 				 * the new length.
 				 */
+
 				pos->value_len = data->size;
 				memcpy(pos->value,data->data,data->size);
+
 			}else{
 				/* The need memory size is bigger than current
 				 * memory size ,so we realloc the mem,we need handle the 
 				 * */
 				free(pos->value);
 				pos->value = malloc(data->size);
+
 				if(pos->value == NULL)
 				{
 
@@ -192,16 +202,19 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 					return -1;
 
 				}
+
 				memcpy(pos->value,data->data,data->size);
 				pos->value_len = data->size;
 			}
 			return 0;
 		}
+
 		if(pos->link.next == LIST_POSITION_2)
 		{
 			break;
 		}
 	}
+
 	pomme_hash_node_t *node = malloc(sizeof(pomme_hash_node_t));
 	if(node == NULL)
 	{
@@ -209,24 +222,29 @@ int pomme_hash_put(pomme_hash_t *hash, pomme_data_t *key, pomme_data_t *data)
 		debug("Malloc Error");
 		goto malloc_node_error;
 	}
+
 	memset(node,0,sizeof(pomme_hash_node_t));
 	init_link(&(node->link));
 	//INIT_LINK((&(node->link)),struct pomme_hash_node,link);
 	node->key_len = key->size;
 	node->key = malloc(key->size);
+
 	if( node->key == NULL)
 	{
 		debug("Malloc Error");
 		goto malloc_key_error;
 	}
+
 	memcpy(node->key,key->data,key->size);
 	node->value_len = data->size;
 	node->value = malloc(data->size);
+
 	if( node->value == NULL )
 	{
 		debug("Malloc Error");
 		goto malloc_data_error;
 	}
+
 	memcpy(node->value,data->data,data->size);
 	link_add(&node->link,p_link);
 	return 0;

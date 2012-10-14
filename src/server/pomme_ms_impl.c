@@ -437,7 +437,7 @@ err:
 pomme_data_t *pomme_extend_lock(pomme_ms_t *ms, 
 	u_int64 inode,
 	time_t previous,
-       	time_t interval)
+    time_t interval)
 {
    int ret = 0;
    pomme_data_t *re = NULL;

@@ -1,5 +1,3 @@
-6: rewrite makefile system  // ok
-0.5: implement of rpc && thread_pool // ok
 	1: need test(4,1 deadline)
 1:timeout of connections
 2:concurrent write to storage file
